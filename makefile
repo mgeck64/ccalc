@@ -30,7 +30,7 @@ RELDIR = release
 RELEXE = $(RELDIR)/$(EXE)
 RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
 RELDEPS = $(RELOBJS:%.o=%.d)
-RELFLAGS = -O3 -DNDEBUG
+RELFLAGS = -Os -DNDEBUG
 
 .PHONY: all clean debug prep release remake
 
