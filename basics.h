@@ -13,11 +13,6 @@ using int_type = std::int64_t;
 static_assert(uint_type(-1) == ~uint_type(0)); // two's compliment machine
 static_assert(int_type(-2) >> int_type(1) == int_type(-1)); // right-shift is arithmetic
 
-// we may want to support float_type = long double someday but there are some
-// considerations: calc_outputter uses ieee_double_parts class (assumes IEEE
-// double format) and precision of complex_type::lgamma and complex_type::gamma
-// is limited to double.
-
 static constexpr auto pi = 3.1415926535897932384626433832795028841971693993751058209749445923L;
 static constexpr auto e = 2.7182818284590452353602874713526624977572470936999595749669676277L;
 
