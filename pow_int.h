@@ -1,4 +1,3 @@
-#pragma once
 #ifndef POW_INT_H
 #define POW_INT_H
 
@@ -9,7 +8,7 @@
 #include <cmath>
 #include <type_traits>
 
-namespace calc_val {    
+namespace calc_val {
 
 namespace helper { // implementation helper; not meant for public use
     auto pow_uint(std::uintmax_t x, std::uintmax_t e) -> std::uintmax_t;
