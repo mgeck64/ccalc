@@ -1,4 +1,3 @@
-#pragma once
 #ifndef CALC_OUTPUTTER_H
 #define CALC_OUTPUTTER_H
 

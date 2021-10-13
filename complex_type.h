@@ -1,4 +1,3 @@
-#pragma once
 #ifndef COMPLEX_TYPE_H
 #define COMPLEX_TYPE_H
 

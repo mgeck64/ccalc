@@ -1,4 +1,3 @@
-#pragma once
 #ifndef CALC_ARGS_H
 #define CALC_ARGS_H
 

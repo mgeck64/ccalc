@@ -1,4 +1,3 @@
-#pragma once
 #ifndef IS_DIGIT_H
 #define IS_DIGIT_H
 

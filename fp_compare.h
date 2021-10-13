@@ -1,4 +1,3 @@
-#pragma once
 #ifndef FP_COMPARE_H
 #define FP_COMPARE_H
 

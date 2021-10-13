@@ -1,4 +1,3 @@
-#pragma once
 #ifndef LOOKAHEAD_CALC_LEXER_H
 #define LOOKAHEAD_CALC_LEXER_H
 
@@ -13,7 +12,7 @@ public:
 
     lookahead_calc_lexer(std::string_view input, calc_val::radices default_number_radix)
         : lexer{input, default_number_radix} {}
-        
+
     void default_number_radix(calc_val::radices default_number_radix)
     {lexer.default_number_radix(default_number_radix);}
 

@@ -1,4 +1,3 @@
-#pragma once
 #ifndef IEEE_FP_PARTS_H
 #define IEEE_FP_PARTS_H
 
@@ -61,7 +60,7 @@ private:
     static constexpr auto fraction_mask = std::uint64_t(0x000fffffffffffffL);
 
 public:
-    static constexpr auto is_specialized = true;    
+    static constexpr auto is_specialized = true;
 
     constexpr explicit ieee_fp_parts(ieee_double d) noexcept
     {std::memcpy(&i, &d, sizeof(i));} // presumably the proper way to do type punning in c++
@@ -126,12 +125,12 @@ private:
     static constexpr auto fraction_mask = std::uint64_t(0x7fffffffffffffffL);
 
 public:
-    static constexpr auto is_specialized = true;    
+    static constexpr auto is_specialized = true;
 
     constexpr explicit ieee_fp_parts(x86_ext_double xd) noexcept {
         // presumably the proper way to do type punning in c++
         auto p = reinterpret_cast<std::uint64_t*>(&xd);
-        memcpy(&lo, p, sizeof(lo)); 
+        memcpy(&lo, p, sizeof(lo));
         memcpy(&hi, p + 1, sizeof(hi));
     }
 

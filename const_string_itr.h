@@ -1,4 +1,3 @@
-#pragma once
 #ifndef CONST_STRING_ITR_H
 #define CONST_STRING_ITR_H
 

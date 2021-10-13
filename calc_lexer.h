@@ -1,4 +1,3 @@
-#pragma once
 #ifndef CALC_LEXER_H
 #define CALC_LEXER_H
 

@@ -1,4 +1,3 @@
-#pragma once
 #ifndef CALC_PARSER_H
 #define CALC_PARSER_H
 

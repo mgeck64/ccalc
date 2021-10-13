@@ -1,4 +1,3 @@
-#pragma once
 #ifndef CALC_PARSE_ERROR_H
 #define CALC_PARSE_ERROR_H
 

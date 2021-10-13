@@ -1,4 +1,3 @@
-#pragma once
 #ifndef STREAM_STATE_RESTORER_H
 #define STREAM_STATE_RESTORER_H
 

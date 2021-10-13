@@ -1,4 +1,3 @@
-#pragma once
 #ifndef COMPLEX_EXTRAS_H
 #define COMPLEX_EXTRAS_H
 
