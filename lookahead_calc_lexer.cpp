@@ -1,4 +1,4 @@
-#include "lookahead_calc_lexer.h"
+#include "lookahead_calc_lexer.hpp"
 
 auto lookahead_calc_lexer::peek_token() -> const calc_token& {
     if (!peeked) {

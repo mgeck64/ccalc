@@ -1,5 +1,5 @@
-#include "calc_lexer.h"
-#include "calc_args.h"
+#include "calc_lexer.hpp"
+#include "calc_args.hpp"
 
 auto calc_lexer::get_token() -> calc_token {
     while (in_itr && std::isspace(*in_itr)) // eat whitespace

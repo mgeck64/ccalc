@@ -1,6 +1,6 @@
-#include "calc_parser.h"
-#include "calc_parse_error.h"
-#include "calc_args.h"
+#include "calc_parser.hpp"
+#include "calc_parse_error.hpp"
+#include "calc_args.hpp"
 #include <algorithm>
 #include <cmath>
 

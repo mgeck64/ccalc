@@ -1,7 +1,7 @@
-#ifndef LOOKAHEAD_CALC_LEXER_H
-#define LOOKAHEAD_CALC_LEXER_H
+#ifndef LOOKAHEAD_CALC_LEXER_HPP
+#define LOOKAHEAD_CALC_LEXER_HPP
 
-#include "calc_lexer.h"
+#include "calc_lexer.hpp"
 
 class lookahead_calc_lexer {
 // simulates two-token lookhead lexer using calc_lexer. (implemented
@@ -33,4 +33,4 @@ private:
     calc_token peeked_token2_ = {};
 };
 
-#endif // LOOKAHEAD_CALC_LEXER_H
+#endif // LOOKAHEAD_CALC_LEXER_HPP

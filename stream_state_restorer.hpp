@@ -1,5 +1,5 @@
-#ifndef STREAM_STATE_RESTORER_H
-#define STREAM_STATE_RESTORER_H
+#ifndef STREAM_STATE_RESTORER_HPP
+#define STREAM_STATE_RESTORER_HPP
 
 #include <ios>
 
@@ -21,4 +21,4 @@ public:
     }
 };
 
-#endif // TEMP_STREAM_STATE_H
+#endif // TEMP_STREAM_STATE_HPP

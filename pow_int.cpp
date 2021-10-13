@@ -1,4 +1,4 @@
-#include "pow_int.h"
+#include "pow_int.hpp"
 
 namespace calc_val {
 

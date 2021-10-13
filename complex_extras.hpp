@@ -1,10 +1,10 @@
-#ifndef COMPLEX_EXTRAS_H
-#define COMPLEX_EXTRAS_H
+#ifndef COMPLEX_EXTRAS_HPP
+#define COMPLEX_EXTRAS_HPP
 
 // extra functionality not provided by std::complex nor the alternative complex
 // number class
 
-#include "complex_type.h"
+#include "complex_type.hpp"
 
 namespace calc_val {
 
@@ -22,4 +22,4 @@ auto dfac(const complex_type& z) -> complex_type;
 
 } // namespace calc_val
 
-#endif // COMPLEX_EXTRAS_H
+#endif // COMPLEX_EXTRAS_HPP

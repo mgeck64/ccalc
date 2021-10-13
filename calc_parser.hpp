@@ -1,8 +1,8 @@
-#ifndef CALC_PARSER_H
-#define CALC_PARSER_H
+#ifndef CALC_PARSER_HPP
+#define CALC_PARSER_HPP
 
-#include "variant.h"
-#include "lookahead_calc_lexer.h"
+#include "variant.hpp"
+#include "lookahead_calc_lexer.hpp"
 #include <vector>
 #include <functional>
 
@@ -100,4 +100,4 @@ inline bool calc_parser::identifiers_match(std::string_view identifier1, const c
     // may want to support case insensitive match in the future--maybe
 }
 
-#endif // CALC_PARSER_H
+#endif // CALC_PARSER_HPP

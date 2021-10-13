@@ -1,7 +1,7 @@
-#include "calc_outputter.h"
-#include "stream_state_restorer.h"
-#include "ieee_fp_parts.h"
-#include "fp_compare.h"
+#include "calc_outputter.hpp"
+#include "stream_state_restorer.hpp"
+#include "ieee_fp_parts.hpp"
+#include "fp_compare.hpp"
 #include <cassert>
 
 std::ostream& operator<<(std::ostream& out, const calc_outputter& outputter) {

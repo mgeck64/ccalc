@@ -1,8 +1,8 @@
-#ifndef CALC_OUTPUTTER_H
-#define CALC_OUTPUTTER_H
+#ifndef CALC_OUTPUTTER_HPP
+#define CALC_OUTPUTTER_HPP
 
-#include "variant.h"
-#include "ieee_fp_parts.h"
+#include "variant.hpp"
+#include "ieee_fp_parts.hpp"
 #include <ostream>
 #include <array>
 
@@ -36,4 +36,4 @@ private:
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 };
 
-#endif // CALC_OUTPUTTER_H
+#endif // CALC_OUTPUTTER_HPP

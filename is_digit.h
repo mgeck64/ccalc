@@ -1,5 +1,5 @@
-#ifndef IS_DIGIT_H
-#define IS_DIGIT_H
+#ifndef IS_DIGIT_HPP
+#define IS_DIGIT_HPP
 
 extern const unsigned char alphanumeric_digits_lut[128];
 
@@ -42,4 +42,4 @@ inline bool is_digit_older_version(char c, unsigned radix) {
 
 #endif
 
-#endif // IS_DIGIT_H
+#endif // IS_DIGIT_HPP

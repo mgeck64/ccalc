@@ -1,7 +1,7 @@
-#include "calc_parser.h"
-#include "calc_parse_error.h"
+#include "calc_parser.hpp"
+#include "calc_parse_error.hpp"
 #include "is_digit.h"
-#include "calc_args.h"
+#include "calc_args.hpp"
 
 // implementation of two very closely related functions regarding scanning and
 // converting number tokens

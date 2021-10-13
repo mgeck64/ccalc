@@ -1,5 +1,5 @@
-#ifndef BASICS_H
-#define BASICS_H
+#ifndef BASICS_HPP
+#define BASICS_HPP
 
 #include <cstdint>
 
@@ -28,4 +28,4 @@ enum int_word_sizes : std::uint8_t {
 
 } // namespace calc_val
 
-#endif // BASICS_H
+#endif // BASICS_HPP

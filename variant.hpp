@@ -1,8 +1,8 @@
-#ifndef VARIANT_H
-#define VARIANT_H
+#ifndef VARIANT_HPP
+#define VARIANT_HPP
 
-#include "basics.h"
-#include "complex_type.h"
+#include "basics.hpp"
+#include "complex_type.hpp"
 #include <variant>
 
 namespace calc_val {
@@ -12,7 +12,7 @@ using variant_type = std::variant<complex_type, uint_type, int_type>;
 } // namespace calc_val
 
 // make sure these get included wherever variant_type is used
-#include "complex_extras.h"
-#include "pow_int.h"
+#include "complex_extras.hpp"
+#include "pow_int.hpp"
 
-#endif // VARIANT_H
+#endif // VARIANT_HPP

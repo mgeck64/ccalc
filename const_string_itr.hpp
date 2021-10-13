@@ -1,5 +1,5 @@
-#ifndef CONST_STRING_ITR_H
-#define CONST_STRING_ITR_H
+#ifndef CONST_STRING_ITR_HPP
+#define CONST_STRING_ITR_HPP
 
 #include <string_view>
 #include <string>
@@ -267,4 +267,4 @@ inline auto const_string_itr::view() const noexcept -> std::string_view
 inline auto const_string_itr::string() const noexcept -> std::string
 {return {pos_, end_};}
 
-#endif // CONST_STRING_ITR_H
+#endif // CONST_STRING_ITR_HPP

@@ -1,9 +1,9 @@
-#ifndef CALC_ARGS_H
-#define CALC_ARGS_H
+#ifndef CALC_ARGS_HPP
+#define CALC_ARGS_HPP
 
 // interprets command line arguments and expression options
 
-#include "basics.h"
+#include "basics.hpp"
 #include <string_view>
 
 enum : char {
@@ -38,4 +38,4 @@ struct calc_args {
 void interpret_arg(std::string_view arg_str, char option_code, calc_args& args);
 // interprets arg_str and updates args
 
-#endif // CALC_ARGS_H
+#endif // CALC_ARGS_HPP

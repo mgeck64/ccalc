@@ -1,11 +1,11 @@
-#ifndef CALC_LEXER_H
-#define CALC_LEXER_H
+#ifndef CALC_LEXER_HPP
+#define CALC_LEXER_HPP
 
 #include <array>
 #include <string_view>
 #include <cassert>
-#include "basics.h"
-#include "const_string_itr.h"
+#include "basics.hpp"
+#include "const_string_itr.hpp"
 
 struct calc_token {
 // token scanned by calc_lexer (below)
@@ -58,4 +58,4 @@ inline calc_lexer::calc_lexer(std::string_view input, calc_val::radices default_
     : in_itr{input}, in_begin{in_itr.begin()}, default_number_radix_{default_number_radix}
 {}
 
-#endif // CALC_LEXER_H
+#endif // CALC_LEXER_HPP

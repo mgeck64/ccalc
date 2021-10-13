@@ -1,4 +1,4 @@
-#include "complex_type.h"
+#include "complex_type.hpp"
 
 namespace calc_val {
 
@@ -68,7 +68,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ieee_fp_parts.h" // needed for implementation of proj function
+#include "ieee_fp_parts.hpp" // needed for implementation of proj function
 
 namespace calc_val {
 

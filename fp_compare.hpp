@@ -1,5 +1,5 @@
-#ifndef FP_COMPARE_H
-#define FP_COMPARE_H
+#ifndef FP_COMPARE_HPP
+#define FP_COMPARE_HPP
 
 #include <algorithm>
 
@@ -50,4 +50,4 @@ inline bool is_0(T x, T tolerance = epsilon<T>(), T tolerance0 = epsilon<T>())
 
 } // namespace fp_compare
 
-#endif // FP_COMPARE_H
+#endif // FP_COMPARE_HPP

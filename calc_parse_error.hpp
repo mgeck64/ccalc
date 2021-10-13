@@ -1,7 +1,7 @@
-#ifndef CALC_PARSE_ERROR_H
-#define CALC_PARSE_ERROR_H
+#ifndef CALC_PARSE_ERROR_HPP
+#define CALC_PARSE_ERROR_HPP
 
-#include "calc_lexer.h"
+#include "calc_lexer.hpp"
 #include <cstring>
 
 class calc_parse_error {
@@ -48,4 +48,4 @@ inline calc_parse_error::calc_parse_error(error_codes error, const calc_token& t
     assert(expected_token_id_ == calc_token::unspecified || error_ == token_expected);
 }
 
-#endif // CALC_PARSE_ERROR_H
+#endif // CALC_PARSE_ERROR_HPP

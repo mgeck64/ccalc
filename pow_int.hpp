@@ -1,5 +1,5 @@
-#ifndef POW_INT_H
-#define POW_INT_H
+#ifndef POW_INT_HPP
+#define POW_INT_HPP
 
 // so, e,g., we can accurately compute pow(2, 63) for 64 bit unsigned int, which
 // std::pow (with 64 bit double) can't
@@ -35,4 +35,4 @@ auto pow(T1 x, T2 e) -> std::enable_if_t<
 
 } // namespace calc_val
 
-#endif // POW_INT_H
+#endif // POW_INT_HPP

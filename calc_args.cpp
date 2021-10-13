@@ -1,5 +1,5 @@
-#include "calc_args.h"
-#include "const_string_itr.h"
+#include "calc_args.hpp"
+#include "const_string_itr.hpp"
 #include <cctype>
 
 static bool single_flag_option(const_string_itr arg_itr, calc_args& args);

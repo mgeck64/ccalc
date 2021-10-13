@@ -1,5 +1,5 @@
-#ifndef IEEE_FP_PARTS_H
-#define IEEE_FP_PARTS_H
+#ifndef IEEE_FP_PARTS_HPP
+#define IEEE_FP_PARTS_HPP
 
 #include <cstdint>
 #include <limits>
@@ -175,4 +175,4 @@ public:
     {return (hi & exponent_mask) == 0 && lo == 0;}
 };
 
-#endif // IEEE_FP_PARTS_H
+#endif // IEEE_FP_PARTS_HPP

@@ -1,7 +1,7 @@
-#ifndef COMPLEX_TYPE_H
-#define COMPLEX_TYPE_H
+#ifndef COMPLEX_TYPE_HPP
+#define COMPLEX_TYPE_HPP
 
-#include "basics.h"
+#include "basics.hpp"
 
 // std::complex's pow function is giving annoying rouding/precision errors;
 // e.g., pow(std::complex<double>(0, 1), 2.0) is yielding
@@ -236,6 +236,6 @@ auto norm_wrapper(const complex_type& z) -> complex_type;
 
 
 
-#include "complex_type_defs.h"
+#include "complex_type_defs.hpp"
 
-#endif // COMPLEX_TYPE_H
+#endif // COMPLEX_TYPE_HPP
