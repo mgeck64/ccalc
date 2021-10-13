@@ -138,7 +138,7 @@ inline auto operator*(const complex_type::value_type& a, const complex_type& z) 
 inline auto operator/(const complex_type& z, const complex_type::value_type& a) -> complex_type
 {return {z.real() / a, z.imag() / a};}
 
-inline auto operator/(const complex_type& z1, const complex_type& z2) -> complex_type 
+inline auto operator/(const complex_type& z1, const complex_type& z2) -> complex_type
 {return (z1 * conj(z2)) / norm(z2);}
 
 inline auto operator/(const complex_type::value_type& a, const complex_type& z) -> complex_type
