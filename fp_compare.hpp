@@ -2,6 +2,7 @@
 #define FP_COMPARE_HPP
 
 #include <algorithm>
+#include <limits>
 
 namespace fp_compare {
 
