@@ -67,11 +67,12 @@ static void help() {
     std::cout <<
 "\
 Basic guide:\n\
-ccalc [<input defaults>] [<output base>] [<mode>] [<int word size>] [-h] [-help]\n\
+ccalc [<input defaults>] [<output base>] [<mode>] [<int word size>] [-h]\n\
 [--help] [<expression>]\n\
 \n\
 <expression>: A mathematical expression, e.g.: 2+3*6. If omitted then\n\
-expressions will continuously be input from stdin.\n\
+expressions will continuously be input from stdin. Exception: if <expression> is\n\
+\"help\" then this content will be printed.\n\
 \n\
 <input defaults>: Specifies the default representation type and default numeric\n\
 base for numbers:\n\

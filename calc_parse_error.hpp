@@ -16,7 +16,7 @@ public:
         option_must_preface_math_expr,
         function_arg_expected,
         unexpected_end_of_input, invalid_shift_arg,
-        this_suffix_invalid_here, internal_error};
+        this_suffix_invalid_here, help_invalid_here, internal_error};
     static constexpr auto error_txt = std::array{
         // elements correspond with error_codes enums so enum can be used as index
         "no_error", "syntax error", "number expected", "undefined symbol",
@@ -28,7 +28,7 @@ public:
         "option must preface mathematical expression",
         "function argument enclosed in parentheses was expected",
         "unexpected end of input", "invalid shift argument",
-        "this suffix is invalid here", "internal error"};
+        "this suffix is invalid here", "invalid invocation of help", "internal error"};
 
     calc_parse_error(error_codes error, const calc_token& token_, calc_token::token_ids expected_token_id_ = calc_token::unspecified);
 

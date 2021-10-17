@@ -20,7 +20,7 @@ void interpret_arg(std::string_view arg_str, char option_code, calc_args& args) 
 
 static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
     auto arg_view = arg_itr.view();
-    if (arg_view == "h" || arg_view == "help") {
+    if (arg_view == "h") {
         ++args.n_help_options;
         return true;
     }

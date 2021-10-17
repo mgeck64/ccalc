@@ -97,9 +97,12 @@ auto calc_lexer::get_token() -> calc_token {
             break;
         default:
             if (std::isalpha(*in_itr) || *in_itr == '_') {
-                token_id = calc_token::identifier;
                 do ++in_itr;
                     while (in_itr && (std::isalnum(*in_itr) || *in_itr == '_'));
+                if (std::string_view(token_begin, in_itr - token_begin) == "help")
+                    token_id = calc_token::help;
+                else
+                    token_id = calc_token::identifier;
             } else {
                 scan_as_number();
                 if (in_itr.begin() != token_begin)

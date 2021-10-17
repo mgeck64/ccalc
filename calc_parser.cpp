@@ -80,7 +80,13 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, calc_val:
         -> calc_val::variant_type {
     auto lexer = lookahead_calc_lexer(input, default_number_radix);
 
-    // <input> ::= [ <option> ]... [ <math_expr> ]
+    // <input> ::= "help"
+    //           | [ <option> ]... [ <math_expr> ]
+
+    if (lexer.peek_token().id == calc_token::help && lexer.peek_token2().id == calc_token::end) {
+        help();
+        throw no_mathematical_expression();
+    }
 
     if (lexer.peek_token().id == calc_token::option) {
         calc_args args;
@@ -419,13 +425,15 @@ auto calc_parser::factor(lookahead_calc_lexer& lexer) -> calc_val::variant_type 
 }
 
 auto calc_parser::base(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
-// <base> ::= <number> | <identifier_expr> | <group>
+// <base> ::= <number> | <identifier_expr> | <group> | <help>
     if (lexer.peek_token().id == calc_token::number)
         return assumed_number(lexer, false);
     if (lexer.peeked_token().id == calc_token::identifier)
         return assumed_identifier_expr(lexer);
     if (lexer.peeked_token().id == calc_token::lparen)
         return assumed_group(lexer);
+    if (lexer.peeked_token().id == calc_token::help)
+        throw calc_parse_error(calc_parse_error::help_invalid_here, lexer.peeked_token());
     if (lexer.peeked_token().id == calc_token::end)
         throw calc_parse_error(calc_parse_error::unexpected_end_of_input, lexer.peeked_token());
     throw calc_parse_error(calc_parse_error::syntax_error, lexer.peeked_token());

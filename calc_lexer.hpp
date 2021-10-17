@@ -11,7 +11,8 @@ struct calc_token {
 // token scanned by calc_lexer (below)
     enum token_ids : std::uint8_t {
         unspecified, end, number, identifier, add, sub, mul, div, mod, pow, fac,
-        dfac, mfac, lparen, rparen, shiftl, shiftr, band, bor, bxor, bnot, eq, option};
+        dfac, mfac, lparen, rparen, shiftl, shiftr, band, bor, bxor, bnot, eq,
+        help, option};
     static constexpr auto token_txt = std::array {
         // text suitable for parser error message.
         // elements correspond with token_ids enums so enum can be used as index
