@@ -6,12 +6,12 @@ auto calc_lexer::get_token() -> calc_token {
         ++in_itr;
 
     if (in_itr.at_end()) {
-        auto token_offset = static_cast<calc_token::offset_type>(in_itr.begin() - in_begin);
-        return calc_token{calc_token::end, {in_itr.begin(), 0}, token_offset};
+        auto token_offset = static_cast<calc_token::offset_type>(in_itr - in_begin);
+        return calc_token{calc_token::end, {in_itr.ptr(), 0}, token_offset};
     }
 
     auto token_id = calc_token::unspecified;
-    auto token_begin = in_itr.begin();
+    auto token_begin = in_itr;
 
     switch (*in_itr) {
         case '+':
@@ -49,7 +49,7 @@ auto calc_lexer::get_token() -> calc_token {
         case '!':
             do ++in_itr;
                 while (in_itr && *in_itr == '!');
-            if (auto n = in_itr.begin() - token_begin; n == 1) // factorial
+            if (auto n = in_itr - token_begin; n == 1) // factorial
                 token_id = calc_token::fac;
             else if (n == 2) // double factorial
                 token_id = calc_token::dfac;
@@ -99,18 +99,18 @@ auto calc_lexer::get_token() -> calc_token {
             if (std::isalpha(*in_itr) || *in_itr == '_') {
                 do ++in_itr;
                     while (in_itr && (std::isalnum(*in_itr) || *in_itr == '_'));
-                if (std::string_view(token_begin, in_itr - token_begin) == "help")
+                if (std::string_view(token_begin.ptr(), in_itr - token_begin) == "help")
                     token_id = calc_token::help;
                 else
                     token_id = calc_token::identifier;
             } else {
                 scan_as_number();
-                if (in_itr.begin() != token_begin)
+                if (in_itr != token_begin)
                     token_id = calc_token::number;
             }
     }
 
-    auto token_size = static_cast<std::string_view::size_type>(in_itr.begin() - token_begin);
-    auto token_offset = static_cast<calc_token::offset_type>(token_begin - in_begin);
-    return calc_token{token_id, {token_begin, token_size}, token_offset};
+    auto token_size = static_cast<std::string_view::size_type>(in_itr - token_begin);
+    auto token_offset = static_cast<std::string_view::size_type>(token_begin - in_begin);
+    return calc_token{token_id, {token_begin.ptr(), token_size}, token_offset};
 }

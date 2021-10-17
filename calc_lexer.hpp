@@ -50,13 +50,13 @@ public:
 
 private:
     const_string_itr in_itr{};
-    const_string_itr::pointer in_begin = in_itr.begin();
+    const_string_itr in_begin = in_itr;
     calc_val::radices default_number_radix_ = calc_val::base10;
     void scan_as_number();
 };
 
 inline calc_lexer::calc_lexer(std::string_view input, calc_val::radices default_number_radix)
-    : in_itr{input}, in_begin{in_itr.begin()}, default_number_radix_{default_number_radix}
+    : in_itr{input}, in_begin{in_itr}, default_number_radix_{default_number_radix}
 {}
 
 #endif // CALC_LEXER_HPP
