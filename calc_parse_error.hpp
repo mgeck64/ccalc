@@ -28,7 +28,7 @@ public:
         "option must preface mathematical expression",
         "function argument enclosed in parentheses was expected",
         "unexpected end of input", "invalid shift argument",
-        "this suffix is invalid here", "invalid invocation of help", "internal error"};
+        "this suffix is invalid here", "help is invalid here", "internal error"};
 
     calc_parse_error(error_codes error, const calc_token& token_, calc_token::token_ids expected_token_id_ = calc_token::unspecified);
 
