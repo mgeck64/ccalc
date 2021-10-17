@@ -448,7 +448,7 @@ auto calc_parser::assumed_identifier_expr(lookahead_calc_lexer& lexer) -> calc_v
 // <undefined_identifier> ::= <identifier> - ( <variable> | <unary_fn_identifier> | <internal_value> )
     auto val = [&]() -> calc_val::variant_type {
         auto identifier_token = lexer.get_token(); // assume next token is identifier (caller assures this)
-        assert(identifier_token.id = calc_token::identifier);
+        assert(identifier_token.id == calc_token::identifier);
         auto identifier = identifier_token.view;
 
         // <variable> [ = <math_expr> ]
