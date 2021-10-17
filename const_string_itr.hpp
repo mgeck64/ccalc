@@ -43,8 +43,10 @@ public:
     const_string_itr(const const_string_itr&) noexcept = default;
     const_string_itr(std::string_view view) noexcept;
     const_string_itr(const std::string& str) noexcept;
-    const_string_itr(pointer c_str) noexcept; // c-style string
     const_string_itr(pointer p, size_type length) noexcept;
+    // note: no ctor for c style string; this is to avoid accidential
+    // construction from "plain" pointer for which we don't want to compute
+    // string length
 
     // basic iterator functionality; this should fully model std random access
     // iterator concept:
@@ -59,6 +61,7 @@ public:
     auto operator=(const const_string_itr&) noexcept -> const_string_itr& = default;
     auto operator+=(size_type n) noexcept -> const_string_itr&;
     auto operator-=(size_type n) noexcept -> const_string_itr&;
+
     auto operator+(size_type n) const noexcept -> const_string_itr;
     friend auto operator+(size_type n, const const_string_itr& itr) noexcept -> const_string_itr; // oddball case required by random access iterator concept
     auto operator-(size_type n) const noexcept -> const_string_itr;
@@ -104,6 +107,7 @@ public:
     operator std::string_view() const noexcept;
     auto view() const noexcept -> std::string_view;
     auto string() const noexcept -> std::string;
+    auto ptr() const noexcept -> pointer; // current position pointer
     // note: the returned view/string will be from the current position to the
     // end of the range
 
@@ -136,12 +140,6 @@ inline const_string_itr::const_string_itr(const std::string& str) noexcept :
     start_{str.data()},
 #endif
     pos_{str.data()}, end_{pos_ + str.size()} {assert(start_ == pos_ && pos_ <= end_);}
-
-inline const_string_itr::const_string_itr(pointer c_str) noexcept :
-#ifndef NDEBUG
-    start_{c_str},
-#endif
-    pos_{c_str}, end_{c_str + std::strlen(c_str)} {assert(start_ == pos_ && pos_ <= end_);}
 
 inline const_string_itr::const_string_itr(pointer p, size_type length) noexcept :
 #ifndef NDEBUG
@@ -266,5 +264,8 @@ inline auto const_string_itr::view() const noexcept -> std::string_view
 
 inline auto const_string_itr::string() const noexcept -> std::string
 {return {pos_, end_};}
+
+inline auto const_string_itr::ptr() const noexcept -> pointer
+{return pos_;}
 
 #endif // CONST_STRING_ITR_HPP
