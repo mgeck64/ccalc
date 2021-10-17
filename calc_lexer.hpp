@@ -9,7 +9,7 @@
 
 struct calc_token {
 // token scanned by calc_lexer (below)
-    enum token_ids : std::uint8_t {
+    enum token_ids {
         unspecified, end, number, identifier, add, sub, mul, div, mod, pow, fac,
         dfac, mfac, lparen, rparen, shiftl, shiftr, band, bor, bxor, bnot, eq,
         help, option};

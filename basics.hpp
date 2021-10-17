@@ -15,11 +15,11 @@ static_assert(int_type(-2) >> int_type(1) == int_type(-1)); // right-shift is ar
 static constexpr auto pi = 3.1415926535897932384626433832795028841971693993751058209749445923L;
 static constexpr auto e = 2.7182818284590452353602874713526624977572470936999595749669676277L;
 
-enum number_type_codes : std::uint8_t {complex_code, uint_code, int_code};
+enum number_type_codes {complex_code, uint_code, int_code};
 
-enum radices : std::uint8_t {base2 = 2, base8 = 8, base10 = 10, base16 = 16};
+enum radices {base2 = 2, base8 = 8, base10 = 10, base16 = 16};
 
-enum int_word_sizes : std::uint8_t {
+enum int_word_sizes {
     int_bits_8 = 8, int_bits_16 = 16, int_bits_32 = 32, int_bits_64 = 64};
 
 // note: not using scoped enums because i want enum values to automatically be
