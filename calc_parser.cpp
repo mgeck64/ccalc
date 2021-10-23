@@ -31,13 +31,6 @@ calc_parser::identifier_with_unary_fn calc_parser::unary_fn_table[] = {
     {"proj", calc_val::complex_common::proj}, // projection onto the Riemann sphere
 };
 
-calc_parser::identifier_with_internal_val calc_parser::internal_vals[] = {
-    {"pi", &calc_parser::pi},
-    {"e", &calc_parser::e},
-    {"i", &calc_parser::i},
-    {"last", &calc_parser::last},
-};
-
 
 
 template <class T>
@@ -75,6 +68,24 @@ inline auto calc_parser::trim_int(calc_val::variant_type& val) const -> void {
 }
 
 
+
+calc_parser::calc_parser(
+    calc_val::number_type_codes default_number_type_code_,
+    calc_val::radices default_number_radix_,
+    calc_val::int_word_sizes int_word_size_)
+: 
+    default_number_type_code{default_number_type_code_},
+    default_number_radix{default_number_radix_},
+    int_word_size{int_word_size_}
+{
+    for (auto& elem: unary_fn_table)
+        variables.emplace(tmp_str = elem.identifier, elem.fn);
+
+    // predefined variables
+    variables.emplace(tmp_str = "pi", calc_val::pi);
+    variables.emplace(tmp_str = "e", calc_val::e);
+    variables.emplace(tmp_str = "i", calc_val::complex_type(0, 1));
+}
 
 auto calc_parser::evaluate(std::string_view input, help_callback help, calc_val::radices& output_radix)
         -> calc_val::variant_type {
@@ -116,14 +127,15 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, calc_val:
     if (lexer.peek_token().id == calc_token::end)
         throw no_mathematical_expression();
 
-    last_val = math_expr(lexer);
+    auto val = math_expr(lexer);
 
     if (lexer.peek_token().id == calc_token::option)
         throw calc_parse_error(calc_parse_error::option_must_preface_math_expr, lexer.peeked_token());
     if (lexer.get_token().id != calc_token::end)
         throw calc_parse_error(calc_parse_error::syntax_error, lexer.last_token());
 
-    return last_val;
+    variables.insert_or_assign(tmp_str = "last", val);
+    return val;
 }
 
 auto calc_parser::math_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
@@ -431,7 +443,7 @@ auto calc_parser::base(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
     if (lexer.peeked_token().id == calc_token::identifier)
         return assumed_identifier_expr(lexer);
     if (lexer.peeked_token().id == calc_token::lparen)
-        return assumed_group(lexer);
+        return group(lexer);
     if (lexer.peeked_token().id == calc_token::help)
         throw calc_parse_error(calc_parse_error::help_invalid_here, lexer.peeked_token());
     if (lexer.peeked_token().id == calc_token::end)
@@ -440,59 +452,49 @@ auto calc_parser::base(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
 }
 
 auto calc_parser::assumed_identifier_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
-// <identifier_expr> ::= <variable> [ = <math_expr> ]
-//                     | <unary_fn>
-//                     | <internal_value>
+// <identifier_expr> ::= <variable_identifier> [ "=" <math_expr> ]
+//                     | <unary_fn_identifier> <group>
 //                     | <undefined_identifier>
-// <unary_fn> ::= <unary_fn_identifier> <group>
-// <undefined_identifier> ::= <identifier> - ( <variable> | <unary_fn_identifier> | <internal_value> )
-    auto val = [&]() -> calc_val::variant_type {
-        auto identifier_token = lexer.get_token(); // assume next token is identifier (caller assures this)
-        assert(identifier_token.id == calc_token::identifier);
-        auto identifier = identifier_token.view;
+// <undefined_identifier> ::= <identifier> - ( <variable> | <unary_fn_identifier> )
+    auto identifier_token = lexer.get_token(); // assume next token is identifier (caller assures this)
+    assert(identifier_token.id == calc_token::identifier);
+    auto identifier = identifier_token.view;
 
-        // <variable> [ = <math_expr> ]
-        for (auto& variable : variables)
-            if (identifiers_match(identifier, variable.identifier)) {
-                if (lexer.peek_token().id == calc_token::eq) {
-                    lexer.get_token(); // eq
-                    variable.val = math_expr(lexer);
-                }
-                return variable.val;
-            }
-        if (lexer.peek_token().id == calc_token::eq) {
-            lexer.get_token(); // eq
-            return variables.emplace_back(identifier_with_val{std::string(identifier),
-                math_expr(lexer)}).val;
-        }
+    // <variable_identifier> = <math_expr>
 
-        // <unary_fn>
-        for (auto& unary_fn : unary_fn_table)
-            if (identifiers_match(identifier, unary_fn.identifier)) { // <unary_fn_identifier>
-                if (lexer.peek_token().id == calc_token::lparen)
-                    return std::visit([&](const auto& val) -> calc_val::variant_type {
-                        return unary_fn.fn(val);
-                    }, assumed_group(lexer));
-                throw calc_parse_error(calc_parse_error::function_arg_expected, identifier_token);
-            }
+    if (lexer.peek_token().id == calc_token::eq) {
+        lexer.get_token();
+        auto val = math_expr(lexer);
+        trim_int(val);
+        variables.insert_or_assign(tmp_str = identifier, val);
+        return val;
+    }
+    
+    // <undefined_identifier>
 
-        // <internal_value>
-        for (auto& internal_val : internal_vals)
-            if (identifiers_match(identifier, internal_val.identifier))
-                return (this->*internal_val.fn)();
-
-        // <undefined_identifier>
+    auto itr = variables.find(std::string(identifier));
+    if (itr == variables.end())
         throw calc_parse_error(calc_parse_error::undefined_identifier, identifier_token);
-    }();
+    
+    // other cases
 
-    trim_int(val); // incase int_word_size changed
+    auto val = std::visit([&](const auto& thing) -> calc_val::variant_type {
+        using VT = std::decay_t<decltype(thing)>;
+        if constexpr (std::is_same_v<VT, calc_val::variant_type>) // <variable>
+            return thing;
+        else if constexpr (std::is_same_v<VT, unary_fn>) // <unary_fn_identifier> <group>
+            return std::visit([&](const auto& val) {
+                return thing(val);
+            }, group(lexer));
+    }, itr->second);
+    trim_int(val);
     return val;
 };
 
-auto calc_parser::assumed_group(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
+auto calc_parser::group(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
 // <group> ::= "(" <math_expr> ")"
-    lexer.get_token(); // assume next token is left parenthesis (caller assures this)
-    assert(lexer.last_token().id == calc_token::lparen);
+    if (lexer.get_token().id != calc_token::lparen)
+        throw calc_parse_error(calc_parse_error::token_expected, lexer.last_token(), calc_token::lparen);
     auto val = math_expr(lexer);
     if (lexer.get_token().id != calc_token::rparen)
         throw calc_parse_error(calc_parse_error::token_expected, lexer.last_token(), calc_token::rparen);

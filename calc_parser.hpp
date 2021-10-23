@@ -3,7 +3,7 @@
 
 #include "variant.hpp"
 #include "lookahead_calc_lexer.hpp"
-#include <vector>
+#include <map>
 #include <functional>
 
 class calc_parser {
@@ -35,7 +35,7 @@ private:
     auto factor(lookahead_calc_lexer& lexer)-> calc_val::variant_type;
     auto base(lookahead_calc_lexer& lexer)-> calc_val::variant_type;
     auto assumed_identifier_expr(lookahead_calc_lexer& lexer)-> calc_val::variant_type;
-    auto assumed_group(lookahead_calc_lexer& lexer) -> calc_val::variant_type;
+    auto group(lookahead_calc_lexer& lexer) -> calc_val::variant_type;
     std::string number_buf;
     auto assumed_number(lookahead_calc_lexer& lexer, bool is_negative) -> calc_val::variant_type;
 
@@ -45,59 +45,19 @@ private:
     auto trim_if_int(calc_val::int_type x) const -> calc_val::int_type;
     auto trim_int(calc_val::variant_type& val) const -> void;
 
-    struct identifier_with_val {
-        std::string identifier;
-        calc_val::variant_type val;
-    };
-
-    std::vector<identifier_with_val> variables;
-    // variables: simple unordered array; should be small enough that simple
-    // linear search will be adequate
-
     using unary_fn = calc_val::complex_type (*)(const calc_val::complex_type&);
     struct identifier_with_unary_fn {
         const char* identifier;
         unary_fn fn;
     };
-
     static identifier_with_unary_fn unary_fn_table[];
-    // unary_fn_table: simple unordered array; should be small enough that
-    // simple linear search will be adequate
 
-    using internal_val_fn = calc_val::variant_type (calc_parser::*)();
-    struct identifier_with_internal_val {
-        const char* identifier;
-        internal_val_fn fn;
-    };
+    using var_poly_type = std::variant<calc_val::variant_type, unary_fn>;
+    std::map<std::string, var_poly_type> variables;
+    // a variable may hold a single value (calc_val::variant_type) or a functon
+    // pointer (unary_fn)
 
-    static identifier_with_internal_val internal_vals[];
-    // internal_vals: simple unordered array; should be small enough that simple
-    // linear search will be adequate
-
-    // internal val functions:
-    auto pi() -> calc_val::variant_type {return calc_val::complex_type(calc_val::pi, 0);}
-    auto e() -> calc_val::variant_type {return calc_val::complex_type(calc_val::e, 0);}
-    auto i() -> calc_val::variant_type {return calc_val::complex_type(0, 1);}
-    auto last() -> calc_val::variant_type {return last_val;}
-
-    static bool identifiers_match(std::string_view identifier1, std::string_view identifier2);
-    static bool identifiers_match(std::string_view identifier1, const char* identifier2);
+    std::string tmp_str; // temporary string to mitigate memory allocations when a tmp is needed
 };
-
-inline calc_parser::calc_parser(calc_val::number_type_codes default_number_type_code_,
-        calc_val::radices default_number_radix_, calc_val::int_word_sizes int_word_size_)
-    : default_number_type_code{default_number_type_code_}, default_number_radix{default_number_radix_},
-        int_word_size{int_word_size_}
-{}
-
-inline bool calc_parser::identifiers_match(std::string_view identifier1, std::string_view identifier2) {
-    return identifier1 == identifier2;
-    // may want to support case insensitive match in the future--maybe
-}
-
-inline bool calc_parser::identifiers_match(std::string_view identifier1, const char* identifier2) {
-    return identifier1 == identifier2;
-    // may want to support case insensitive match in the future--maybe
-}
 
 #endif // CALC_PARSER_HPP
