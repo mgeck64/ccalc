@@ -30,7 +30,8 @@ public:
         "unexpected end of input", "invalid shift argument",
         "this suffix is invalid here", "help is invalid here", "internal error"};
 
-    calc_parse_error(error_codes error, const calc_token& token_, calc_token::token_ids expected_token_id_ = calc_token::unspecified);
+    calc_parse_error(error_codes error, const calc_token& token_,
+        calc_token::token_ids expected_token_id_ = calc_token::unspecified);
 
     auto error_str() const -> std::string;
     auto token() const -> const calc_token& {return token_;}
