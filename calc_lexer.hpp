@@ -16,7 +16,7 @@ struct calc_token {
     static constexpr auto token_txt = std::array {
         // text suitable for parser error message.
         // elements correspond with token_ids enums so enum can be used as index
-        "unspecified", "end", "number", "number", "identifier", "\"+\"", "\"-\"", "\"*\"", "\"/\"", "\"%\"", "\"**\"","\"!\"",
+        "unspecified", "end", "number", "identifier", "\"+\"", "\"-\"", "\"*\"", "\"/\"", "\"%\"", "\"**\"","\"!\"",
         "\"!!\"", "multifactorial", "\"(\"", "\")\"", "\"<<\"", "\">>\"", "\"&\"", "\"|\"", "\"^\"", "\"~\"", "\"=\"", "\"option\""};
 
     token_ids id = unspecified;
