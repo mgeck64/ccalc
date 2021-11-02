@@ -452,15 +452,15 @@ auto calc_parser::base(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
 }
 
 auto calc_parser::assumed_identifier_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
-// <identifier_expr> ::= <variable_identifier> [ "=" <math_expr> ]
-//                     | <unary_fn_identifier> <group>
+// <identifier_expr> ::= <identifier> = <math_expr>
+//                     | <value_variable>
+//                     | <unary_fn_variable> <group>
 //                     | <undefined_identifier>
-// <undefined_identifier> ::= <identifier> - ( <variable> | <unary_fn_identifier> )
     auto identifier_token = lexer.get_token(); // assume next token is identifier (caller assures this)
     assert(identifier_token.id == calc_token::identifier);
     auto identifier = identifier_token.view;
 
-    // <variable_identifier> = <math_expr>
+    // <identifier> = <math_expr>
 
     if (lexer.peek_token().id == calc_token::eq) {
         lexer.get_token();
@@ -469,20 +469,20 @@ auto calc_parser::assumed_identifier_expr(lookahead_calc_lexer& lexer) -> calc_v
         variables.insert_or_assign(tmp_str = identifier, val);
         return val;
     }
-    
+
     // <undefined_identifier>
 
     auto itr = variables.find(std::string(identifier));
-    if (itr == variables.end())
+    if (itr == variables.end()) // <undefined_identifier>
         throw calc_parse_error(calc_parse_error::undefined_identifier, identifier_token);
     
-    // other cases
+    // <value_variable> | <unary_fn_variable> <group>
 
     auto val = std::visit([&](const auto& thing) -> calc_val::variant_type {
         using VT = std::decay_t<decltype(thing)>;
-        if constexpr (std::is_same_v<VT, calc_val::variant_type>) // <variable>
+        if constexpr (std::is_same_v<VT, calc_val::variant_type>) // <value_variable>
             return thing;
-        else if constexpr (std::is_same_v<VT, unary_fn>) // <unary_fn_identifier> <group>
+        else if constexpr (std::is_same_v<VT, unary_fn>) // <unary_fn_variable> <group>
             return std::visit([&](const auto& val) {
                 return thing(val);
             }, group(lexer));
