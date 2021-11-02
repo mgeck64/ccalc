@@ -157,7 +157,7 @@ Note: unlike C, C++ and many other programming languages, ^ means exponentiation
 here, not bitwise xor; ^| is provided instead for bitwiwise xor.\n\
 \n\
 Available symbolic values:\n\
-    pi, e (Euler's number), i (imaginary unit), last (last result); e.g.,: 2+4*i\n\
+    pi, e (Euler's number), i (imaginary unit), last (last result); e.g., 2+4*i\n\
 \n\
 Available functions; e.g.: sin(5):\n\
     exp - exp(n) is e raised to the power of n\n\
