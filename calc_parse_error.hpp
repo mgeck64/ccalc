@@ -19,7 +19,7 @@ public:
         this_suffix_invalid_here, help_invalid_here, internal_error};
     static constexpr auto error_txt = std::array{
         // elements correspond with error_codes enums so enum can be used as index
-        "no_error", "syntax error", "number expected", "undefined symbol",
+        "no_error", "syntax error", "number expected", "undefined identifier",
         "was expected", "integer number expected", "number is out of range",
         "invalid number", "operand must be integer type",
         "left operation must be integer type", "right operand must be integer type",
