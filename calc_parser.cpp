@@ -357,15 +357,15 @@ auto calc_parser::term(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
 }
 
 auto calc_parser::factor(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
-// <factor> ::= "-" <number> ( <any_token> - ( <factorial op> | "**" ) )
+// <factor> ::= "-" <number> ( <any_token> - ( <factorial op> | "^" | "**" ) )
 //            | ( "-" | "+" | "~" ) <factor>
-//            | <base> [ <factorial operator> ]... [ "**" <factor> ]
+//            | <base> [ <factorial operator> ]... [ "^" | "**" <factor> ]
 // <factorial op> ::= "!" | "!!" | <mfac>
 // note: exponentiation is evaluated right-to-left
     if (lexer.peek_token().id == calc_token::sub) { // "-'
         lexer.get_token();
 
-        // special case: "-" <number> ( <any_token> - ( <factorial op> | "**" ) )
+        // special case: "-" <number> ( <any_token> - ( <factorial op> | "^" | "**" ) )
         // this is needed to properly negate and range check the number
         if (lexer.peek_token().id == calc_token::number &&
                 lexer.peek_token2().id != calc_token::fac &&
@@ -422,7 +422,7 @@ auto calc_parser::factor(lookahead_calc_lexer& lexer) -> calc_val::variant_type 
             break;
     }
 
-    // [ "**" <factor> ]
+    // [ "^" | "**" <factor> ]
 
     if (lexer.peek_token().id == calc_token::pow) {
         lexer.get_token();

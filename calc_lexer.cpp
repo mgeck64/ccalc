@@ -76,9 +76,13 @@ auto calc_lexer::get_token() -> calc_token {
             ++in_itr;
             token_id = calc_token::bor;
             break;
-        case '^': // bitwise xor
+        case '^': // exponentiation or maybe bitwise xor
             ++in_itr;
-            token_id = calc_token::bxor;
+            if (in_itr && *in_itr == '|') { // bitwise xor
+                ++in_itr;
+                token_id = calc_token::bxor;
+            } else
+                token_id = calc_token::pow;
             break;
         case '~': // bitwise not
             ++in_itr;

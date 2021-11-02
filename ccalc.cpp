@@ -88,10 +88,11 @@ base for numbers:\n\
     -0dn - complex type, decimal base -- the default; e.g.: 10, 10+2*i\n\
     -0xn - complex type, hexadecimal base (hexadecimal floating point)\n\
 Complex type: represents a complex number composed of a real and imaginary part,\n\
-both of which are of extended precision floating point type. A complex number\n\
-can be specified in the form a+b*i (and not a+bi; the calculator doesn't support\n\
-implied multiplication). Examples: 10+2*i (has real and imaginary part), 10 (has\n\
-real part only), 2*i (has imaginary part only).\n\
+both of which are of extended precision floating point type. The full form of a\n\
+complex number is given here as a+b*i (and not a+bi; the calculator doesn't\n\
+support implied multiplication). Examples: 10+2*i (real part is 10, imaginary\n\
+part is 2*i), 10 (real number; imaginary part is 0), 2*i (imaginary number; real\n\
+part is 0).\n\
 Exception for -0d, -0du, -0x and -0xu:  if a number is specified with a decimal\n\
 point or exponent then it will be represented as complex type; e.g., for -0x and\n\
 -0xu, the numbers a.1 and 0a1p-4 will both be represented as complex type and\n\
@@ -146,11 +147,14 @@ because those are valid hexadecimal numbers. For that case, the 0bx and 0dx\n\
 prefixes can be used to specify binary base and decimal base respectively.\n\
 \n\
 Available arithmetic operators:\n\
-    + - / (division) % (modulus) * (multiplication) ** (exponentation) ! !!\n\
-    (factorial and double factorial) ( ) (grouping)\n\
+    + (addition and unary plus) - (subtraction and negation) * (multiplication)\n\
+    / (division) % (modulus) ^ ** (exponentiation) ! !! (factorial and double\n\
+    factorial) ( ) (grouping)\n\
 \n\
 Available bitwise operators:\n\
-    ~ (not) & (and) | (or) ^ (xor) << >> (shift; algebraic for signed type)\n\
+    ~ (not) & (and) | (or) ^| (xor) << >> (shift; algebraic for signed type)\n\
+Note: unlike C, C++ and many other programming languages, ^ means exponentiation\n\
+here, not bitwise xor; ^| is provided instead for bitwiwise xor.\n\
 \n\
 Available symbolic values:\n\
     pi, e (Euler's number), i (imaginary unit), last (last result); e.g.,: 2+4*i\n\
@@ -184,7 +188,7 @@ Available functions; e.g.: sin(5):\n\
 Variables can be created and used in expressions, e.g.:\n\
     approx_pi=22/7\n\
     r=5\n\
-    approx_pi*r**2\n\
+    approx_pi*r^2\n\
 Variable assignments can be chained, e.g.: x=y=2\
 " << std::endl;
 }
