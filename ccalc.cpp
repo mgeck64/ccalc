@@ -5,7 +5,7 @@
 #include "const_string_itr.hpp"
 #include <iostream>
 
-static void evaluate(std::string_view expression, calc_parser& parser, calc_val::radices& output_radix);
+static void evaluate(std::string_view expression, calc_parser& parser, calc_parser::passback& options);
 static void help();
 
 int main(int argc, const char** argv) {
@@ -18,11 +18,17 @@ int main(int argc, const char** argv) {
             && args.n_default_options < 2
             && args.n_output_options < 2
             && args.n_int_word_size_options < 2
+            && args.n_precision10_options < 2
             && args.n_other_args < 2) {
         calc_parser parser(args.default_number_type_code,
             args.default_number_radix, args.int_word_size);
+
+        calc_parser::passback options;
+        options.output_radix = args.output_radix;
+        options.precision10 = args.precision10;
+
         if (!args.other_arg.empty()) // expression provided as argument
-            evaluate(args.other_arg, parser, args.output_radix);
+            evaluate(args.other_arg, parser, options);
         else { // input expressions from stdin
             std::string expression;
             for (;;) {
@@ -32,12 +38,13 @@ int main(int argc, const char** argv) {
                     ++expression_itr;
                 if (expression_itr.at_end()) // done
                     break;
-                evaluate(expression_itr, parser, args.output_radix);
+                evaluate(expression_itr, parser, options);
             }
         }
     } else {
         if (args.n_default_options + args.n_output_options
-                + args.n_int_word_size_options + args.n_other_args)
+                + args.n_int_word_size_options + args.n_precision10_options
+                + args.n_other_args)
             std::cout << "Too many or invalid arguments." << '\n';
         help();
     }
@@ -45,10 +52,10 @@ int main(int argc, const char** argv) {
     return 0;
 }
 
-static void evaluate(std::string_view expression, calc_parser& parser, calc_val::radices& output_radix) {
+static void evaluate(std::string_view expression, calc_parser& parser, calc_parser::passback& options) {
     try {
-        auto result = parser.evaluate(expression, help, output_radix);
-        calc_outputter outputter{output_radix};
+        auto result = parser.evaluate(expression, help, options);
+        calc_outputter outputter{options.output_radix, options.precision10};
         std::cout << outputter(result) << std::endl;
     } catch (const calc_parse_error& e) {
         std::cout << expression << '\n';
@@ -67,8 +74,8 @@ static void help() {
     std::cout <<
 "\
 Basic guide:\n\
-ccalc [<input defaults>] [<output base>] [<mode>] [<int word size>] [-h]\n\
-[--help] [<expression>]\n\
+ccalc [<input defaults>] [<output base>] [<mode>] [<int word size>] [precision]\n\
+[-h] [--help] [<expression>]\n\
 \n\
 <expression>: A mathematical expression, e.g.: 2+3*6. If omitted then\n\
 expressions will continuously be input from stdin. Exception: if <expression> is\n\
@@ -123,6 +130,9 @@ number is still represented internally in high precision).\n\
     -w32 - 32 bits\n\
     -w64 - 64 bits -- the default\n\
 Note: this does not affect the complex type.\n\
+\n\
+<precision>: -pd<n> specifies the precision (number of significant digits) to\n\
+output for decimal floating point numbers; e.g., -pd5\n\
 \n\
 Options may also be provided in an expression (e.g., when input from stdin);\n\
 options provided this way begin with '@' instead of '-' (because '-' is the\n\

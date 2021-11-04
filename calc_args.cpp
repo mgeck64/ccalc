@@ -1,6 +1,7 @@
 #include "calc_args.hpp"
 #include "const_string_itr.hpp"
 #include <cctype>
+#include <charconv>
 
 static bool single_flag_option(const_string_itr arg_itr, calc_args& args);
 static bool double_flag_option(const_string_itr arg_itr, calc_args& args);
@@ -19,6 +20,19 @@ void interpret_arg(std::string_view arg_str, char option_code, calc_args& args) 
 }
 
 static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
+    if (arg_itr.length() > 1 && *arg_itr == 'p' && arg_itr[1] == 'd') {
+        decltype(args.precision10) precision10;
+        std::from_chars_result r = std::from_chars(arg_itr.begin() + 2, arg_itr.end(), precision10);
+        if (r.ec == std::errc()
+                 && r.ptr == arg_itr.end()
+                 && precision10 <= std::numeric_limits<calc_val::float_type>::digits10) {
+            args.precision10 = precision10;
+            ++args.n_precision10_options;
+            return true;
+        }
+        return false;
+    }
+
     auto arg_view = arg_itr.view();
     if (arg_view == "h") {
         ++args.n_help_options;

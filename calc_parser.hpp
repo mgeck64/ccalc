@@ -3,6 +3,7 @@
 
 #include "variant.hpp"
 #include "lookahead_calc_lexer.hpp"
+#include "calc_args.hpp"
 #include <map>
 #include <functional>
 
@@ -14,10 +15,15 @@ public:
     using help_callback = std::function<void()>;
     struct no_mathematical_expression {}; // exception
 
-    auto evaluate(std::string_view input, help_callback help, calc_val::radices& output_radix) -> calc_val::variant_type;
+    struct passback {
+        calc_val::radices output_radix;
+        decltype(calc_args::precision10) precision10;
+    };
+
+    auto evaluate(std::string_view input, help_callback help, passback& options) -> calc_val::variant_type;
     // evaluates the input string; throws parse_error on parsing error. throws
     // no_mathematical_expression if no mathematical expression was evaluated.
-    // input is as specified for lookahead_calc_lexer. may update output_radix
+    // input is as specified for lookahead_calc_lexer. may update options
 
 private:
     calc_val::number_type_codes default_number_type_code = calc_val::complex_code;

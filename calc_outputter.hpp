@@ -3,29 +3,32 @@
 
 #include "variant.hpp"
 #include "ieee_fp_parts.hpp"
+#include "calc_args.hpp"
 #include <ostream>
 #include <array>
 
 class calc_outputter {
 public:
-    calc_outputter(calc_val::radices radix) : radix_{radix}, output_fn{output_fn_for(radix)} {}
+    calc_outputter(calc_val::radices radix_, decltype(calc_args::precision10) precision10_)
+        : radix{radix_}, precision10{precision10_}, output_fn{output_fn_for(radix)} {}
     calc_outputter() = default;
     calc_outputter(const calc_outputter&) = default;
 
-    const calc_outputter& operator()(const calc_val::variant_type& val) {val_ = val; return *this;}
+    const calc_outputter& operator()(const calc_val::variant_type& val_) {val = val_; return *this;}
     friend std::ostream& operator<<(std::ostream& out, const calc_outputter& outputter);
 
 private:
-    calc_val::variant_type val_ = calc_val::complex_type{};
-    calc_val::radices radix_ = calc_val::base10;
+    calc_val::variant_type val = calc_val::complex_type{};
+    calc_val::radices radix = calc_val::base10;
+    decltype(calc_args::precision10) precision10 = std::numeric_limits<calc_val::float_type>::digits10;
 
-    static auto output_bin(std::ostream& out, const calc_val::variant_type& val) -> std::ostream&;
-    static auto output_oct(std::ostream& out, const calc_val::variant_type& val) -> std::ostream&;
-    static auto output_dec(std::ostream& out, const calc_val::variant_type& val) -> std::ostream&;
-    static auto output_hex(std::ostream& out, const calc_val::variant_type& val) -> std::ostream&;
+    auto output_bin(std::ostream& out, const calc_val::variant_type& val) const -> std::ostream&;
+    auto output_oct(std::ostream& out, const calc_val::variant_type& val) const -> std::ostream&;
+    auto output_dec(std::ostream& out, const calc_val::variant_type& val) const -> std::ostream&;
+    auto output_hex(std::ostream& out, const calc_val::variant_type& val) const -> std::ostream&;
 
-    using output_fn_type = auto (*)(std::ostream& out, const calc_val::variant_type& val) -> std::ostream&;
-    output_fn_type output_fn = output_dec; // (note: auto not allowed for non-static members!)
+    using output_fn_type = auto (calc_outputter::*)(std::ostream& out, const calc_val::variant_type& val) const -> std::ostream&;
+    output_fn_type output_fn = &calc_outputter::output_dec; // (note: auto not allowed for non-static members!)
     static auto output_fn_for(calc_val::radices radix) -> output_fn_type;
 
     static auto output(std::ostream& out, const calc_val::variant_type& val, calc_val::radices radix) -> std::ostream&;

@@ -4,7 +4,7 @@
 #include <cassert>
 
 std::ostream& operator<<(std::ostream& out, const calc_outputter& outputter) {
-    outputter.output_fn(out, outputter.val_);
+    (outputter.*outputter.output_fn)(out, outputter.val);
     std::visit([&](const auto& val) {
         using VT = std::decay_t<decltype(val)>;
         if constexpr (std::is_integral_v<VT> && std::is_signed_v<VT>)
@@ -13,42 +13,42 @@ std::ostream& operator<<(std::ostream& out, const calc_outputter& outputter) {
             out << " (uint";
         else if constexpr (std::is_same_v<VT, calc_val::complex_type>)
             out << " (cplx";
-        out << " base" << outputter.radix_ << ')';
-    }, outputter.val_);
+        out << " base" << outputter.radix << ')';
+    }, outputter.val);
     return out;
 }
 
 auto calc_outputter::output_fn_for(calc_val::radices radix) -> output_fn_type {
     switch (radix) {
         case calc_val::base2:
-            return output_bin;
+            return &calc_outputter::output_bin;
         case calc_val::base8:
-            return output_oct;
+            return &calc_outputter::output_oct;
         case calc_val::base10:
-            return output_dec;
+            return &calc_outputter::output_dec;
         case calc_val::base16:
-            return output_hex;
+            return &calc_outputter::output_hex;
         default:
             assert(false); // missed one
-            return output_dec;
+            return &calc_outputter::output_dec;
     }
 }
 
-auto calc_outputter::output_bin(std::ostream& out, const calc_val::variant_type& val) -> std::ostream& {
+auto calc_outputter::output_bin(std::ostream& out, const calc_val::variant_type& val) const -> std::ostream& {
     return output(out, val, calc_val::base2);
 }
 
-auto calc_outputter::output_oct(std::ostream& out, const calc_val::variant_type& val) -> std::ostream& {
+auto calc_outputter::output_oct(std::ostream& out, const calc_val::variant_type& val) const -> std::ostream& {
     return output(out, val, calc_val::base8);
 }
 
-auto calc_outputter::output_hex(std::ostream& out, const calc_val::variant_type& val) -> std::ostream& {
+auto calc_outputter::output_hex(std::ostream& out, const calc_val::variant_type& val) const -> std::ostream& {
     return output(out, val, calc_val::base16);
 }
 
-auto calc_outputter::output_dec(std::ostream& out, const calc_val::variant_type& val) -> std::ostream& {
+auto calc_outputter::output_dec(std::ostream& out, const calc_val::variant_type& val) const -> std::ostream& {
     stream_state_restorer restorer(out);
-    out.precision(std::numeric_limits<calc_val::float_type>::digits10);
+    out.precision(precision10);
     return std::visit([&](const auto& val) -> std::ostream& {
         using VT = std::decay_t<decltype(val)>;
         if constexpr (std::is_integral_v<VT>)
