@@ -132,7 +132,7 @@ number is still represented internally in high precision).\n\
 Note: this does not affect the complex type.\n\
 \n\
 <precision>: -pd<n> specifies the precision (number of significant digits) to\n\
-output for decimal floating point numbers; e.g., -pd5\n\
+output decimal floating point numbers with; e.g., -pd8\n\
 \n\
 Options may also be provided in an expression (e.g., when input from stdin);\n\
 options provided this way begin with '@' instead of '-' (because '-' is the\n\
