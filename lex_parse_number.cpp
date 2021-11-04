@@ -2,6 +2,7 @@
 #include "calc_parse_error.hpp"
 #include "is_digit.h"
 #include "calc_args.hpp"
+#include <charconv>
 
 // implementation of two very closely related functions regarding scanning and
 // converting number tokens
@@ -207,47 +208,32 @@ auto calc_parser::assumed_number(lookahead_calc_lexer& lexer, bool is_negative) 
             && *num_itr == '0' && tolower(num_itr[1]) == 'x') // 0x is special prefix code
         throw calc_parse_error(calc_parse_error::invalid_number, token);
 
-    number_buf.clear(); // assume number_buf grows efficiently
-    if (type_code == calc_val::complex_code && radix == calc_val::base16)
-        // tell conversion function (strtod) to interpret as hex float
-        number_buf += "0x";
-    number_buf += num_itr.view();
-
     calc_val::float_type float_val = 0;
     unsigned long long uint_val = 0;
 
     if (radix == calc_val::base10 && type_code == calc_val::complex_code) {
         try {
-            float_val = calc_val::float_type(number_buf); // only works for decimal conversion
+            float_val = calc_val::float_type(num_itr.view());
         } catch (const std::runtime_error& e) {
             throw calc_parse_error(calc_parse_error::invalid_number, token);
         }
     } else if (radix == calc_val::base16 && type_code == calc_val::complex_code) {
-        const char* buf_ptr = number_buf.c_str();
-        errno = 0; // global (thread-local) error code set by c conversion function!; must initialize!
-        float_val = std::strtold(buf_ptr, const_cast<char**>(&buf_ptr));
-        if (errno == ERANGE)
+        long double tmp; // no overload of from_chars exists for calc_val::float_type, so we use long double
+        std::from_chars_result r = std::from_chars(num_itr.begin(), num_itr.end(), tmp, std::chars_format::hex);
+        if (r.ec == std::errc::result_out_of_range)
             throw calc_parse_error(calc_parse_error::out_of_range, token);
-        else if (errno) {
-            assert(false); // missed a case
+        else if (r.ec != std::errc() || r.ptr != num_itr.end())
             throw calc_parse_error(calc_parse_error::invalid_number, token);
-        }
-        if (*buf_ptr) // incomplete scan
-            throw calc_parse_error(calc_parse_error::invalid_number, token);
+        float_val = tmp;
     } else {
         if (type_code == calc_val::complex_code)
             throw calc_parse_error(calc_parse_error::integer_number_expected, token);
         assert(type_code == calc_val::uint_code || type_code == calc_val::int_code);
-        const char* buf_ptr = number_buf.c_str();
-        errno = 0; // global (thread-local) error code set by c conversion function!; must initialize!
-        uint_val = std::strtoull(buf_ptr, const_cast<char**>(&buf_ptr), radix);
-        if (errno == ERANGE)
+
+        std::from_chars_result r = std::from_chars(num_itr.begin(), num_itr.end(), uint_val, radix);
+        if (r.ec == std::errc::result_out_of_range)
             throw calc_parse_error(calc_parse_error::out_of_range, token);
-        else if (errno) {
-            assert(false); // missed a case
-            throw calc_parse_error(calc_parse_error::invalid_number, token);
-        }
-        if (*buf_ptr) // incomplete scan
+        else if (r.ec != std::errc() || r.ptr != num_itr.end())
             throw calc_parse_error(calc_parse_error::invalid_number, token);
     }
 
