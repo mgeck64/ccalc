@@ -33,7 +33,7 @@ static const auto neg_i = complex_type(0, -1);
 static const auto one_half = complex_type(0.5, 0);
 
 // pre-calculated coefficients from
-// https://mrob.com/pub/ries/lanczos-gamma.html#fn_13
+// https://mrob.com/pub/ries/lanczos-gamma.html
 static const complex_type c[] = {
     {boost::math::constants::c0<float_type>()},
     {boost::math::constants::c1<float_type>()},
@@ -82,7 +82,7 @@ auto lgamma(const complex_type& z_in) -> complex_type {
 
 auto tgamma(const complex_type& z_in) -> complex_type {
 // this is adapted from the sample code that appears at
-// https://mrob.com/pub/ries/lanczos-gamma.html#fn_13
+// https://mrob.com/pub/ries/lanczos-gamma.html
 // this could alternatively be implemented as exp(lgamma(z)) but i chose to
 // implement it this way for good measure
     auto z = z_in;
