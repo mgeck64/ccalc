@@ -215,28 +215,41 @@ auto calc_parser::assumed_number(lookahead_calc_lexer& lexer, bool is_negative) 
 
     calc_val::float_type float_val = 0;
     unsigned long long uint_val = 0;
-    const char* buf_ptr = number_buf.c_str();
-    errno = 0; // global (thread-local) error code set by c conversion function!; must initialize!
 
-    if ((radix == calc_val::base10 && type_code == calc_val::complex_code)
-            || (radix == calc_val::base16 && type_code == calc_val::complex_code))
+    if (radix == calc_val::base10 && type_code == calc_val::complex_code) {
+        try {
+            float_val = calc_val::float_type(number_buf); // only works for decimal conversion
+        } catch (const std::runtime_error& e) {
+            throw calc_parse_error(calc_parse_error::invalid_number, token);
+        }
+    } else if (radix == calc_val::base16 && type_code == calc_val::complex_code) {
+        const char* buf_ptr = number_buf.c_str();
+        errno = 0; // global (thread-local) error code set by c conversion function!; must initialize!
         float_val = std::strtold(buf_ptr, const_cast<char**>(&buf_ptr));
-    else if (type_code == calc_val::complex_code)
-        throw calc_parse_error(calc_parse_error::integer_number_expected, token);
-    else {
+        if (errno == ERANGE)
+            throw calc_parse_error(calc_parse_error::out_of_range, token);
+        else if (errno) {
+            assert(false); // missed a case
+            throw calc_parse_error(calc_parse_error::invalid_number, token);
+        }
+        if (*buf_ptr) // incomplete scan
+            throw calc_parse_error(calc_parse_error::invalid_number, token);
+    } else {
+        if (type_code == calc_val::complex_code)
+            throw calc_parse_error(calc_parse_error::integer_number_expected, token);
         assert(type_code == calc_val::uint_code || type_code == calc_val::int_code);
+        const char* buf_ptr = number_buf.c_str();
+        errno = 0; // global (thread-local) error code set by c conversion function!; must initialize!
         uint_val = std::strtoull(buf_ptr, const_cast<char**>(&buf_ptr), radix);
+        if (errno == ERANGE)
+            throw calc_parse_error(calc_parse_error::out_of_range, token);
+        else if (errno) {
+            assert(false); // missed a case
+            throw calc_parse_error(calc_parse_error::invalid_number, token);
+        }
+        if (*buf_ptr) // incomplete scan
+            throw calc_parse_error(calc_parse_error::invalid_number, token);
     }
-
-    if (errno == ERANGE)
-        throw calc_parse_error(calc_parse_error::out_of_range, token);
-    else if (errno) {
-        assert(false); // missed a case
-        throw calc_parse_error(calc_parse_error::invalid_number, token);
-    }
-
-    if (*buf_ptr) // incomplete scan
-        throw calc_parse_error(calc_parse_error::invalid_number, token);
 
     calc_val::variant_type val;
     bool out_of_range = false;

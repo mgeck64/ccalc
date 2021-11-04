@@ -9,8 +9,8 @@ public:
     enum error_codes {
         no_error, syntax_error, number_expected, undefined_identifier,
         token_expected, integer_number_expected, out_of_range,
-        invalid_number, operand_must_be_int_type,
-        left_operand_must_be_int_type, right_operand_must_be_int_type,
+        invalid_number, invalid_operand, invalid_left_operand,
+        invalid_right_operand,
         negative_shift_invalid, integer_division_by_0,
         mfac_unsupported, invalid_option, too_many_options,
         option_must_preface_math_expr,
@@ -21,8 +21,8 @@ public:
         // elements correspond with error_codes enums so enum can be used as index
         "no_error", "syntax error", "number expected", "undefined identifier",
         "was expected", "integer number expected", "number is out of range",
-        "invalid number", "operand must be integer type",
-        "left operation must be integer type", "right operand must be integer type",
+        "invalid number", "invalid operand", "invalid left operand",
+        "invalid right operand",
         "negative shift value is invalid", "integer division by 0",
         "multifactorial is unsupported", "invalid option", "too many options",
         "option must preface mathematical expression",

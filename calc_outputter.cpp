@@ -1,7 +1,6 @@
 #include "calc_outputter.hpp"
 #include "stream_state_restorer.hpp"
 #include "ieee_fp_parts.hpp"
-#include "fp_compare.hpp"
 #include <cassert>
 
 std::ostream& operator<<(std::ostream& out, const calc_outputter& outputter) {
@@ -57,14 +56,12 @@ auto calc_outputter::output_dec(std::ostream& out, const calc_val::variant_type&
         else {
             static_assert(std::is_same_v<calc_val::complex_type, VT>);
             out << std::defaultfloat;
-            auto real_is_0 = fp_compare::is_0(val.real());
-            auto imag_is_0 = fp_compare::is_0(val.imag());
-            if (!real_is_0 || imag_is_0)
+            if (val.real() != 0 || val.imag() == 0)
                 out << val.real();
-            if (!imag_is_0) {
-                if (!real_is_0 && !ieee_fp_parts<calc_val::float_type>(val.imag()).is_negative()) // handles -nan
+            if (val.imag() != 0) {
+                if (val.real() != 0 && !ieee_fp_parts<x86_ext_double>(static_cast<x86_ext_double>(val.imag())).is_negative()) // handles -nan
                     out << '+';
-                if (!fp_compare::eq(std::abs(val.imag()), 1.0L))
+                if (abs(val.imag()) != 1)
                     out << val.imag();
                 out << 'i';
             }
@@ -87,15 +84,13 @@ auto calc_outputter::output(std::ostream& out, const calc_val::variant_type& val
             output_as_uint(out, val, radix);
         else {
             static_assert(std::is_same_v<calc_val::complex_type, VT>);
-            auto real_is_0 = fp_compare::is_0(val.real());
-            auto imag_is_0 = fp_compare::is_0(val.imag());
-            if (!real_is_0 || imag_is_0)
-                output_as_ieee_fp(out, val.real(), radix);
-            if (!imag_is_0) {
-                if (!real_is_0 && !ieee_fp_parts<calc_val::float_type>(val.imag()).is_negative()) // handles -nan
+            if (val.real() != 0 || val.imag() == 0)
+                output_as_ieee_fp(out, static_cast<x86_ext_double>(val.real()), radix);
+            if (val.imag() != 0) {
+                if (val.real() != 0 && !ieee_fp_parts<x86_ext_double>(static_cast<x86_ext_double>(val.imag())).is_negative()) // handles -nan
                     out << '+';
-                if (!fp_compare::eq(std::abs(val.imag()), 1.0L))
-                    output_as_ieee_fp(out, val.imag(), radix);
+                if (abs(val.imag()) != 1)
+                    output_as_ieee_fp(out, static_cast<x86_ext_double>(val.imag()), radix);
                 out << 'i';
             }
         }
@@ -148,7 +143,7 @@ auto calc_outputter::output_as_uint(std::ostream& out, std::uintmax_t val, calc_
     return out;
 }
 
-auto calc_outputter::output_as_ieee_fp(std::ostream& out, calc_val::float_type val, calc_val::radices radix) -> std::ostream& {
+auto calc_outputter::output_as_ieee_fp(std::ostream& out, x86_ext_double val, calc_val::radices radix) -> std::ostream& {
     static_assert(ieee_fp_parts<decltype(val)>::is_specialized);
     auto val_parts = ieee_fp_parts<decltype(val)>(val);
 

@@ -88,17 +88,20 @@ base for numbers:\n\
     -0dn - complex type, decimal base -- the default; e.g.: 10, 10+2*i\n\
     -0xn - complex type, hexadecimal base (hexadecimal floating point)\n\
 Complex type: represents a complex number composed of a real and imaginary part,\n\
-both of which are of extended precision floating point type. The full form of a\n\
-complex number is given here as a+b*i (and not a+bi; the calculator doesn't\n\
-support implied multiplication). Examples: 10+2*i (real part is 10, imaginary\n\
-part is 2*i), 10 (real number; imaginary part is 0), 2*i (imaginary number; real\n\
-part is 0).\n\
-Exception for -0d, -0du, -0x and -0xu:  if a number is specified with a decimal\n\
+both of which are of high precision floating point type (50 significant decimal\n\
+digits). The full form of a complex number can be given here as a+b*i (and not\n\
+a+bi; the calculator doesn't support implied multiplication). Examples: 10+2*i\n\
+(real part is 10, imaginary part is 2*i), 10 (real number; imaginary part is 0),\n\
+2*i (imaginary number; real part is 0).\n\
+Exception for -0d, -0du, -0x and -0xu: if a number is specified with a decimal\n\
 point or exponent then it will be represented as complex type; e.g., for -0x and\n\
 -0xu, the numbers a.1 and 0a1p-4 will both be represented as complex type and\n\
 interpreted in hexadecimal base.\n\
 Note: Hexadecimal floating point is described here:\n\
 https://www.exploringbinary.com/hexadecimal-floating-point-constants/\n\
+Hexadecimal floating point input is limited to IEEE extended precision (18\n\
+significant decimal digits); however, the input will be converted to the high\n\
+precision type so calculations on it will be in high precision.\n\
 \n\
 <output base>: Specifies the numeric base of the output:\n\
     -ob - binary\n\
@@ -107,7 +110,8 @@ https://www.exploringbinary.com/hexadecimal-floating-point-constants/\n\
     -ox - hexadecimal\n\
 Note: <output base> does not affect the output's representation type. Binary,\n\
 octal and hexadecimal output of complex numbers is consistent with hexadecimal\n\
-floating point (see above).\n\
+floating point (see above) and is limited to IEEE extended precision. (The\n\
+number is still represented internally in high precision).\n\
 \n\
 <mode>: Combines <input defaults> and <output base>: -mb (-0b -ob), -mo (-0o\n\
 -oo), -md (-0d -od), -mx (-0x -ox), -mbu (-0bu -ob), -mou (-0ou -oo), -mdu\n\
@@ -157,7 +161,8 @@ Note: unlike C, C++ and many other programming languages, ^ means exponentiation
 here, not bitwise xor; ^| is provided instead for bitwiwise xor.\n\
 \n\
 Available symbolic values:\n\
-    pi, e (Euler's number), i (imaginary unit), last (last result); e.g., 2+4*i\n\
+    pi, e (Euler's number), i (imaginary unit), last (last result); e.g.,\n\
+    e^(i*pi)+1\n\
 \n\
 Available functions; e.g.: sin(5):\n\
     exp - exp(n) is e raised to the power of n\n\

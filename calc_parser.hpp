@@ -39,10 +39,10 @@ private:
     std::string number_buf;
     auto assumed_number(lookahead_calc_lexer& lexer, bool is_negative) -> calc_val::variant_type;
 
-    auto trim_if_int(calc_val::complex_type x) const -> calc_val::complex_type;
-    auto trim_if_int(calc_val::float_type x) const -> calc_val::float_type;
-    auto trim_if_int(calc_val::uint_type x) const -> calc_val::uint_type;
-    auto trim_if_int(calc_val::int_type x) const -> calc_val::int_type;
+    auto trim_if_int(const calc_val::complex_type& x) const -> calc_val::complex_type;
+    auto trim_if_int(const calc_val::float_type& x) const -> calc_val::float_type;
+    auto trim_if_int(const calc_val::uint_type& x) const -> calc_val::uint_type;
+    auto trim_if_int(const calc_val::int_type& x) const -> calc_val::int_type;
     auto trim_int(calc_val::variant_type& val) const -> void;
 
     using unary_fn = calc_val::complex_type (*)(const calc_val::complex_type&);

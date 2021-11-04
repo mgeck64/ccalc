@@ -24,15 +24,6 @@ inline auto pow(T1 x, T2 e) -> std::enable_if_t<
     std::is_integral_v<T1> && std::is_integral_v<T2> && std::is_signed_v<T2>, T1>
 {return e < 0 ? 0 : helper::pow_uint(x, e);}
 
-// forward to std version for mixed integer and floating point cases
-// (very specific here to avoid conflict with version in complex_type.h)
-template <typename T1, typename T2>
-auto pow(T1 x, T2 e) -> std::enable_if_t<
-    (std::is_integral_v<T1> && std::is_floating_point_v<T2>) ||
-    (std::is_floating_point_v<T1> && std::is_integral_v<T2>) ||
-    (std::is_floating_point_v<T1> && std::is_floating_point_v<T2>), T1>
-{return std::pow(x, e);}
-
 } // namespace calc_val
 
 #endif // POW_INT_HPP

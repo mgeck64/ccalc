@@ -30,7 +30,7 @@ private:
 
     static auto output(std::ostream& out, const calc_val::variant_type& val, calc_val::radices radix) -> std::ostream&;
     static auto output_as_uint(std::ostream& out, std::uintmax_t val, calc_val::radices radix) -> std::ostream&;
-    static auto output_as_ieee_fp(std::ostream& out, calc_val::float_type val, calc_val::radices radix) -> std::ostream&;
+    static auto output_as_ieee_fp(std::ostream& out, x86_ext_double val, calc_val::radices radix) -> std::ostream&;
 
     static constexpr auto digits = std::array{
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};

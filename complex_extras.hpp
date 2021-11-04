@@ -1,18 +1,17 @@
 #ifndef COMPLEX_EXTRAS_HPP
 #define COMPLEX_EXTRAS_HPP
 
-// extra functionality not provided by std::complex nor the alternative complex
-// number class
+// extra functionality not provided by complex_type's library
 
 #include "complex_type.hpp"
 
 namespace calc_val {
 
 inline auto log2(const complex_type& z) -> complex_type
-{return log(z) / std::log(2.0L);}
+{return log(z) / log(float_type(2));}
 
 inline auto cbrt(const complex_type& z) -> complex_type
-{return pow(z, 1.0 / 3.0L);}
+{return pow(z, float_type(1) / float_type(3));}
 
 auto tgamma(const complex_type& z) -> complex_type; // gamma function: use same name as std::tgamma
 auto lgamma(const complex_type& z) -> complex_type; // log gamma

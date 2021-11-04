@@ -5,30 +5,30 @@
 #include <cmath>
 
 calc_parser::identifier_with_unary_fn calc_parser::unary_fn_table[] = {
-    {"exp", calc_val::complex_common::exp}, // exp(n) is e raised to the power of n
-    {"ln", calc_val::complex_common::log}, // natural (base e) log
-    {"log10", calc_val::complex_common::log10}, // base 10 log
+    {"exp", boost::multiprecision::exp}, // exp(n) is e raised to the power of n
+    {"ln", boost::multiprecision::log}, // natural (base e) log
+    {"log10", boost::multiprecision::log10}, // base 10 log
     {"log2", calc_val::log2}, // base 2 log
-    {"sqrt", calc_val::complex_common::sqrt},
+    {"sqrt", boost::multiprecision::sqrt},
     {"cbrt", calc_val::cbrt}, // cubic root
-    {"sin", calc_val::complex_common::sin},
-    {"cos", calc_val::complex_common::cos},
-    {"tan", calc_val::complex_common::tan},
-    {"asin", calc_val::complex_common::asin}, // arc sin
-    {"acos", calc_val::complex_common::acos}, // arc cos
-    {"atan", calc_val::complex_common::atan}, // arc tan
-    {"sinh", calc_val::complex_common::sinh}, // hyperbolic sin
-    {"cosh", calc_val::complex_common::cosh}, // hyperbolic cos
-    {"tanh", calc_val::complex_common::tanh}, // hyperbolic tan
-    {"asinh", calc_val::complex_common::asinh}, // inverse hyperbolic sin
-    {"acosh", calc_val::complex_common::acosh}, // inverse hyperbolic cos
-    {"atanh", calc_val::complex_common::atanh}, // inverse hyperbolic tan
+    {"sin", boost::multiprecision::sin},
+    {"cos", boost::multiprecision::cos},
+    {"tan", boost::multiprecision::tan},
+    {"asin", boost::multiprecision::asin}, // arc sin
+    {"acos", boost::multiprecision::acos}, // arc cos
+    {"atan", boost::multiprecision::atan}, // arc tan
+    {"sinh", boost::multiprecision::sinh}, // hyperbolic sin
+    {"cosh", boost::multiprecision::cosh}, // hyperbolic cos
+    {"tanh", boost::multiprecision::tanh}, // hyperbolic tan
+    {"asinh", boost::multiprecision::asinh}, // inverse hyperbolic sin
+    {"acosh", boost::multiprecision::acosh}, // inverse hyperbolic cos
+    {"atanh", boost::multiprecision::atanh}, // inverse hyperbolic tan
     {"gamma", calc_val::tgamma},
     {"lgamma", calc_val::lgamma}, // log gamma
     {"arg", calc_val::arg_wrapper}, // phase angle
     {"norm", calc_val::norm_wrapper}, // squared magnitude
-    {"conj", calc_val::complex_common::conj}, // conjugate
-    {"proj", calc_val::complex_common::proj}, // projection onto the Riemann sphere
+    {"conj", boost::multiprecision::conj}, // conjugate
+    {"proj", boost::multiprecision::proj}, // projection onto the Riemann sphere
 };
 
 
@@ -39,20 +39,20 @@ static inline constexpr auto is_nan(T x) -> bool
 
 
 
-inline auto calc_parser::trim_if_int(calc_val::complex_type x) const -> calc_val::complex_type
+inline auto calc_parser::trim_if_int(const calc_val::complex_type& x) const -> calc_val::complex_type
 {return x;}
 
-inline auto calc_parser::trim_if_int(calc_val::float_type x) const -> calc_val::float_type
+inline auto calc_parser::trim_if_int(const calc_val::float_type& x) const -> calc_val::float_type
 {return x;}
 
-inline auto calc_parser::trim_if_int(calc_val::uint_type x) const -> calc_val::uint_type {
+inline auto calc_parser::trim_if_int(const calc_val::uint_type& x) const -> calc_val::uint_type {
     static_assert(sizeof(std::int8_t) == 1);
     assert(sizeof(x) * 8 >= int_word_size);
     unsigned shift = sizeof(x) * 8 - int_word_size;
     return x & (~calc_val::uint_type(0) >> shift);
 }
 
-inline auto calc_parser::trim_if_int(calc_val::int_type x) const -> calc_val::int_type  {
+inline auto calc_parser::trim_if_int(const calc_val::int_type& x) const -> calc_val::int_type  {
     static_assert(sizeof(std::int8_t) == 1);
     assert(sizeof(x) * 8 >= int_word_size);
     unsigned shift = sizeof(x) * 8 - int_word_size;
@@ -61,9 +61,22 @@ inline auto calc_parser::trim_if_int(calc_val::int_type x) const -> calc_val::in
 
 inline auto calc_parser::trim_int(calc_val::variant_type& val) const -> void {
     std::visit([&](const auto& x) {
-        using VT = std::decay_t<decltype(x)>;
-        if constexpr (std::is_integral_v<VT>)
+        if constexpr (calc_val::is_int_type<decltype(x)>())
             val = trim_if_int(x);
+    }, val);
+}
+
+
+
+static auto try_to_make_int_if_complex(calc_val::variant_type& val) -> void {
+    std::visit([&](const auto& sub_val) {
+        if constexpr (calc_val::is_complex_type<decltype(sub_val)>()) {
+            if (sub_val.imag() == 0) {
+                auto i = static_cast<calc_val::int_type>(sub_val.real());
+                if (i == sub_val.real()) // sub_val is a whole number that fits in int
+                    val = i; // side effect; assume sub_val becomes invalid
+            }
+        }
     }, val);
 }
 
@@ -144,20 +157,19 @@ auto calc_parser::math_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_ty
     for (;;) {
         if (lexer.peek_token().id == calc_token::bor) {
             auto op_token = lexer.get_token();
+            auto rval = bxor_expr(lexer);
+            try_to_make_int_if_complex(lval);
+            try_to_make_int_if_complex(rval);
             lval = std::visit([&](const auto& lval, const auto& rval) -> calc_val::variant_type {
-                using LVT = std::decay_t<decltype(lval)>;
-                using RVT = std::decay_t<decltype(rval)>;
                 assert(is_nan(lval) || lval == trim_if_int(lval));
                 assert(is_nan(rval) || rval == trim_if_int(rval));
-                if constexpr (std::is_integral_v<LVT> && std::is_integral_v<RVT>)
+                if constexpr (calc_val::is_int_type<decltype(lval)>() && calc_val::is_int_type<decltype(rval)>())
                     return lval | rval;
-                else if constexpr (!std::is_integral_v<LVT>)
-                    throw calc_parse_error(calc_parse_error::left_operand_must_be_int_type, op_token);
+                else if constexpr (!calc_val::is_int_type<decltype(lval)>())
+                    throw calc_parse_error(calc_parse_error::invalid_left_operand, op_token);
                 else
-                    throw calc_parse_error(calc_parse_error::right_operand_must_be_int_type, op_token);
-                    // we don't simply convert floating point to int because the
-                    // number may be imprecise rounded version of the original
-            }, lval, bxor_expr(lexer));
+                    throw calc_parse_error(calc_parse_error::invalid_right_operand, op_token);
+            }, lval, rval);
         } else
             break;
     }
@@ -170,20 +182,19 @@ auto calc_parser::bxor_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_ty
     for (;;) {
         if (lexer.peek_token().id == calc_token::bxor) {
             auto op_token = lexer.get_token();
+            auto rval = band_expr(lexer);
+            try_to_make_int_if_complex(lval);
+            try_to_make_int_if_complex(rval);
             lval = std::visit([&](const auto& lval, const auto& rval) -> calc_val::variant_type {
-                using LVT = std::decay_t<decltype(lval)>;
-                using RVT = std::decay_t<decltype(rval)>;
                 assert(is_nan(lval) || lval == trim_if_int(lval));
                 assert(is_nan(rval) || rval == trim_if_int(rval));
-                if constexpr (std::is_integral_v<LVT> && std::is_integral_v<RVT>)
+                if constexpr (calc_val::is_int_type<decltype(lval)>() && calc_val::is_int_type<decltype(rval)>())
                     return lval ^ rval;
-                else if constexpr (!std::is_integral_v<LVT>)
-                    throw calc_parse_error(calc_parse_error::left_operand_must_be_int_type, op_token);
+                else if constexpr (!calc_val::is_int_type<decltype(lval)>())
+                    throw calc_parse_error(calc_parse_error::invalid_left_operand, op_token);
                 else
-                    throw calc_parse_error(calc_parse_error::right_operand_must_be_int_type, op_token);
-                    // we don't simply convert floating point to int because the
-                    // number may be imprecise rounded version of the original
-            }, lval, band_expr(lexer));
+                    throw calc_parse_error(calc_parse_error::invalid_right_operand, op_token);
+            }, lval, rval);
         } else
             break;
     }
@@ -196,20 +207,19 @@ auto calc_parser::band_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_ty
     for (;;) {
         if (lexer.peek_token().id == calc_token::band) {
             auto op_token = lexer.get_token();
+            auto rval = shift_expr(lexer);
+            try_to_make_int_if_complex(lval);
+            try_to_make_int_if_complex(rval);
             lval = std::visit([&](const auto& lval, const auto& rval) -> calc_val::variant_type {
-                using LVT = std::decay_t<decltype(lval)>;
-                using RVT = std::decay_t<decltype(rval)>;
                 assert(is_nan(lval) || lval == trim_if_int(lval));
                 assert(is_nan(rval) || rval == trim_if_int(rval));
-                if constexpr (std::is_integral_v<LVT> && std::is_integral_v<RVT>)
+                if constexpr (calc_val::is_int_type<decltype(lval)>() && calc_val::is_int_type<decltype(rval)>())
                     return lval & rval;
-                else if constexpr (!std::is_integral_v<LVT>)
-                    throw calc_parse_error(calc_parse_error::left_operand_must_be_int_type, op_token);
+                else if constexpr (!calc_val::is_int_type<decltype(lval)>())
+                    throw calc_parse_error(calc_parse_error::invalid_left_operand, op_token);
                 else
-                    throw calc_parse_error(calc_parse_error::right_operand_must_be_int_type, op_token);
-                    // we don't simply convert floating point to int because the
-                    // number may be imprecise rounded version of the original
-            }, lval, shift_expr(lexer));
+                    throw calc_parse_error(calc_parse_error::invalid_right_operand, op_token);
+            }, lval, rval);
         } else
             break;
     }
@@ -224,11 +234,11 @@ auto calc_parser::shift_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_t
     // in that case. if shift_arg is >= int_word_size then we will simulate
     // shifting beyond that limit
         using ShiftT = std::decay_t<decltype(shift_arg)>;
-        if constexpr (std::is_integral_v<ShiftT> && std::is_signed_v<ShiftT>) {
+        if constexpr (calc_val::is_int_type<ShiftT>() && std::is_signed_v<ShiftT>) {
             if (shift_arg < 0)
                 throw calc_parse_error(calc_parse_error::negative_shift_invalid, op_token);
             return shift_arg < int_word_size;
-        } else if constexpr (std::is_integral_v<ShiftT>)
+        } else if constexpr (calc_val::is_int_type<ShiftT>())
             return shift_arg < int_word_size;
     };
 
@@ -236,48 +246,50 @@ auto calc_parser::shift_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_t
     for (;;) {
         if (lexer.peek_token().id == calc_token::shiftl) {
             calc_token op_token = lexer.get_token();
+            auto rval = additive_expr(lexer);
+            try_to_make_int_if_complex(lval);
+            try_to_make_int_if_complex(rval);
             lval = std::visit([&](const auto& lval, const auto& rval) -> calc_val::variant_type {
-                using LVT = std::decay_t<decltype(lval)>;
-                using RVT = std::decay_t<decltype(rval)>;
                 assert(is_nan(lval) || lval == trim_if_int(lval));
                 assert(is_nan(rval) || rval == trim_if_int(rval));
-                if constexpr (std::is_integral_v<LVT> && std::is_integral_v<RVT>) {
+                using LVT = std::decay_t<decltype(lval)>;
+                using RVT = std::decay_t<decltype(rval)>;
+                if constexpr (calc_val::is_int_type<LVT>() && calc_val::is_int_type<RVT>()) {
                     if (shift_arg_in_range(rval, op_token))
                         return trim_if_int(lval << rval);
-                    return static_cast<LVT>(0);
-                } else if (!std::is_integral_v<LVT>)
-                    throw calc_parse_error(calc_parse_error::left_operand_must_be_int_type, op_token);
+                    return LVT(0);
+                } else if (!calc_val::is_int_type<LVT>())
+                    throw calc_parse_error(calc_parse_error::invalid_left_operand, op_token);
                 else
-                    throw calc_parse_error(calc_parse_error::right_operand_must_be_int_type, op_token);
-                    // we don't simply convert floating point to int because the
-                    // number may be imprecise rounded version of the original
-            }, lval, additive_expr(lexer));
+                    throw calc_parse_error(calc_parse_error::invalid_right_operand, op_token);
+            }, lval, rval);
         } else if (lexer.peeked_token().id == calc_token::shiftr) {
             calc_token op_token = lexer.get_token();
+            auto rval = additive_expr(lexer);
+            try_to_make_int_if_complex(lval);
+            try_to_make_int_if_complex(rval);
             lval = std::visit([&](const auto& lval, const auto& rval) -> calc_val::variant_type {
-                using LVT = std::decay_t<decltype(lval)>;
-                using RVT = std::decay_t<decltype(rval)>;
                 assert(is_nan(lval) || lval == trim_if_int(lval));
                 assert(is_nan(rval) || rval == trim_if_int(rval));
-                if constexpr (std::is_integral_v<LVT> && std::is_signed_v<LVT> && std::is_integral_v<RVT>) {
+                using LVT = std::decay_t<decltype(lval)>;
+                using RVT = std::decay_t<decltype(rval)>;
+                if constexpr (calc_val::is_int_type<LVT>() && std::is_signed_v<LVT> && calc_val::is_int_type<RVT>()) {
                     if (shift_arg_in_range(rval, op_token))
                         return lval >> rval;
                     else if (lval < 0)
-                        return static_cast<LVT>(-1); // -1 doesn't need to be trimmed -- sign extended value
+                        return LVT(-1); // -1 doesn't need to be trimmed -- sign extended value
                     else
-                        return static_cast<LVT>(0);
-                } else if constexpr (std::is_integral_v<LVT> && std::is_integral_v<RVT>) {
+                        return LVT(0);
+                } else if constexpr (calc_val::is_int_type<LVT>() && calc_val::is_int_type<RVT>()) {
                     calc_val::uint_type shift_arg = 0;
                     if (shift_arg_in_range(rval, op_token))
                         return lval >> shift_arg;
-                    return static_cast<LVT>(0);
-                } else if (!std::is_integral_v<LVT>)
-                    throw calc_parse_error(calc_parse_error::left_operand_must_be_int_type, op_token);
+                    return LVT(0);
+                } else if (!calc_val::is_int_type<LVT>())
+                    throw calc_parse_error(calc_parse_error::invalid_left_operand, op_token);
                 else
-                    throw calc_parse_error(calc_parse_error::right_operand_must_be_int_type, op_token);
-                    // we don't simply convert floating point to int because the
-                    // number may be imprecise rounded version of the original
-            }, lval, additive_expr(lexer));
+                    throw calc_parse_error(calc_parse_error::invalid_right_operand, op_token);
+            }, lval, rval);
         } else
             break;
     }
@@ -322,11 +334,9 @@ auto calc_parser::term(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
         } else if (lexer.peeked_token().id == calc_token::div) {
             auto op_token = lexer.get_token();
             lval = std::visit([&](const auto& lval, const auto& rval) -> calc_val::variant_type {
-                using LVT = std::decay_t<decltype(lval)>;
-                using RVT = std::decay_t<decltype(rval)>;
                 assert(is_nan(lval) || lval == trim_if_int(lval));
                 assert(is_nan(rval) || rval == trim_if_int(rval));
-                if constexpr (std::is_integral_v<LVT> && std::is_integral_v<RVT>) {
+                if constexpr (calc_val::is_int_type<decltype(lval)>() && calc_val::is_int_type<decltype(rval)>()) {
                     if (rval == 0)
                         throw calc_parse_error(calc_parse_error::integer_division_by_0, op_token);
                 }
@@ -334,22 +344,21 @@ auto calc_parser::term(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
             }, lval, factor(lexer));
         } else if (lexer.peeked_token().id == calc_token::mod) {
             auto op_token = lexer.get_token();
+            auto rval = factor(lexer);
+            try_to_make_int_if_complex(lval);
+            try_to_make_int_if_complex(rval);
             lval = std::visit([&](const auto& lval, const auto& rval) -> calc_val::variant_type {
-                using LVT = std::decay_t<decltype(lval)>;
-                using RVT = std::decay_t<decltype(rval)>;
                 assert(is_nan(lval) || lval == trim_if_int(lval));
                 assert(is_nan(rval) || rval == trim_if_int(rval));
-                if constexpr (std::is_integral_v<LVT> && std::is_integral_v<RVT>) {
+                if constexpr (calc_val::is_int_type<decltype(lval)>() && calc_val::is_int_type<decltype(rval)>()) {
                     if (rval == 0)
                         throw calc_parse_error(calc_parse_error::integer_division_by_0, op_token);
                     return trim_if_int(lval % rval); // trim for good measure
-                } else if constexpr (!std::is_integral_v<LVT>)
-                    throw calc_parse_error(calc_parse_error::left_operand_must_be_int_type, op_token);
+                } else if constexpr (!calc_val::is_int_type<decltype(lval)>())
+                    throw calc_parse_error(calc_parse_error::invalid_left_operand, op_token);
                 else
-                    throw calc_parse_error(calc_parse_error::right_operand_must_be_int_type, op_token);
-                    // we don't simply convert floating point to int because the
-                    // number may be imprecise rounded version of the original
-            }, lval, factor(lexer));
+                    throw calc_parse_error(calc_parse_error::invalid_right_operand, op_token);
+            }, lval, rval);
         } else
             break;
     }
@@ -387,16 +396,15 @@ auto calc_parser::factor(lookahead_calc_lexer& lexer) -> calc_val::variant_type 
 
     if (lexer.peek_token().id == calc_token::bnot) { // "~"
         auto op_token = lexer.get_token();
+        auto val = factor(lexer);
+        try_to_make_int_if_complex(val);
         return std::visit([&](const auto& val) -> calc_val::variant_type {
-            using VT = std::decay_t<decltype(val)>;
             assert(is_nan(val) || val == trim_if_int(val));
-            if constexpr (std::is_integral_v<VT>)
+            if constexpr (calc_val::is_int_type<decltype(val)>())
                 return trim_if_int(~val);
             else
-                throw calc_parse_error(calc_parse_error::operand_must_be_int_type, op_token);
-                // we don't simply convert floating point to int because the
-                // number may be imprecise rounded version of the original
-        }, factor(lexer));
+                throw calc_parse_error(calc_parse_error::invalid_operand, op_token);
+        }, val);
     }
 
     // <base>
