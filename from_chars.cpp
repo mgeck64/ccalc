@@ -21,9 +21,9 @@ auto from_chars(const char* begin, const char* end, float_type& out_num, unsigne
 //   (always) expressed in decimal
 // - 0x and 0X prefixes are not recognized in any case 
     enum class scanning {whole, fraction, exponent} scan_state = scanning::whole;
-    calc_val::float_type num = 0;
-    calc_val::float_type frac_place = 1;
-    calc_val::float_type exponent = 0;
+    float_type num = 0;
+    float_type frac_place = 1;
+    float_type exponent = 0; // float_type will allow overflow to result in inf
     auto digits = false;
     auto exponent_digits = false;
     bool negative_exponent = false;
