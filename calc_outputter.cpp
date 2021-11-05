@@ -59,9 +59,11 @@ auto calc_outputter::output_dec(std::ostream& out, const calc_val::variant_type&
             if (val.real() != 0 || val.imag() == 0)
                 out << val.real();
             if (val.imag() != 0) {
-                if (val.real() != 0 && !ieee_fp_parts<x86_ext_double>(static_cast<x86_ext_double>(val.imag())).is_negative()) // handles -nan
+                if (val.real() != 0 && !val.imag().backend().sign())
                     out << '+';
-                if (abs(val.imag()) != 1)
+                if (val.imag() == -1)
+                    out << '-';
+                else if (val.imag() != 1)
                     out << val.imag();
                 out << 'i';
             }
@@ -85,12 +87,14 @@ auto calc_outputter::output(std::ostream& out, const calc_val::variant_type& val
         else {
             static_assert(std::is_same_v<calc_val::complex_type, VT>);
             if (val.real() != 0 || val.imag() == 0)
-                output_as_ieee_fp(out, static_cast<x86_ext_double>(val.real()), radix);
+                output_as_ieee_fp(out, val.real(), radix);
             if (val.imag() != 0) {
-                if (val.real() != 0 && !ieee_fp_parts<x86_ext_double>(static_cast<x86_ext_double>(val.imag())).is_negative()) // handles -nan
+                if (val.real() != 0 && !val.imag().backend().sign())
                     out << '+';
-                if (abs(val.imag()) != 1)
-                    output_as_ieee_fp(out, static_cast<x86_ext_double>(val.imag()), radix);
+                if (val.imag() == -1)
+                    out << '-';
+                else if (val.imag() != 1)
+                    output_as_ieee_fp(out, val.imag(), radix);
                 out << 'i';
             }
         }
@@ -143,9 +147,9 @@ auto calc_outputter::output_as_uint(std::ostream& out, std::uintmax_t val, calc_
     return out;
 }
 
-auto calc_outputter::output_as_ieee_fp(std::ostream& out, x86_ext_double val, calc_val::radices radix) -> std::ostream& {
-    static_assert(ieee_fp_parts<decltype(val)>::is_specialized);
-    auto val_parts = ieee_fp_parts<decltype(val)>(val);
+auto calc_outputter::output_as_ieee_fp(std::ostream& out, const pseudo_IEEE_cpp_bin_float& val, calc_val::radices radix) -> std::ostream& {
+    static_assert(ieee_fp_parts<std::decay_t<decltype(val)>>::is_specialized);
+    auto val_parts = ieee_fp_parts<std::decay_t<decltype(val)>>(val);
 
     if (val_parts.is_negative())
         out << '-';
@@ -170,6 +174,7 @@ auto calc_outputter::output_as_ieee_fp(std::ostream& out, x86_ext_double val, ca
         }
 
 #if (1) //----------------------------------------------------------------------
+// output the number normalized.
 // note: hexadecimal floating point format is described here:
 // https://www.exploringbinary.com/hexadecimal-floating-point-constants/
 // binary and octal floating point format is by extension
@@ -190,7 +195,7 @@ auto calc_outputter::output_as_ieee_fp(std::ostream& out, x86_ext_double val, ca
         if (reversed) {
             out << '.';
             do {
-                out << digits.at(reversed & digit_mask);
+                out << digits.at(unsigned(reversed & digit_mask));
                 reversed >>= digit_shift;
             } while (reversed);
         }

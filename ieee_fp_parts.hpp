@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <limits>
 #include <cstring>
+#include <cassert>
+#include <boost/multiprecision/cpp_bin_float.hpp>
 
 template <typename T>
 class ieee_fp_parts {
@@ -173,6 +175,69 @@ public:
 
     constexpr auto is_zero() const noexcept -> bool
     {return (hi & exponent_mask) == 0 && lo == 0;}
+};
+
+//------------------------------------------------------------------------------
+
+using pseudo_IEEE_cpp_bin_float = boost::multiprecision::cpp_bin_float_50;
+
+template<>
+class ieee_fp_parts<pseudo_IEEE_cpp_bin_float> {
+// not officially an IEEE format but is compatable enough that this can be
+// adapted: logical model is signed magnitude just like IEEE logical model
+    using significand_type = boost::multiprecision::number<pseudo_IEEE_cpp_bin_float::backend_type::rep_type>;
+    using exponent_type = pseudo_IEEE_cpp_bin_float::backend_type::exponent_type;
+
+private:
+    bool sign;
+    significand_type significand_;
+    exponent_type exponent_;
+    static constexpr auto hi_bit = significand_type(1) << (pseudo_IEEE_cpp_bin_float::backend_type::bit_count - 1);
+    static constexpr auto frac_mask = ~hi_bit;
+    static constexpr auto significand_0 = significand_type(0);
+
+public:
+    static constexpr auto is_specialized = true;
+
+    explicit ieee_fp_parts(const pseudo_IEEE_cpp_bin_float& n) noexcept
+        : sign{n.backend().sign()}, significand_{n.backend().bits()},
+          exponent_{n.backend().exponent()} {}
+
+    constexpr auto is_negative() const noexcept -> bool
+    {return sign;}
+
+    constexpr auto exponent() const noexcept -> const exponent_type&
+    {return exponent_;}
+
+    constexpr auto adjusted_exponent() const noexcept -> const exponent_type&
+    {assert(!is_inf() && !is_nan() && !is_zero()); return exponent_;}
+
+    static constexpr auto normalizes() noexcept -> bool
+    {return false;}
+
+    constexpr auto has_int_bit() const noexcept -> bool
+    {return (significand_ & hi_bit) != significand_0;}
+
+    constexpr auto significand() const noexcept -> const significand_type&
+    {return significand_;}
+
+    static constexpr auto significand_bits() noexcept -> auto
+    {return pseudo_IEEE_cpp_bin_float::backend_type::bit_count;}
+
+    constexpr auto fraction() const noexcept -> significand_type
+    {return significand_ & frac_mask;}
+
+    static constexpr auto fraction_bits() noexcept -> auto
+    {return significand_bits() - 1;}
+
+    constexpr auto is_inf() const noexcept -> bool
+    {return exponent_ == pseudo_IEEE_cpp_bin_float::backend_type::exponent_infinity;}
+
+    constexpr auto is_nan() const noexcept -> bool
+    {return exponent_ == pseudo_IEEE_cpp_bin_float::backend_type::exponent_nan;}
+
+    constexpr auto is_zero() const noexcept -> bool
+    {return exponent_ == pseudo_IEEE_cpp_bin_float::backend_type::exponent_zero;}
 };
 
 #endif // IEEE_FP_PARTS_HPP

@@ -103,21 +103,18 @@ is 10, imaginary part is 2*i), 10 (real number; imaginary part is 0), 2*i\n\
 Exception: If a number is specified with a decimal point or exponent then it\n\
 will be represented as complex type; e.g., for -0x and -0xu, the numbers 0a.1\n\
 and 0a1p-4 will both be represented as complex type and interpreted in\n\
-hexadecimal base. Hexadecimal floating point numbers are described here:\n\
-https://www.exploringbinary.com/hexadecimal-floating-point-constants/\n\
-The following are different ways of expressing the number 314 in floating point:\n\
-1.0011101p+8 (normalized binary floating point), 1.164p+8 (normalized octal\n\
-floating point), 3.14e+2 (decimal floating point), 13a.0 (hexadecimal floating\n\
-point), 1.3ap+8 (normalized hexadecimal floating point).\n\
+hexadecimal base. Examples of a number expressed in different ways appears\n\
+below.\n\
 \n\
 <output base>: Specifies the numeric base of the output:\n\
     -ob - binary\n\
     -oo - octal\n\
     -od - decimal -- the default\n\
     -ox - hexadecimal\n\
-Note: Binary octal and hexadecimal output of a complex number will be in\n\
-normalized form and is presently limited to IEEE extended precision. (However,\n\
-the number will still be represented internally in high precision).\n\
+Note: Binary octal and hexadecimal output of the floating point componts of a\n\
+complex type number will be in normalized form. A basic description of\n\
+hexadecimal floating point format is provided here:\n\
+https://www.exploringbinary.com/hexadecimal-floating-point-constants/\n\
 \n\
 <mode>: Combines <input defaults> and <output base>: -mb (-0b -ob), -mo (-0o\n\
 -oo), -md (-0d -od), -mx (-0x -ox), -mbu (-0bu -ob), -mou (-0ou -oo), -mdu\n\
@@ -157,6 +154,15 @@ complex type and interpreted in hexadecimal base.\n\
 Note: 0b and 0d cannot be used when the default numeric base is hexadecimal\n\
 because those are valid hexadecimal numbers. For that case, the 0bx and 0dx\n\
 prefixes can be used to specify binary base and decimal base respectively.\n\
+\n\
+Examples: The following are different ways of expressing the number 314:\n\
+0b100111010 (binary signed integer type), 0o472u (octal unsigned integer type),\n\
+314s (decimal signed integer type assuming decimal is the default base), 0x13a\n\
+(hexadecimal signed integer type), 0b1.0011101p+8 (normalized binary floating\n\
+point type), 0o472.0 (octal floating point type), 0o1.164p+8 (normalized octal\n\
+floating point type), 0d3.14e+2 (decimal floating point type), 0x13a.0\n\
+(hexadecimal floating point type), 0x1.3ap+8 (normalized hexadecimal floating\n\
+point type).\n\
 \n\
 Available arithmetic operators:\n\
     + (addition and unary plus) - (subtraction and negation) * (multiplication)\n\
