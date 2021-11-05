@@ -94,31 +94,30 @@ base for numbers:\n\
     -0xu - unsigned integer type, hexadecimal base\n\
     -0dn - complex type, decimal base -- the default; e.g.: 10, 10+2*i\n\
     -0xn - complex type, hexadecimal base (hexadecimal floating point)\n\
-Complex type: represents a complex number composed of a real and imaginary part,\n\
-both of which are of high precision floating point type (50 significant decimal\n\
-digits). The full form of a complex number can be given here as a+b*i (and not\n\
-a+bi; the calculator doesn't support implied multiplication). Examples: 10+2*i\n\
-(real part is 10, imaginary part is 2*i), 10 (real number; imaginary part is 0),\n\
-2*i (imaginary number; real part is 0).\n\
-Exception for -0d, -0du, -0x and -0xu: if a number is specified with a decimal\n\
-point or exponent then it will be represented as complex type; e.g., for -0x and\n\
--0xu, the numbers a.1 and 0a1p-4 will both be represented as complex type and\n\
-interpreted in hexadecimal base.\n\
-Note: Hexadecimal floating point is described here:\n\
+Complex type: Represents a complex number composed of a real and imaginary part,\n\
+both of which are high precision floating point (50 significant decimal digits).\n\
+The full form of a complex number can be given as a+b*i (and not a+bi; the\n\
+calculator doesn't support implied multiplication). Examples: 10+2*i (real part\n\
+is 10, imaginary part is 2*i), 10 (real number; imaginary part is 0), 2*i\n\
+(imaginary number; real part is 0).\n\
+Exception: If a number is specified with a decimal point or exponent then it\n\
+will be represented as complex type; e.g., for -0x and -0xu, the numbers 0a.1\n\
+and 0a1p-4 will both be represented as complex type and interpreted in\n\
+hexadecimal base. Hexadecimal floating point numbers are described here:\n\
 https://www.exploringbinary.com/hexadecimal-floating-point-constants/\n\
-Hexadecimal floating point input is limited to IEEE extended precision (18\n\
-significant decimal digits); however, the input will be converted to the high\n\
-precision type so calculations on it will be in high precision.\n\
+The following are different ways of expressing the number 314 in floating point:\n\
+1.0011101p+8 (normalized binary floating point), 1.164p+8 (normalized octal\n\
+floating point), 3.14e+2 (decimal floating point), 13a.0 (hexadecimal floating\n\
+point), 1.3ap+8 (normalized hexadecimal floating point).\n\
 \n\
 <output base>: Specifies the numeric base of the output:\n\
     -ob - binary\n\
     -oo - octal\n\
     -od - decimal -- the default\n\
     -ox - hexadecimal\n\
-Note: <output base> does not affect the output's representation type. Binary,\n\
-octal and hexadecimal output of complex numbers is consistent with hexadecimal\n\
-floating point (see above) and is limited to IEEE extended precision. (The\n\
-number is still represented internally in high precision).\n\
+Note: Binary octal and hexadecimal output of a complex number will be in\n\
+normalized form and is presently limited to IEEE extended precision. (However,\n\
+the number will still be represented internally in high precision).\n\
 \n\
 <mode>: Combines <input defaults> and <output base>: -mb (-0b -ob), -mo (-0o\n\
 -oo), -md (-0d -od), -mx (-0x -ox), -mbu (-0bu -ob), -mou (-0ou -oo), -mdu\n\
@@ -131,8 +130,8 @@ number is still represented internally in high precision).\n\
     -w64 - 64 bits -- the default\n\
 Note: this does not affect the complex type.\n\
 \n\
-<precision>: -pd<n> specifies the precision (number of significant digits) to\n\
-output decimal floating point numbers with; e.g., -pd8\n\
+<precision>: -pd<n> specifies the precision (number of significant digits) in\n\
+which to output decimal floating point numbers; e.g., -pd8\n\
 \n\
 Options may also be provided in an expression (e.g., when input from stdin);\n\
 options provided this way begin with '@' instead of '-' (because '-' is the\n\
@@ -148,14 +147,13 @@ Prefixes:\n\
 Suffixes:\n\
     s    - signed integer type; e.g., 0b1010s, 10s\n\
     u    - unsigned integer type; e.g., 0b1010u, 10u\n\
-    n    - complex type; e.g., 0x10n; valid only for decimal base and\n\
-           hexadecimal base\n\
+    n    - complex type; e.g., 0xan; valid only for decimal base and hexadecimal\n\
+           base\n\
     none - if the number has a prefix (e.g., 0d10) then signed integer type;\n\
            otherwise (e.g., 10) the default representation type\n\
-Exception for decimal base and hexadecimal base: if the number has a decimal\n\
-point or exponent then it will be represented as complex type; e.g., 0xa.1 and\n\
-0xa1p-4 will both be represented as complex type and interpreted in hexadecimal\n\
-base.\n\
+Exception: If a number has a decimal point or exponent then it will be\n\
+represented as complex type; e.g., 0xa.1 and 0xa1p-4 will both be represented as\n\
+complex type and interpreted in hexadecimal base.\n\
 Note: 0b and 0d cannot be used when the default numeric base is hexadecimal\n\
 because those are valid hexadecimal numbers. For that case, the 0bx and 0dx\n\
 prefixes can be used to specify binary base and decimal base respectively.\n\
@@ -168,7 +166,7 @@ Available arithmetic operators:\n\
 Available bitwise operators:\n\
     ~ (not) & (and) | (or) ^| (xor) << >> (shift; algebraic for signed type)\n\
 Note: unlike C, C++ and many other programming languages, ^ means exponentiation\n\
-here, not bitwise xor; ^| is provided instead for bitwiwise xor.\n\
+here, not bitwise xor; use ^| instead for bitwiwise xor.\n\
 \n\
 Available symbolic values:\n\
     pi, e (Euler's number), i (imaginary unit), last (last result); e.g.,\n\

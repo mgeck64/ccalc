@@ -1,12 +1,26 @@
-#ifndef IS_DIGIT_HPP
-#define IS_DIGIT_HPP
+#ifndef IS_DIGIT_H
+#define IS_DIGIT_H
 
 extern const unsigned char alphanumeric_digits_lut[128];
 
 #ifdef __cplusplus
 
-inline bool is_digit(unsigned char c, unsigned radix) {
-    return static_cast<unsigned>(alphanumeric_digits_lut[c & 127]) - 1 < radix;
+namespace calc_val {
+
+inline auto is_digit(unsigned char c, unsigned radix) -> bool {
+    if (c > 127)
+        return false;
+    return static_cast<unsigned>(alphanumeric_digits_lut[c]) - 1 < radix;
+    // subtract 1 so ordinal value of digit character becomes 0 based (0 to 35),
+    // and default 0 value for non-digit becomes unsigned(-1) (all bits are 1),
+    // which will test false for < radix
+}
+
+inline auto digit_ord(unsigned char c, unsigned radix) -> int {
+    if (c > 127)
+        return -1;
+    auto ord = static_cast<unsigned>(alphanumeric_digits_lut[c]) - 1;
+    return ord < radix ? ord : -1;
     // subtract 1 so ordinal value of digit character becomes 0 based (0 to 35),
     // and default 0 value for non-digit becomes unsigned(-1) (all bits are 1),
     // which will test false for < radix
@@ -40,6 +54,8 @@ inline bool is_digit_older_version(char c, unsigned radix) {
     return false;
 }
 
+} // namespace calc_val
+
 #endif
 
-#endif // IS_DIGIT_HPP
+#endif // IS_DIGIT_H

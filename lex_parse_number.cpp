@@ -2,7 +2,7 @@
 #include "calc_parse_error.hpp"
 #include "is_digit.h"
 #include "calc_args.hpp"
-#include <charconv>
+#include "from_chars.hpp"
 
 // implementation of two very closely related functions regarding scanning and
 // converting number tokens
@@ -68,17 +68,10 @@ void calc_lexer::scan_as_number() {
     }
 
     auto has_decimal_point = false;
-
-    auto exponent_code = [&] {
-        if (radix == calc_val::base10)
-            return 'e';
-        if (radix == calc_val::base16)
-            return 'p';
-        return '\0';
-    }();
+    auto exponent_code = radix == calc_val::base10 ? 'e' : 'p';
 
     // assume these codes are alnum and so will be accepted in alnum case below:
-    assert(!exponent_code || std::isalnum(exponent_code)); // 0 or alnum
+    assert(std::isalnum(exponent_code));
     assert(std::isalnum(unsigned_suffix_code));
     assert(std::isalnum(signed_suffix_code));
     assert(std::isalnum(complex_suffix_code));
@@ -163,18 +156,11 @@ auto calc_parser::assumed_number(lookahead_calc_lexer& lexer, bool is_negative) 
         }
     }
 
-    auto exponent_code = [&] {
-        if (radix == calc_val::base10)
-            return 'e';
-        if (radix == calc_val::base16)
-            return 'p';
-        return '\0';
-    }();
-
+    auto exponent_code = radix == calc_val::base10 ? 'e' : 'p';
     bool is_simple_number = true; // no decimal point or exponent code
 
     for (auto c : num_itr) { // check for decimal point or exponent code
-        if (c == '.' || (exponent_code && tolower(c) == exponent_code)) {
+        if (c == '.' || tolower(c) == exponent_code) {
             type_code = calc_val::complex_code;
             is_simple_number = false;
             break;
@@ -193,49 +179,25 @@ auto calc_parser::assumed_number(lookahead_calc_lexer& lexer, bool is_negative) 
             type_code = calc_val::int_code;
             num_itr.remove_suffix(1);
         } else if (c == complex_suffix_code) {
-            if (radix != calc_val::base10 && radix != calc_val::base16)
-                throw calc_parse_error(calc_parse_error::this_suffix_invalid_here, token);
             type_code = calc_val::complex_code;
             num_itr.remove_suffix(1);
         }
     }
 
-    if (num_itr.at_end()) // prevent empty string from being converted to 0
-        throw calc_parse_error(calc_parse_error::invalid_number, token);
-
-    if ((type_code == calc_val::complex_code || radix == calc_val::base16)
-            && num_itr.length() > 1
-            && *num_itr == '0' && tolower(num_itr[1]) == 'x') // 0x is special prefix code
-        throw calc_parse_error(calc_parse_error::invalid_number, token);
-
     calc_val::float_type float_val = 0;
     unsigned long long uint_val = 0;
 
-    if (radix == calc_val::base10 && type_code == calc_val::complex_code) {
-        try {
-            float_val = calc_val::float_type(num_itr.view());
-        } catch (const std::runtime_error& e) {
-            throw calc_parse_error(calc_parse_error::invalid_number, token);
-        }
-    } else if (radix == calc_val::base16 && type_code == calc_val::complex_code) {
-        long double tmp; // no overload of from_chars exists for calc_val::float_type, so we use long double
-        std::from_chars_result r = std::from_chars(num_itr.begin(), num_itr.end(), tmp, std::chars_format::hex);
-        if (r.ec == std::errc::result_out_of_range)
-            throw calc_parse_error(calc_parse_error::out_of_range, token);
-        else if (r.ec != std::errc() || r.ptr != num_itr.end())
-            throw calc_parse_error(calc_parse_error::invalid_number, token);
-        float_val = tmp;
-    } else {
-        if (type_code == calc_val::complex_code)
-            throw calc_parse_error(calc_parse_error::integer_number_expected, token);
+    std::from_chars_result from_char_result;
+    if (type_code == calc_val::complex_code)
+        from_char_result = calc_val::from_chars(num_itr.begin(), num_itr.end(), float_val, radix);
+    else {
         assert(type_code == calc_val::uint_code || type_code == calc_val::int_code);
-
-        std::from_chars_result r = std::from_chars(num_itr.begin(), num_itr.end(), uint_val, radix);
-        if (r.ec == std::errc::result_out_of_range)
-            throw calc_parse_error(calc_parse_error::out_of_range, token);
-        else if (r.ec != std::errc() || r.ptr != num_itr.end())
-            throw calc_parse_error(calc_parse_error::invalid_number, token);
+        from_char_result = std::from_chars(num_itr.begin(), num_itr.end(), uint_val, radix);
     }
+    if (from_char_result.ec == std::errc::result_out_of_range)
+        throw calc_parse_error(calc_parse_error::out_of_range, token);
+    else if (from_char_result.ec != std::errc() || from_char_result.ptr != num_itr.end())
+        throw calc_parse_error(calc_parse_error::invalid_number, token);
 
     calc_val::variant_type val;
     bool out_of_range = false;
