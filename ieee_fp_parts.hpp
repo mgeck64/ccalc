@@ -16,7 +16,9 @@ public:
     constexpr ieee_fp_parts() noexcept = default;
 
     constexpr auto is_negative() const noexcept -> bool;
+
     constexpr auto exponent() const noexcept -> std::uint16_t;
+    // raw exponent
 
     constexpr auto adjusted_exponent() const noexcept -> std::int16_t;
     // signed (unbiased) exponent(); accounts for special values
@@ -30,7 +32,7 @@ public:
     constexpr auto significand() const noexcept -> std::uint64_t;
     // excludes significand lead bit if implied; includes if actual
 
-    static constexpr auto significand_bits() noexcept -> std::size_t;
+    static constexpr auto significand_n_bits() noexcept -> std::size_t;
     // # of bits in significand
 
     constexpr auto is_inf() const noexcept -> bool;
@@ -83,7 +85,7 @@ public:
     constexpr auto significand() const noexcept -> std::uint64_t
     {return i & significand_mask;}
 
-    static constexpr auto significand_bits() noexcept -> std::size_t
+    static constexpr auto significand_n_bits() noexcept -> std::size_t
     {return 52;}
 
     constexpr auto is_inf() const noexcept -> bool
@@ -147,7 +149,7 @@ public:
     constexpr auto significand() const noexcept -> std::uint64_t
     {return lo;}
 
-    static constexpr auto significand_bits() noexcept -> std::size_t
+    static constexpr auto significand_n_bits() noexcept -> std::size_t
     {return 64;}
 
     constexpr auto is_inf() const noexcept -> bool
@@ -190,8 +192,8 @@ public:
     constexpr auto exponent() const noexcept -> const exponent_type&
     {return exponent_;}
 
-    constexpr auto adjusted_exponent() const noexcept -> const exponent_type&
-    {assert(!is_inf() && !is_nan() && !is_zero()); return exponent_;}
+    constexpr auto adjusted_exponent() const noexcept -> exponent_type
+    {return is_inf() || is_nan() || is_zero() ? 0 : exponent_;}
 
     static constexpr auto lead_bit_implied() noexcept -> bool
     {return false;}
@@ -202,7 +204,7 @@ public:
     constexpr auto significand() const noexcept -> const significand_type&
     {return significand_;}
 
-    static constexpr auto significand_bits() noexcept -> auto
+    static constexpr auto significand_n_bits() noexcept -> auto
     {return pseudo_IEEE_cpp_bin_float::backend_type::bit_count;}
 
     constexpr auto is_inf() const noexcept -> bool
