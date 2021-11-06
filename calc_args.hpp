@@ -28,6 +28,7 @@ struct calc_args {
     unsigned n_output_options = 0;
     unsigned n_int_word_size_options = 0;
     unsigned n_precision10_options = 0;
+    unsigned n_output_IEEE_fp_normalized_options = 0;
     unsigned n_other_args = 0;
 
     calc_val::number_type_codes default_number_type_code = calc_val::complex_code;
@@ -35,6 +36,7 @@ struct calc_args {
     calc_val::radices           output_radix = calc_val::base10;
     calc_val::int_word_sizes    int_word_size = calc_val::int_bits_64;
     unsigned                    precision10 = std::numeric_limits<calc_val::float_type>::digits10;
+    bool                        output_IEEE_fp_normalized;
     std::string_view            other_arg = {};
 };
 

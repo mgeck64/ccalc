@@ -184,21 +184,37 @@ auto calc_outputter::output_as_ieee_fp(std::ostream& out, const pseudo_IEEE_cpp_
         static_assert(!std::numeric_limits<reversed_t>::is_signed);
         reversed_t reversed = 0;
 
-        auto n_bits = val_parts.significand_bits();
+        auto n_bits = val_parts.significand_n_bits();
         if (!val_parts.lead_bit_implied())
             --n_bits;
+        auto exponent = val_parts.adjusted_exponent();
 
-        if (auto odd = n_bits % digit_shift) {
-            reversed |= significand & (digit_mask >> odd);
-            significand >>= odd;
-        }
-        for (auto n = n_bits / digit_shift; n; --n) {
-            reversed <<= digit_shift;
-            reversed |= significand & digit_mask;
-            significand >>= digit_shift;
+        if (output_IEEE_fp_normalized) {
+            if (auto x = n_bits % digit_shift)
+                significand >>= x; // discard partial digit
+            for (auto n = n_bits / digit_shift; n; --n) {
+                reversed <<= digit_shift;
+                reversed |= significand & digit_mask;
+                significand >>= digit_shift;
+            }
+            out << (val_parts.has_lead_bit() ? '1' : '0');
+        } else {
+            unsigned adjustment = exponent % digit_shift;
+            n_bits -= adjustment;
+            exponent -= adjustment;
+            if (auto x = n_bits % digit_shift)
+                significand >>= x; // discard partial digit
+            for (auto n = n_bits / digit_shift; n; --n) {
+                reversed <<= digit_shift;
+                reversed |= significand & digit_mask;
+                significand >>= digit_shift;
+            }
+            auto digit = unsigned(significand);
+            if (val_parts.has_lead_bit())
+                digit |= (1u << adjustment);
+            out << digits.at(digit);
         }
 
-        out << (val_parts.has_lead_bit() ? '1' : '0');
         if (reversed) {
             out << '.';
             do {
@@ -207,7 +223,6 @@ auto calc_outputter::output_as_ieee_fp(std::ostream& out, const pseudo_IEEE_cpp_
             } while (reversed);
         }
         out << 'p';
-        auto exponent = val_parts.adjusted_exponent();
         if (exponent >= 0)
             out << '+';
         out << std::dec << exponent;
@@ -216,16 +231,16 @@ auto calc_outputter::output_as_ieee_fp(std::ostream& out, const pseudo_IEEE_cpp_
     return out;
 #else //------------------------------------------------------------------------
 // this code seems to match what gcc is outputting for hexfloat, but outputs a
-// different though equivalent result for long double than for double; plus the
-// enabled code above is actually simplier and outputs a normalized value
+// different though equivalent result for long double than for double; double is
+// normalized while long double is not
         auto significand = val_parts.significand();
         decltype(significand) reversed = 0;
 
-        if (auto odd = val_parts.significand_bits() % digit_shift) {
+        if (auto odd = val_parts.significand_n_bits() % digit_shift) {
             reversed |= significand & (digit_mask >> odd);
             significand >>= odd;
         }
-        for (auto n = val_parts.significand_bits() / digit_shift; n; --n) {
+        for (auto n = val_parts.significand_n_bits() / digit_shift; n; --n) {
             reversed <<= digit_shift;
             reversed |= significand & digit_mask;
             significand >>= digit_shift;

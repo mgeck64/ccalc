@@ -59,6 +59,17 @@ static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
         return true;
     }
 
+    if (arg_view == "pn") {
+        args.output_IEEE_fp_normalized = true;
+        ++args.n_output_IEEE_fp_normalized_options;
+        return true;
+    }
+    if (arg_view == "p") {
+        args.output_IEEE_fp_normalized = false;
+        ++args.n_output_IEEE_fp_normalized_options;
+        return true;
+    }
+
     // if arg is ( '0' | 'm' ) <prefix code> [ <suffix code> ] <end>
     //     update <input defaults>
     // if arg is ( 'o' | 'm' ) <prefix code> <end>

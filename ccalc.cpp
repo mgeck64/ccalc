@@ -19,6 +19,7 @@ int main(int argc, const char** argv) {
             && args.n_output_options < 2
             && args.n_int_word_size_options < 2
             && args.n_precision10_options < 2
+            && args.n_output_IEEE_fp_normalized_options < 2
             && args.n_other_args < 2) {
         calc_parser parser(args.default_number_type_code,
             args.default_number_radix, args.int_word_size);
@@ -26,6 +27,7 @@ int main(int argc, const char** argv) {
         calc_parser::passback options;
         options.output_radix = args.output_radix;
         options.precision10 = args.precision10;
+        options.output_IEEE_fp_normalized = args.output_IEEE_fp_normalized;
 
         if (!args.other_arg.empty()) // expression provided as argument
             evaluate(args.other_arg, parser, options);
@@ -44,7 +46,7 @@ int main(int argc, const char** argv) {
     } else {
         if (args.n_default_options + args.n_output_options
                 + args.n_int_word_size_options + args.n_precision10_options
-                + args.n_other_args)
+                + args.n_output_IEEE_fp_normalized_options + args.n_other_args)
             std::cout << "Too many or invalid arguments." << '\n';
         help();
     }
@@ -55,7 +57,7 @@ int main(int argc, const char** argv) {
 static void evaluate(std::string_view expression, calc_parser& parser, calc_parser::passback& options) {
     try {
         auto result = parser.evaluate(expression, help, options);
-        calc_outputter outputter{options.output_radix, options.precision10};
+        calc_outputter outputter{options.output_radix, options.precision10, options.output_IEEE_fp_normalized};
         std::cout << outputter(result) << std::endl;
     } catch (const calc_parse_error& e) {
         std::cout << expression << '\n';
@@ -74,8 +76,8 @@ static void help() {
     std::cout <<
 "\
 Basic guide:\n\
-ccalc [<input defaults>] [<output base>] [<mode>] [<int word size>] [precision]\n\
-[-h] [--help] [<expression>]\n\
+ccalc [<input defaults>] [<output base>] [<p notation>] [<mode>] [precision]\n\
+[<int word size>] [-h] [--help] [<expression>]\n\
 \n\
 <expression>: A mathematical expression, e.g.: 2+3*6. If omitted then\n\
 expressions will continuously be input from stdin. Exception: if <expression> is\n\
@@ -103,22 +105,28 @@ is 10, imaginary part is 2*i), 10 (real number; imaginary part is 0), 2*i\n\
 Exception: If a number is specified with a decimal point or exponent then it\n\
 will be represented as complex type; e.g., for -0x and -0xu, the numbers 0a.1\n\
 and 0a1p-4 will both be represented as complex type and interpreted in\n\
-hexadecimal base. Examples of a number expressed in different ways appears\n\
-below.\n\
+hexadecimal base.\n\
 \n\
 <output base>: Specifies the numeric base of the output:\n\
     -ob - binary\n\
     -oo - octal\n\
     -od - decimal -- the default\n\
     -ox - hexadecimal\n\
-Note: Binary octal and hexadecimal output of the floating point componts of a\n\
-complex type number will be in normalized form. A basic description of\n\
-hexadecimal floating point format is provided here:\n\
+\n\
+<p notation>: Specifies how binary, octal and hexadecimal floating point numbers\n\
+are output:\n\
+    -pn - normalized scientific \"p\"notation -- the default\n\
+    -p  - scientific \"p\" notation\n\
+Note: The \"p\" exponent is always the power of 2 expressed in decimal. A basic\n\
+description of normalized scientific \"p\" notation is provided here:\n\
 https://www.exploringbinary.com/hexadecimal-floating-point-constants/\n\
 \n\
 <mode>: Combines <input defaults> and <output base>: -mb (-0b -ob), -mo (-0o\n\
 -oo), -md (-0d -od), -mx (-0x -ox), -mbu (-0bu -ob), -mou (-0ou -oo), -mdu\n\
 (-0du -od), -mxu (-0xu -ox), -mdn (-0dn -od), -mxn (-0xn -ox).\n\
+\n\
+<precision>: -pd<n> specifies the precision (number of significant digits) in\n\
+which decimal floating point numbers are output; e.g., -pd8\n\
 \n\
 <int word size>: Specifies the word size for the integer types:\n\
     -w8  -  8 bits\n\
@@ -126,9 +134,6 @@ https://www.exploringbinary.com/hexadecimal-floating-point-constants/\n\
     -w32 - 32 bits\n\
     -w64 - 64 bits -- the default\n\
 Note: this does not affect the complex type.\n\
-\n\
-<precision>: -pd<n> specifies the precision (number of significant digits) in\n\
-which to output decimal floating point numbers; e.g., -pd8\n\
 \n\
 Options may also be provided in an expression (e.g., when input from stdin);\n\
 options provided this way begin with '@' instead of '-' (because '-' is the\n\
@@ -144,8 +149,7 @@ Prefixes:\n\
 Suffixes:\n\
     s    - signed integer type; e.g., 0b1010s, 10s\n\
     u    - unsigned integer type; e.g., 0b1010u, 10u\n\
-    n    - complex type; e.g., 0xan; valid only for decimal base and hexadecimal\n\
-           base\n\
+    n    - complex type; e.g., 0xan\n\
     none - if the number has a prefix (e.g., 0d10) then signed integer type;\n\
            otherwise (e.g., 10) the default representation type\n\
 Exception: If a number has a decimal point or exponent then it will be\n\

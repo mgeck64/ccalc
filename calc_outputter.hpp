@@ -9,8 +9,8 @@
 
 class calc_outputter {
 public:
-    calc_outputter(calc_val::radices radix_, decltype(calc_args::precision10) precision10_)
-        : radix{radix_}, precision10{precision10_}, output_fn{output_fn_for(radix)} {}
+    calc_outputter(calc_val::radices radix_, decltype(calc_args::precision10) precision10_, decltype(calc_args::output_IEEE_fp_normalized) output_IEEE_fp_normalized_)
+        : radix{radix_}, precision10{precision10_}, output_IEEE_fp_normalized{output_IEEE_fp_normalized_}, output_fn{output_fn_for(radix)} {}
     calc_outputter() = default;
     calc_outputter(const calc_outputter&) = default;
 
