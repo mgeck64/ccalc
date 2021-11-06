@@ -1,6 +1,7 @@
 #include "calc_outputter.hpp"
 #include "stream_state_restorer.hpp"
 #include "ieee_fp_parts.hpp"
+#include <limits>
 #include <cassert>
 
 std::ostream& operator<<(std::ostream& out, const calc_outputter& outputter) {
@@ -72,7 +73,7 @@ auto calc_outputter::output_dec(std::ostream& out, const calc_val::variant_type&
     }, val);
 }
 
-auto calc_outputter::output(std::ostream& out, const calc_val::variant_type& val, calc_val::radices radix) -> std::ostream& {
+auto calc_outputter::output(std::ostream& out, const calc_val::variant_type& val, calc_val::radices radix) const -> std::ostream& {
     return std::visit([&](const auto& val) -> std::ostream& {
         using VT = std::decay_t<decltype(val)>;
         if constexpr (std::is_integral_v<VT> && std::is_signed_v<VT>) {
@@ -102,7 +103,7 @@ auto calc_outputter::output(std::ostream& out, const calc_val::variant_type& val
     }, val);
 }
 
-auto calc_outputter::output_as_uint(std::ostream& out, std::uintmax_t val, calc_val::radices radix) -> std::ostream& {
+auto calc_outputter::output_as_uint(std::ostream& out, std::uintmax_t val, calc_val::radices radix) const -> std::ostream& {
     unsigned delimit_at;
     decltype(val) digit_mask;
     size_t digit_shift;
@@ -147,7 +148,7 @@ auto calc_outputter::output_as_uint(std::ostream& out, std::uintmax_t val, calc_
     return out;
 }
 
-auto calc_outputter::output_as_ieee_fp(std::ostream& out, const pseudo_IEEE_cpp_bin_float& val, calc_val::radices radix) -> std::ostream& {
+auto calc_outputter::output_as_ieee_fp(std::ostream& out, const pseudo_IEEE_cpp_bin_float& val, calc_val::radices radix) const -> std::ostream& {
     static_assert(ieee_fp_parts<std::decay_t<decltype(val)>>::is_specialized);
     auto val_parts = ieee_fp_parts<std::decay_t<decltype(val)>>(val);
 
@@ -178,20 +179,26 @@ auto calc_outputter::output_as_ieee_fp(std::ostream& out, const pseudo_IEEE_cpp_
 // note: hexadecimal floating point format is described here:
 // https://www.exploringbinary.com/hexadecimal-floating-point-constants/
 // binary and octal floating point format is by extension
-        auto fraction = val_parts.fraction();
-        decltype(fraction) reversed = 0;
+        auto significand = val_parts.significand();
+        using reversed_t = decltype(significand);
+        static_assert(!std::numeric_limits<reversed_t>::is_signed);
+        reversed_t reversed = 0;
 
-        if (auto odd = val_parts.fraction_bits() % digit_shift) {
-            reversed |= fraction & (digit_mask >> odd);
-            fraction >>= odd;
+        auto n_bits = val_parts.significand_bits();
+        if (!val_parts.lead_bit_implied())
+            --n_bits;
+
+        if (auto odd = n_bits % digit_shift) {
+            reversed |= significand & (digit_mask >> odd);
+            significand >>= odd;
         }
-        for (auto n = val_parts.fraction_bits() / digit_shift; n; --n) {
+        for (auto n = n_bits / digit_shift; n; --n) {
             reversed <<= digit_shift;
-            reversed |= fraction & digit_mask;
-            fraction >>= digit_shift;
+            reversed |= significand & digit_mask;
+            significand >>= digit_shift;
         }
 
-        out << (val_parts.has_int_bit() ? '1' : '0');
+        out << (val_parts.has_lead_bit() ? '1' : '0');
         if (reversed) {
             out << '.';
             do {
@@ -225,7 +232,7 @@ auto calc_outputter::output_as_ieee_fp(std::ostream& out, const pseudo_IEEE_cpp_
         }
 
         std::int64_t exponent = val_parts.adjusted_exponent();
-        if (val_parts.normalizes())
+        if (val_parts.lead_bit_implied())
             out << '1';
         else {
             out << digits.at(reversed & digit_mask);

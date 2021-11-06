@@ -21,22 +21,17 @@ public:
     constexpr auto adjusted_exponent() const noexcept -> std::int16_t;
     // signed (unbiased) exponent(); accounts for special values
 
-    static constexpr auto normalizes() noexcept -> bool;
+    static constexpr auto lead_bit_implied() noexcept -> bool;
+    // significand lead bit is implied
 
-    constexpr auto has_int_bit() const noexcept -> bool;
-    // significand has leading integer 1 bit (may be implied or actual)
+    constexpr auto lead_bit_set() const noexcept -> bool;
+    // significand lead bit (may be implied or actual) is set
 
     constexpr auto significand() const noexcept -> std::uint64_t;
-    // excludes leading integer bit if implied; includes if actual
+    // excludes significand lead bit if implied; includes if actual
 
     static constexpr auto significand_bits() noexcept -> std::size_t;
     // # of bits in significand
-
-    constexpr auto fraction() const noexcept -> std::uint64_t;
-    // fraction part (same as significand if leading integer bit is implied)
-
-    static constexpr auto fraction_bits() noexcept -> std::size_t;
-    // # of bits in fraction
 
     constexpr auto is_inf() const noexcept -> bool;
     constexpr auto is_nan() const noexcept -> bool;
@@ -57,9 +52,9 @@ class ieee_fp_parts<ieee_double> {
 // https://en.wikipedia.org/wiki/Double-precision_floating-point_format
 private:
     std::uint64_t i = 0;
-    static constexpr auto sign_mask     = std::uint64_t(0x8000000000000000L);
-    static constexpr auto exponent_mask = std::uint64_t(0x7ff0000000000000L);
-    static constexpr auto fraction_mask = std::uint64_t(0x000fffffffffffffL);
+    static constexpr auto sign_mask        = std::uint64_t(0x8000000000000000L);
+    static constexpr auto exponent_mask    = std::uint64_t(0x7ff0000000000000L);
+    static constexpr auto significand_mask = std::uint64_t(0x000fffffffffffffL);
 
 public:
     static constexpr auto is_specialized = true;
@@ -75,36 +70,30 @@ public:
 
     constexpr auto adjusted_exponent() const noexcept -> std::int16_t {
         if ((i & exponent_mask) == 0) // 0 or subnormal
-            return (i & fraction_mask) == 0 ? 0 : exponent() - 1022;
+            return (i & significand_mask) == 0 ? 0 : exponent() - 1022;
         return exponent() - 1023;
     }
 
-    static constexpr auto normalizes() noexcept -> bool
+    static constexpr auto lead_bit_implied() noexcept -> bool
     {return true;}
 
-    constexpr auto has_int_bit() const noexcept -> bool
+    constexpr auto has_lead_bit() const noexcept -> bool
     {return (i & exponent_mask) != 0 && (i & exponent_mask) != exponent_mask;}
 
     constexpr auto significand() const noexcept -> std::uint64_t
-    {return i & fraction_mask;}
+    {return i & significand_mask;}
 
     static constexpr auto significand_bits() noexcept -> std::size_t
     {return 52;}
 
-    constexpr auto fraction() const noexcept -> std::uint64_t
-    {return i & fraction_mask;}
-
-    static constexpr auto fraction_bits() noexcept -> std::size_t
-    {return 52;}
-
     constexpr auto is_inf() const noexcept -> bool
-    {return (i & (exponent_mask | fraction_mask)) == exponent_mask;}
+    {return (i & (exponent_mask | significand_mask)) == exponent_mask;}
 
     constexpr auto is_nan() const noexcept -> bool
-    {return (i & (exponent_mask | fraction_mask)) > exponent_mask;}
+    {return (i & (exponent_mask | significand_mask)) > exponent_mask;}
 
     constexpr auto is_zero() const noexcept -> bool
-    {return (i & (exponent_mask | fraction_mask)) == 0;}
+    {return (i & (exponent_mask | significand_mask)) == 0;}
 };
 
 //------------------------------------------------------------------------------
@@ -149,10 +138,10 @@ public:
         return exponent - 16383;
     }
 
-    static constexpr auto normalizes() noexcept -> bool
+    static constexpr auto lead_bit_implied() noexcept -> bool
     {return false;}
 
-    constexpr auto has_int_bit() const noexcept -> bool
+    constexpr auto has_lead_bit() const noexcept -> bool
     {return lo & ~fraction_mask;}
 
     constexpr auto significand() const noexcept -> std::uint64_t
@@ -160,12 +149,6 @@ public:
 
     static constexpr auto significand_bits() noexcept -> std::size_t
     {return 64;}
-
-    constexpr auto fraction() const noexcept -> std::uint64_t
-    {return lo & fraction_mask;}
-
-    static constexpr auto fraction_bits() noexcept -> std::size_t
-    {return 63;}
 
     constexpr auto is_inf() const noexcept -> bool
     {return (hi & exponent_mask) == exponent_mask && lo == ~fraction_mask;}
@@ -193,8 +176,6 @@ private:
     significand_type significand_;
     exponent_type exponent_;
     static constexpr auto hi_bit = significand_type(1) << (pseudo_IEEE_cpp_bin_float::backend_type::bit_count - 1);
-    static constexpr auto frac_mask = ~hi_bit;
-    static constexpr auto significand_0 = significand_type(0);
 
 public:
     static constexpr auto is_specialized = true;
@@ -212,23 +193,17 @@ public:
     constexpr auto adjusted_exponent() const noexcept -> const exponent_type&
     {assert(!is_inf() && !is_nan() && !is_zero()); return exponent_;}
 
-    static constexpr auto normalizes() noexcept -> bool
+    static constexpr auto lead_bit_implied() noexcept -> bool
     {return false;}
 
-    constexpr auto has_int_bit() const noexcept -> bool
-    {return (significand_ & hi_bit) != significand_0;}
+    constexpr auto has_lead_bit() const noexcept -> bool
+    {return (significand_ & hi_bit) != 0;}
 
     constexpr auto significand() const noexcept -> const significand_type&
     {return significand_;}
 
     static constexpr auto significand_bits() noexcept -> auto
     {return pseudo_IEEE_cpp_bin_float::backend_type::bit_count;}
-
-    constexpr auto fraction() const noexcept -> significand_type
-    {return significand_ & frac_mask;}
-
-    static constexpr auto fraction_bits() noexcept -> auto
-    {return significand_bits() - 1;}
 
     constexpr auto is_inf() const noexcept -> bool
     {return exponent_ == pseudo_IEEE_cpp_bin_float::backend_type::exponent_infinity;}

@@ -21,6 +21,7 @@ private:
     calc_val::variant_type val = calc_val::complex_type{};
     calc_val::radices radix = calc_val::base10;
     decltype(calc_args::precision10) precision10 = std::numeric_limits<calc_val::float_type>::digits10;
+    bool output_IEEE_fp_normalized = false;
 
     auto output_bin(std::ostream& out, const calc_val::variant_type& val) const -> std::ostream&;
     auto output_oct(std::ostream& out, const calc_val::variant_type& val) const -> std::ostream&;
@@ -31,9 +32,9 @@ private:
     output_fn_type output_fn = &calc_outputter::output_dec; // (note: auto not allowed for non-static members!)
     static auto output_fn_for(calc_val::radices radix) -> output_fn_type;
 
-    static auto output(std::ostream& out, const calc_val::variant_type& val, calc_val::radices radix) -> std::ostream&;
-    static auto output_as_uint(std::ostream& out, std::uintmax_t val, calc_val::radices radix) -> std::ostream&;
-    static auto output_as_ieee_fp(std::ostream& out, const pseudo_IEEE_cpp_bin_float& val, calc_val::radices radix) -> std::ostream&;
+    auto output(std::ostream& out, const calc_val::variant_type& val, calc_val::radices radix) const -> std::ostream&;
+    auto output_as_uint(std::ostream& out, std::uintmax_t val, calc_val::radices radix) const -> std::ostream&;
+    auto output_as_ieee_fp(std::ostream& out, const pseudo_IEEE_cpp_bin_float& val, calc_val::radices radix) const -> std::ostream&;
 
     static constexpr auto digits = std::array{
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
