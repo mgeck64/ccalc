@@ -1,6 +1,5 @@
 #include "calc_outputter.hpp"
 #include "stream_state_restorer.hpp"
-#include "ieee_fp_parts.hpp"
 #include <limits>
 #include <cassert>
 
@@ -49,11 +48,14 @@ auto calc_outputter::output_hex(std::ostream& out, const calc_val::variant_type&
 
 auto calc_outputter::output_dec(std::ostream& out, const calc_val::variant_type& val) const -> std::ostream& {
     stream_state_restorer restorer(out);
-    out.precision(precision10);
+    if (precision == 0 || precision > std::numeric_limits<calc_val::float_type>::max_digits10)
+        out.precision(std::numeric_limits<calc_val::float_type>::max_digits10);
+    else
+        out.precision(precision);
     return std::visit([&](const auto& val) -> std::ostream& {
         using VT = std::decay_t<decltype(val)>;
         if constexpr (std::is_integral_v<VT>)
-            out << std::dec << +val; // +val; incase val is char type, will output as int
+            out << std::dec << +val; // +val: incase val is char type, will output as int
         else {
             static_assert(std::is_same_v<calc_val::complex_type, VT>);
             out << std::defaultfloat;
@@ -88,14 +90,14 @@ auto calc_outputter::output(std::ostream& out, const calc_val::variant_type& val
         else {
             static_assert(std::is_same_v<calc_val::complex_type, VT>);
             if (val.real() != 0 || val.imag() == 0)
-                output_as_ieee_fp(out, val.real(), radix);
+                output_as_floating_point(out, val.real(), radix);
             if (val.imag() != 0) {
                 if (val.real() != 0 && !val.imag().backend().sign())
                     out << '+';
                 if (val.imag() == -1)
                     out << '-';
                 else if (val.imag() != 1)
-                    output_as_ieee_fp(out, val.imag(), radix);
+                    output_as_floating_point(out, val.imag(), radix);
                 out << 'i';
             }
         }
@@ -106,28 +108,28 @@ auto calc_outputter::output(std::ostream& out, const calc_val::variant_type& val
 auto calc_outputter::output_as_uint(std::ostream& out, std::uintmax_t val, calc_val::radices radix) const -> std::ostream& {
     unsigned delimit_at;
     decltype(val) digit_mask;
-    size_t digit_shift;
+    size_t digit_n_bits;
     if (radix == calc_val::base2) {
         delimit_at = 4;
         digit_mask = 1;
-        digit_shift = 1;
+        digit_n_bits = 1;
     } else if (radix == calc_val::base8) {
         delimit_at = 3;
         digit_mask = 7;
-        digit_shift = 3;
+        digit_n_bits = 3;
     } else { // assume base 16; output in other bases is unsupported
         assert(radix == calc_val::base16);
         delimit_at = 4;
         digit_mask = 15;
-        digit_shift = 4;
+        digit_n_bits = 4;
     }
 
     decltype(val) reversed = 0;
     unsigned digit_count = 0;
     for (; val >= radix; ++digit_count) { // all digits except leftmost one
-        reversed <<= digit_shift;
+        reversed <<= digit_n_bits;
         reversed |= val & digit_mask;
-        val >>= digit_shift;
+        val >>= digit_n_bits;
     }
 
     // leftmost digit (or 0) -- leftmost digit may not be "full"; e.g., for
@@ -142,130 +144,98 @@ auto calc_outputter::output_as_uint(std::ostream& out, std::uintmax_t val, calc_
         if (delimit_at && !(digit_count % delimit_at))
             out << ' ';
         out << digits.at(static_cast<size_t>(reversed & digit_mask));
-        reversed >>= digit_shift;
+        reversed >>= digit_n_bits;
     }
 
     return out;
 }
 
-auto calc_outputter::output_as_ieee_fp(std::ostream& out, const pseudo_IEEE_cpp_bin_float& val, calc_val::radices radix) const -> std::ostream& {
-    static_assert(ieee_fp_parts<std::decay_t<decltype(val)>>::is_specialized);
-    auto val_parts = ieee_fp_parts<std::decay_t<decltype(val)>>(val);
-
-    if (val_parts.is_negative())
+auto calc_outputter::output_as_floating_point(std::ostream& out, const calc_val::float_type& val, calc_val::radices radix) const -> std::ostream& {
+    if (signbit(val))
         out << '-';
 
-    if (val_parts.is_inf())
-        out << "inf";
-    else if (val_parts.is_nan())
-        out << "nan";
-    else {
-        unsigned digit_mask;
-        unsigned digit_shift;
-        if (radix == calc_val::base2) {
-            digit_mask = 1;
-            digit_shift = 1;
-        } else if (radix == calc_val::base8) {
-            digit_mask = 7;
-            digit_shift = 3;
-        } else { // assume base 16; output in other bases is unsupported
-            assert(radix == calc_val::base16);
-            digit_mask = 15;
-            digit_shift = 4;
-        }
+    if (isinf(val))
+        return out << "inf";
+    if (isnan(val))
+        return out << "nan";
+    if (iszero(val)) // can't be handled in general routine
+        return out << "0";
 
-#if (1) //----------------------------------------------------------------------
-// output the number normalized.
-// note: hexadecimal floating point format is described here:
-// https://www.exploringbinary.com/hexadecimal-floating-point-constants/
-// binary and octal floating point format is by extension
-        auto significand = val_parts.significand();
-        using reversed_t = decltype(significand);
-        static_assert(!std::numeric_limits<reversed_t>::is_signed);
-        reversed_t reversed = 0;
-
-        auto n_bits = val_parts.significand_n_bits();
-        if (!val_parts.lead_bit_implied())
-            --n_bits;
-        auto exponent = val_parts.adjusted_exponent();
-
-        if (output_IEEE_fp_normalized) {
-            if (auto x = n_bits % digit_shift)
-                significand >>= x; // discard partial digit
-            for (auto n = n_bits / digit_shift; n; --n) {
-                reversed <<= digit_shift;
-                reversed |= significand & digit_mask;
-                significand >>= digit_shift;
-            }
-            out << (val_parts.has_lead_bit() ? '1' : '0');
-        } else {
-            unsigned adjustment = exponent % digit_shift;
-            n_bits -= adjustment;
-            exponent -= adjustment;
-            if (auto x = n_bits % digit_shift)
-                significand >>= x; // discard partial digit
-            for (auto n = n_bits / digit_shift; n; --n) {
-                reversed <<= digit_shift;
-                reversed |= significand & digit_mask;
-                significand >>= digit_shift;
-            }
-            auto digit = unsigned(significand);
-            if (val_parts.has_lead_bit())
-                digit |= (1u << adjustment);
-            out << digits.at(digit);
-        }
-
-        if (reversed) {
-            out << '.';
-            do {
-                out << digits.at(unsigned(reversed & digit_mask));
-                reversed >>= digit_shift;
-            } while (reversed);
-        }
-        out << 'p';
-        if (exponent >= 0)
-            out << '+';
-        out << std::dec << exponent;
+    unsigned digit_mask;
+    unsigned digit_n_bits;
+    if (radix == calc_val::base2) {
+        digit_mask = 1;
+        digit_n_bits = 1;
+    } else if (radix == calc_val::base8) {
+        digit_mask = 7;
+        digit_n_bits = 3;
+    } else { // assume base 16; output in other bases is unsupported
+        assert(radix == calc_val::base16);
+        digit_mask = 15;
+        digit_n_bits = 4;
     }
 
+    using significand_type = boost::multiprecision::number<calc_val::float_type::backend_type::rep_type>;
+    assert(std::numeric_limits<significand_type>::digits >= digit_n_bits);
+    auto significand = significand_type();
+    assert(significand == 0);
+    auto exponent = val.backend().exponent();
+
+    static_assert(!std::numeric_limits<decltype(precision)>::is_signed);
+    if (precision == 0 || precision * digit_n_bits > std::numeric_limits<significand_type>::digits)
+        significand = val.backend().bits();
+    else { // handle rounding to precision
+        auto f = calc_val::float_type();
+        f.backend().bits() = val.backend().bits();
+        f.backend().exponent() = 0;
+
+        if (output_fp_normalized)
+            f.backend().exponent() -= digit_n_bits;
+        else
+            f.backend().exponent() = f.backend().exponent() - (digit_n_bits - exponent % digit_n_bits);
+
+        f.backend().exponent() += precision * digit_n_bits;
+        auto e0 = f.backend().exponent();
+        f += calc_val::float_type(radix / 2) / calc_val::float_type(unsigned(radix));
+        f = trunc(f);
+        significand = f.backend().bits();
+        assert(!iszero(f) && !isinf(f) && !isnan(f));
+        exponent += f.backend().exponent() - e0;
+    }
+
+    static_assert(!std::numeric_limits<significand_type>::is_signed);
+    using reversed_type = boost::multiprecision::number<calc_val::float_type::backend_type::double_rep_type>;
+    reversed_type reversed = 0;
+    auto n_bits = std::numeric_limits<significand_type>::digits - 1; // exclude leading bit, which is handled specially
+
+    if (!output_fp_normalized) {
+        unsigned adjustment = exponent % digit_n_bits;
+        n_bits -= adjustment;
+        exponent -= adjustment;
+    }
+    if (auto shift = n_bits % digit_n_bits) { // partial digit
+        auto shift2 = digit_n_bits - shift;
+        reversed = unsigned((significand & (digit_mask >> shift2)) << shift2);
+        significand >>= shift;
+    }
+    for (auto n = n_bits / digit_n_bits; n; --n) {
+        reversed <<= digit_n_bits;
+        reversed |= significand & digit_mask;
+        significand >>= digit_n_bits;
+    }
+
+    out << digits.at(unsigned(significand));
+    if (reversed) {
+        out << '.';
+        do {
+            out << digits.at(unsigned(reversed & digit_mask));
+            reversed >>= digit_n_bits;
+        } while (reversed);
+    }
+    out << 'p';
+    if (exponent >= 0)
+        out << '+';
+    out << std::dec << exponent;
+
     return out;
-#else //------------------------------------------------------------------------
-// this code seems to match what gcc is outputting for hexfloat, but outputs a
-// different though equivalent result for long double than for double; double is
-// normalized while long double is not
-        auto significand = val_parts.significand();
-        decltype(significand) reversed = 0;
-
-        if (auto odd = val_parts.significand_n_bits() % digit_shift) {
-            reversed |= significand & (digit_mask >> odd);
-            significand >>= odd;
-        }
-        for (auto n = val_parts.significand_n_bits() / digit_shift; n; --n) {
-            reversed <<= digit_shift;
-            reversed |= significand & digit_mask;
-            significand >>= digit_shift;
-        }
-
-        std::int64_t exponent = val_parts.adjusted_exponent();
-        if (val_parts.lead_bit_implied())
-            out << '1';
-        else {
-            out << digits.at(reversed & digit_mask);
-            if (reversed) {
-                reversed >>= digit_shift;
-                exponent -= digit_shift - 1;
-            }
-        }
-        if (reversed) {
-            out << '.';
-            do {
-                out << digits.at(reversed & digit_mask);
-                reversed >>= digit_shift;
-            } while (reversed);
-        }
-        out << 'p';
-        if (exponent >= 0)
-            out << '+';
-        out << std::dec << exponent;
-#endif //-----------------------------------------------------------------------
 }

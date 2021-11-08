@@ -17,8 +17,8 @@ public:
 
     struct passback {
         decltype(calc_args::output_radix) output_radix;
-        decltype(calc_args::precision10) precision10;
-        decltype(calc_args::output_IEEE_fp_normalized) output_IEEE_fp_normalized;
+        decltype(calc_args::precision) precision;
+        decltype(calc_args::output_fp_normalized) output_fp_normalized;
     };
 
     auto evaluate(std::string_view input, help_callback help, passback& options) -> calc_val::variant_type;

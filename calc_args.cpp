@@ -20,14 +20,12 @@ void interpret_arg(std::string_view arg_str, char option_code, calc_args& args) 
 }
 
 static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
-    if (arg_itr.length() > 1 && *arg_itr == 'p' && arg_itr[1] == 'd') {
-        decltype(args.precision10) precision10;
-        std::from_chars_result r = std::from_chars(arg_itr.begin() + 2, arg_itr.end(), precision10);
-        if (r.ec == std::errc()
-                 && r.ptr == arg_itr.end()
-                 && precision10 <= std::numeric_limits<calc_val::float_type>::digits10) {
-            args.precision10 = precision10;
-            ++args.n_precision10_options;
+    if (arg_itr.length() > 1 && *arg_itr == 'p' && arg_itr[1] == 'r') {
+        decltype(args.precision) precision;
+        std::from_chars_result r = std::from_chars(arg_itr.begin() + 2, arg_itr.end(), precision);
+        if (r.ec == std::errc() && r.ptr == arg_itr.end()) {
+            args.precision = precision;
+            ++args.n_precision_options;
             return true;
         }
         return false;
@@ -60,13 +58,13 @@ static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
     }
 
     if (arg_view == "pn") {
-        args.output_IEEE_fp_normalized = true;
-        ++args.n_output_IEEE_fp_normalized_options;
+        args.output_fp_normalized = true;
+        ++args.n_output_fp_normalized_options;
         return true;
     }
-    if (arg_view == "p") {
-        args.output_IEEE_fp_normalized = false;
-        ++args.n_output_IEEE_fp_normalized_options;
+    if (arg_view == "pu") {
+        args.output_fp_normalized = false;
+        ++args.n_output_fp_normalized_options;
         return true;
     }
 

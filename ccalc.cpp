@@ -18,16 +18,16 @@ int main(int argc, const char** argv) {
             && args.n_default_options < 2
             && args.n_output_options < 2
             && args.n_int_word_size_options < 2
-            && args.n_precision10_options < 2
-            && args.n_output_IEEE_fp_normalized_options < 2
+            && args.n_precision_options < 2
+            && args.n_output_fp_normalized_options < 2
             && args.n_other_args < 2) {
         calc_parser parser(args.default_number_type_code,
             args.default_number_radix, args.int_word_size);
 
         calc_parser::passback options;
         options.output_radix = args.output_radix;
-        options.precision10 = args.precision10;
-        options.output_IEEE_fp_normalized = args.output_IEEE_fp_normalized;
+        options.precision = args.precision;
+        options.output_fp_normalized = args.output_fp_normalized;
 
         if (!args.other_arg.empty()) // expression provided as argument
             evaluate(args.other_arg, parser, options);
@@ -45,8 +45,8 @@ int main(int argc, const char** argv) {
         }
     } else {
         if (args.n_default_options + args.n_output_options
-                + args.n_int_word_size_options + args.n_precision10_options
-                + args.n_output_IEEE_fp_normalized_options + args.n_other_args)
+                + args.n_int_word_size_options + args.n_precision_options
+                + args.n_output_fp_normalized_options + args.n_other_args)
             std::cout << "Too many or invalid arguments." << '\n';
         help();
     }
@@ -57,7 +57,7 @@ int main(int argc, const char** argv) {
 static void evaluate(std::string_view expression, calc_parser& parser, calc_parser::passback& options) {
     try {
         auto result = parser.evaluate(expression, help, options);
-        calc_outputter outputter{options.output_radix, options.precision10, options.output_IEEE_fp_normalized};
+        calc_outputter outputter{options.output_radix, options.precision, options.output_fp_normalized};
         std::cout << outputter(result) << std::endl;
     } catch (const calc_parse_error& e) {
         std::cout << expression << '\n';
@@ -116,7 +116,7 @@ hexadecimal base.\n\
 <p notation>: Specifies how binary, octal and hexadecimal floating point numbers\n\
 are output:\n\
     -pn - normalized scientific \"p\"notation -- the default\n\
-    -p  - scientific \"p\" notation\n\
+    -pu - unnormalized scientific \"p\" notation\n\
 Note: The \"p\" exponent is always the power of 2 expressed in decimal. A basic\n\
 description of normalized scientific \"p\" notation is provided here:\n\
 https://www.exploringbinary.com/hexadecimal-floating-point-constants/\n\
@@ -125,8 +125,10 @@ https://www.exploringbinary.com/hexadecimal-floating-point-constants/\n\
 -oo), -md (-0d -od), -mx (-0x -ox), -mbu (-0bu -ob), -mou (-0ou -oo), -mdu\n\
 (-0du -od), -mxu (-0xu -ox), -mdn (-0dn -od), -mxn (-0xn -ox).\n\
 \n\
-<precision>: -pd<n> specifies the precision (number of significant digits) in\n\
-which decimal floating point numbers are output; e.g., -pd8\n\
+<precision>: -pr<n> specifies the precision (number of significant digits) in\n\
+which floating point numbers are output; e.g., -pr15. The default is 50. 0 is\n\
+special and will cause numbers to be output in full precision, including guard\n\
+digits. Does not affect integer type numbers.\n\
 \n\
 <int word size>: Specifies the word size for the integer types:\n\
     -w8  -  8 bits\n\
