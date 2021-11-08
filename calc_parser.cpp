@@ -99,7 +99,7 @@ calc_parser::calc_parser(
     variables.emplace(tmp_str = "i", calc_val::complex_type(0, 1));
 }
 
-auto calc_parser::evaluate(std::string_view input, help_callback help, passback& options)
+auto calc_parser::evaluate(std::string_view input, help_callback help, output_options& out_options)
         -> calc_val::variant_type {
     auto lexer = lookahead_calc_lexer(input, default_number_radix);
 
@@ -116,11 +116,14 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, passback&
         do {
             lexer.get_token();
             interpret_arg(lexer.last_token().view, expression_option_code, args);
-            if (args.n_other_args)
+            if (args.other_args)
                 throw calc_parse_error(calc_parse_error::invalid_option, lexer.last_token());
-            if (args.n_default_options > 1 || args.n_output_options > 1
-                    || args.n_int_word_size_options > 1 || args.n_precision_options > 1
-                    || args.n_output_fp_normalized_options > 1)
+            if (       args.n_default_options > 1
+                    || args.n_output_options > 1
+                    || args.n_int_word_size_options > 1
+                    || args.n_precision_options > 1
+                    || args.n_output_fp_normalized_options > 1
+                    || args.n_output_fixed_fp_options > 1)
                 throw calc_parse_error(calc_parse_error::too_many_options, lexer.last_token());
         } while (lexer.peek_token().id == calc_token::option);
 
@@ -132,13 +135,15 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, passback&
             lexer.default_number_radix(args.default_number_radix);
         }
         if (args.n_output_options)
-            options.output_radix = args.output_radix;
+            out_options.output_radix = args.output_radix;
         if (args.n_int_word_size_options)
             int_word_size = args.int_word_size;
         if (args.n_precision_options)
-            options.precision = args.precision;
+            out_options.precision = args.precision;
         if (args.n_output_fp_normalized_options)
-            options.output_fp_normalized = args.output_fp_normalized;
+            out_options.output_fp_normalized = args.output_fp_normalized;
+        if (args.n_output_fixed_fp_options)
+            out_options.output_fixed_fp = args.output_fixed_fp;
     }
 
     if (lexer.peek_token().id == calc_token::end)

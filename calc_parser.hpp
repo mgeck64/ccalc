@@ -15,16 +15,10 @@ public:
     using help_callback = std::function<void()>;
     struct no_mathematical_expression {}; // exception
 
-    struct passback {
-        decltype(calc_args::output_radix) output_radix;
-        decltype(calc_args::precision) precision;
-        decltype(calc_args::output_fp_normalized) output_fp_normalized;
-    };
-
-    auto evaluate(std::string_view input, help_callback help, passback& options) -> calc_val::variant_type;
+    auto evaluate(std::string_view input, help_callback help, output_options& out_options) -> calc_val::variant_type;
     // evaluates the input string; throws parse_error on parsing error. throws
     // no_mathematical_expression if no mathematical expression was evaluated.
-    // input is as specified for lookahead_calc_lexer. may update options
+    // input is as specified for lookahead_calc_lexer. may update output_options
 
 private:
     calc_val::number_type_codes default_number_type_code = calc_val::complex_code;

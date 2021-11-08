@@ -5,34 +5,35 @@
 #include "const_string_itr.hpp"
 #include <iostream>
 
-static void evaluate(std::string_view expression, calc_parser& parser, calc_parser::passback& options);
+static void evaluate(std::string_view expression, calc_parser& parser, output_options& out_options);
 static void help();
 
 int main(int argc, const char** argv) {
     calc_args args;
 
-    for (int argi = 1; argi < argc; ++argi)
+    std::string expression;
+    int argi = 1;
+    for (; argi < argc; ++argi) {
         interpret_arg(argv[argi], '-', args);
+        if (args.other_args)
+            break;
+    }
 
-    if (!args.n_help_options
+    if (      !args.n_help_options
             && args.n_default_options < 2
             && args.n_output_options < 2
             && args.n_int_word_size_options < 2
             && args.n_precision_options < 2
             && args.n_output_fp_normalized_options < 2
-            && args.n_other_args < 2) {
+            && args.n_output_fixed_fp_options < 2) {
         calc_parser parser(args.default_number_type_code,
             args.default_number_radix, args.int_word_size);
 
-        calc_parser::passback options;
-        options.output_radix = args.output_radix;
-        options.precision = args.precision;
-        options.output_fp_normalized = args.output_fp_normalized;
-
-        if (!args.other_arg.empty()) // expression provided as argument
-            evaluate(args.other_arg, parser, options);
-        else { // input expressions from stdin
-            std::string expression;
+        output_options out_options(args);
+        if (argi < argc) {
+            do evaluate(argv[argi], parser, out_options);
+                while (++argi < argc);
+        } else { // input expressions from stdin
             for (;;) {
                 std::getline(std::cin, expression);
                 const_string_itr expression_itr = expression;
@@ -40,24 +41,27 @@ int main(int argc, const char** argv) {
                     ++expression_itr;
                 if (expression_itr.at_end()) // done
                     break;
-                evaluate(expression_itr, parser, options);
+                evaluate(expression_itr, parser, out_options);
             }
         }
     } else {
-        if (args.n_default_options + args.n_output_options
-                + args.n_int_word_size_options + args.n_precision_options
-                + args.n_output_fp_normalized_options + args.n_other_args)
-            std::cout << "Too many or invalid arguments." << '\n';
+        if (      args.n_default_options
+                + args.n_output_options
+                + args.n_int_word_size_options
+                + args.n_precision_options
+                + args.n_output_fp_normalized_options
+                + args.n_output_fixed_fp_options)
+            std::cout << "Too many or invalid options." << '\n';
         help();
     }
 
     return 0;
 }
 
-static void evaluate(std::string_view expression, calc_parser& parser, calc_parser::passback& options) {
+static void evaluate(std::string_view expression, calc_parser& parser, output_options& out_options) {
     try {
-        auto result = parser.evaluate(expression, help, options);
-        calc_outputter outputter{options.output_radix, options.precision, options.output_fp_normalized};
+        auto result = parser.evaluate(expression, help, out_options);
+        calc_outputter outputter{out_options};
         std::cout << outputter(result) << std::endl;
     } catch (const calc_parse_error& e) {
         std::cout << expression << '\n';
@@ -76,8 +80,8 @@ static void help() {
     std::cout <<
 "\
 Basic guide:\n\
-ccalc [<input defaults>] [<output base>] [<p notation>] [<mode>] [precision]\n\
-[<int word size>] [-h] [--help] [<expression>]\n\
+ccalc [<input defaults>] [<output base>] [<p notation>] [precision] [<mode>]\n\
+[<int word size>] [-h] [--help] [<expression>]...\n\
 \n\
 <expression>: A mathematical expression, e.g.: 2+3*6. If omitted then\n\
 expressions will continuously be input from stdin. Exception: if <expression> is\n\
@@ -115,20 +119,20 @@ hexadecimal base.\n\
 \n\
 <p notation>: Specifies how binary, octal and hexadecimal floating point numbers\n\
 are output:\n\
-    -pn - normalized scientific \"p\"notation -- the default\n\
-    -pu - unnormalized scientific \"p\" notation\n\
-Note: The \"p\" exponent is always the power of 2 expressed in decimal. A basic\n\
-description of normalized scientific \"p\" notation is provided here:\n\
-https://www.exploringbinary.com/hexadecimal-floating-point-constants/\n\
+    -pn - normalized scientific \"p\" notation (integer part will be 1 except\n\
+          for numbers that are 0)\n\
+    -pu - unnormalized scientific \"p\" notation -- the default\n\
+Note: The \"p\" exponent suffix is always a power of 2 expressed in decimal,\n\
+regardless of the numeric base.\n\
+\n\
+<precision>: -pr<n> specifies the maximum precision (number of significant\n\
+digits) in which numbers are output. Affects floating point (complex type)\n\
+numbers only. E.g., -pr15. The default value is 50. 0 is special and means full\n\
+precision, including guard digits.\n\
 \n\
 <mode>: Combines <input defaults> and <output base>: -mb (-0b -ob), -mo (-0o\n\
 -oo), -md (-0d -od), -mx (-0x -ox), -mbu (-0bu -ob), -mou (-0ou -oo), -mdu\n\
 (-0du -od), -mxu (-0xu -ox), -mdn (-0dn -od), -mxn (-0xn -ox).\n\
-\n\
-<precision>: -pr<n> specifies the precision (number of significant digits) in\n\
-which floating point numbers are output; e.g., -pr15. The default is 50. 0 is\n\
-special and will cause numbers to be output in full precision, including guard\n\
-digits. Does not affect integer type numbers.\n\
 \n\
 <int word size>: Specifies the word size for the integer types:\n\
     -w8  -  8 bits\n\

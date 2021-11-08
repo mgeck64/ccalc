@@ -15,20 +15,17 @@ void interpret_arg(std::string_view arg_str, char option_code, calc_args& args) 
             if (double_flag_option(++arg_itr, args))
                 return;
     }
-    args.other_arg = arg_str;
-    ++args.n_other_args;
+    args.other_args = true;
 }
 
 static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
     if (arg_itr.length() > 1 && *arg_itr == 'p' && arg_itr[1] == 'r') {
         decltype(args.precision) precision;
         std::from_chars_result r = std::from_chars(arg_itr.begin() + 2, arg_itr.end(), precision);
-        if (r.ec == std::errc() && r.ptr == arg_itr.end()) {
+        if (r.ec == std::errc() && r.ptr == arg_itr.end())
             args.precision = precision;
-            ++args.n_precision_options;
-            return true;
-        }
-        return false;
+        ++args.n_precision_options;
+        return true; // true means handled, not necessarily successfully
     }
 
     auto arg_view = arg_itr.view();
@@ -67,6 +64,19 @@ static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
         ++args.n_output_fp_normalized_options;
         return true;
     }
+
+/*disabling this for now: getting odd results for values of 0 1 and 2 for pi
+    if (arg_view == "dp") {
+        args.output_fixed_fp = false;
+        ++args.n_output_fixed_fp_options;
+        return true;
+    }
+    if (arg_view == "df") {
+        args.output_fixed_fp = true;
+        ++args.n_output_fixed_fp_options;
+        return true;
+    }
+*/
 
     // if arg is ( '0' | 'm' ) <prefix code> [ <suffix code> ] <end>
     //     update <input defaults>

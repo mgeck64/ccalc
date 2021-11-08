@@ -29,18 +29,33 @@ struct calc_args {
     unsigned n_int_word_size_options = 0;
     unsigned n_precision_options = 0;
     unsigned n_output_fp_normalized_options = 0;
-    unsigned n_other_args = 0;
+    unsigned n_output_fixed_fp_options = 0;
+    bool     other_args = false;
 
     calc_val::number_type_codes default_number_type_code = calc_val::complex_code;
     calc_val::radices           default_number_radix = calc_val::base10;
     calc_val::radices           output_radix = calc_val::base10;
     calc_val::int_word_sizes    int_word_size = calc_val::int_bits_64;
     unsigned                    precision = std::numeric_limits<calc_val::float_type>::digits10;
-    bool                        output_fp_normalized = true;
-    std::string_view            other_arg = {};
+    bool                        output_fp_normalized = false;
+    bool                        output_fixed_fp = false;
 };
 
 void interpret_arg(std::string_view arg_str, char option_code, calc_args& args);
 // interprets arg_str and updates args
+
+struct output_options {
+    decltype(calc_args::output_radix)         output_radix = calc_val::base10;
+    decltype(calc_args::precision)            precision = std::numeric_limits<calc_val::float_type>::digits10;
+    decltype(calc_args::output_fp_normalized) output_fp_normalized = false;
+    decltype(calc_args::output_fixed_fp)      output_fixed_fp = false;
+    output_options() = default;
+    output_options(const calc_args& args) :
+        output_radix{args.output_radix},
+        precision{args.precision},
+        output_fp_normalized{args.output_fp_normalized},
+        output_fixed_fp{args.output_fixed_fp}
+        {}
+};
 
 #endif // CALC_ARGS_HPP
