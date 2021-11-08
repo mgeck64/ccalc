@@ -12,7 +12,7 @@ CFLAGS   = -Wall -Werror -Wextra
 CPPSRCS = $(wildcard *.cpp)
 CSRCS = $(wildcard *.c)
 OBJS = $(CPPSRCS:.cpp=.o) $(CSRCS:.c=.o)
-EXE  = ccalc
+EXE = ccalc
 
 #
 # Debug build settings
