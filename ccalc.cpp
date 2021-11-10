@@ -101,10 +101,10 @@ base for numbers:\n\
     -0dn - complex type, decimal base -- the default; e.g.: 10, 10+2*i\n\
     -0xn - complex type, hexadecimal base (hexadecimal floating point)\n\
 Complex type: Represents a complex number composed of a real and imaginary part,\n\
-both of which are high precision floating point (50 significant decimal digits).\n\
-The full form of a complex number can be given as a+b*i (and not a+bi; the\n\
-calculator doesn't support implied multiplication). Examples: 10+2*i (real part\n\
-is 10, imaginary part is 2*i), 10 (real number; imaginary part is 0), 2*i\n\
+both of which are high precision floating point types (50 significant decimal\n\
+digits). The full form of a complex number can be given as a+b*i (and not a+bi;\n\
+the calculator doesn't support implied multiplication). Examples: 10+2*i (real\n\
+part is 10, imaginary part is 2*i), 10 (real number; imaginary part is 0), 2*i\n\
 (imaginary number; real part is 0).\n\
 Exception: If a number is specified with a decimal point or exponent then it\n\
 will be represented as complex type; e.g., for -0x and -0xu, the numbers 0a.1\n\
@@ -117,16 +117,16 @@ hexadecimal base.\n\
     -od - decimal -- the default\n\
     -ox - hexadecimal\n\
 \n\
-<p notation>: Specifies how a binary, octal or hexadecimal floating point number\n\
-is output:\n\
-    -pn - normalized scientific \"p\" notation (integer part will be 1 except\n\
-          for a number that is 0)\n\
-    -pu - unnormalized scientific \"p\" notation -- the default\n\
+<p notation>: Specifies how a binary, octal or hexadecimal floating point type\n\
+number (the real or imaginary part of a complex type number) is output:\n\
+    -pn - normalized scientific \"p\" notation (integer part is 1 except if the\n\
+          number is 0)\n\
+    -pu - scientific \"p\" notation -- the default\n\
 Note: The \"p\" exponent suffix is always a power of 2 expressed in decimal,\n\
 regardless of the number's numeric base.\n\
 \n\
 <precision>: -pr<n> specifies the maximum precision (number of significant\n\
-digits) in which a number is output. Affects floating point (complex type)\n\
+digits) in which a number is output. Affects floating point type (complex type)\n\
 numbers only. E.g., -pr15. The default value is 50. 0 is special and means full\n\
 precision including guard digits.\n\
 \n\
