@@ -117,18 +117,18 @@ hexadecimal base.\n\
     -od - decimal -- the default\n\
     -ox - hexadecimal\n\
 \n\
-<p notation>: Specifies how binary, octal and hexadecimal floating point numbers\n\
-are output:\n\
+<p notation>: Specifies how a binary, octal or hexadecimal floating point number\n\
+is output:\n\
     -pn - normalized scientific \"p\" notation (integer part will be 1 except\n\
-          for numbers that are 0)\n\
+          for a number that is 0)\n\
     -pu - unnormalized scientific \"p\" notation -- the default\n\
 Note: The \"p\" exponent suffix is always a power of 2 expressed in decimal,\n\
-regardless of the numeric base.\n\
+regardless of the number's numeric base.\n\
 \n\
 <precision>: -pr<n> specifies the maximum precision (number of significant\n\
-digits) in which numbers are output. Affects floating point (complex type)\n\
+digits) in which a number is output. Affects floating point (complex type)\n\
 numbers only. E.g., -pr15. The default value is 50. 0 is special and means full\n\
-precision, including guard digits.\n\
+precision including guard digits.\n\
 \n\
 <mode>: Combines <input defaults> and <output base>: -mb (-0b -ob), -mo (-0o\n\
 -oo), -md (-0d -od), -mx (-0x -ox), -mbu (-0bu -ob), -mou (-0ou -oo), -mdu\n\
