@@ -98,8 +98,8 @@ base for numbers:\n\
     -0ou - unsigned integer type, octal base\n\
     -0du - unsigned integer type, decimal base\n\
     -0xu - unsigned integer type, hexadecimal base\n\
-    -0dn - complex type, decimal base -- the default; e.g.: 10, 10+2*i\n\
-    -0xn - complex type, hexadecimal base (hexadecimal floating point)\n\
+    -0dn - complex type, decimal base; e.g.: 10, 10+2*i -- the default\n\
+    -0xn - complex type, hexadecimal base; e.g.: 0a.1, 0a.1+2*i\n\
 Complex type: Represents a complex number composed of a real and imaginary part,\n\
 both of which are high precision floating point types (50 significant decimal\n\
 digits). The full form of a complex number can be given as a+b*i (and not a+bi;\n\
@@ -107,9 +107,8 @@ the calculator doesn't support implied multiplication). Examples: 10+2*i (real\n
 part is 10, imaginary part is 2*i), 10 (real number; imaginary part is 0), 2*i\n\
 (imaginary number; real part is 0).\n\
 Exception: If a number is specified with a decimal point or exponent then it\n\
-will be represented as complex type; e.g., for -0x and -0xu, the numbers 0a.1\n\
-and 0a1p-4 will both be represented as complex type and interpreted in\n\
-hexadecimal base.\n\
+will be represented as complex type; e.g., for -0x and -0xu, the number 0a.1\n\
+will be represented as complex type and interpreted in hexadecimal base.\n\
 \n\
 <output base>: Specifies the numeric base of the output:\n\
     -ob - binary\n\
@@ -117,13 +116,20 @@ hexadecimal base.\n\
     -od - decimal -- the default\n\
     -ox - hexadecimal\n\
 \n\
-<p notation>: Specifies how a binary, octal or hexadecimal floating point type\n\
-number (the real or imaginary part of a complex type number) is output:\n\
-    -pn - normalized scientific \"p\" notation (integer part is 1 except if the\n\
-          number is 0)\n\
-    -pu - scientific \"p\" notation -- the default\n\
-Note: The \"p\" exponent suffix is always a power of 2 expressed in decimal,\n\
-regardless of the number's numeric base.\n\
+<p notation>: Applies to scientific notation for binary, octal and hexadecimal\n\
+floating point type numbers (the real or imaginary parts of complex type\n\
+numbers). In this notation, 'p'/'P' is used instead of 'e'/'E' to delimit the\n\
+exponent; e.g., 0f.fp+1. There are two options for scientific \"p\" notation:\n\
+    -pn - specifies normalized scientific \"p\" notation. A number is normalized\n\
+          so that the integer part is 1 (except if it's 0). The exponent is the\n\
+          power of 2 expressed in decimal regardless of the number's base. E.g.,\n\
+          1.ap10 in hexadecimal in this notation is equal to 1664 in decimal.\n\
+          This notation is used in computer languages such as C and C++ for\n\
+          hexadecimal floating point numbers.\n\
+    -ps - specifies \"regular\" scientific \"p\" notation. The exponent is the power\n\
+          of the numeric base expressed in decimal. E.g., 0f.ap10 in\n\
+          hexadecimal in this notation is equal to 17179869184000 in decimal.\n\
+          -- the default\n\
 \n\
 <precision>: -pr<n> specifies the maximum precision (number of significant\n\
 digits) in which a number is output. Affects floating point type (complex type)\n\
@@ -172,7 +178,7 @@ Examples: The following are different ways of expressing the number 314:\n\
 point type), 0o472.0 (octal floating point type), 0o1.164p+8 (normalized octal\n\
 floating point type), 0d3.14e+2 (decimal floating point type), 0x13a.0\n\
 (hexadecimal floating point type), 0x1.3ap+8 (normalized hexadecimal floating\n\
-point type).\n\
+point type). Normalized examples assume -pn is in effect.\n\
 \n\
 Available arithmetic operators:\n\
     + (addition and unary plus) - (subtraction and negation) * (multiplication)\n\
@@ -218,6 +224,6 @@ Variables can be created and used in expressions, e.g.:\n\
     approx_pi=22/7\n\
     r=5\n\
     approx_pi*r^2\n\
-Variable assignments can be chained, e.g.: x=y=2\
+Variable assignments can be chained, e.g.: x=y=2 assigns 2 to both x and y.\
 " << std::endl;
 }

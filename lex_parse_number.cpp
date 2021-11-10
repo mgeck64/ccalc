@@ -189,7 +189,7 @@ auto calc_parser::assumed_number(lookahead_calc_lexer& lexer, bool is_negative) 
 
     std::from_chars_result from_char_result;
     if (type_code == calc_val::complex_code)
-        from_char_result = calc_val::from_chars(num_itr.begin(), num_itr.end(), float_val, radix);
+        from_char_result = calc_val::from_chars(num_itr.begin(), num_itr.end(), float_val, radix, input_fp_normalized);
     else {
         assert(type_code == calc_val::uint_code || type_code == calc_val::int_code);
         from_char_result = std::from_chars(num_itr.begin(), num_itr.end(), uint_val, radix);

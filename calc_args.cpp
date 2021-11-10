@@ -59,7 +59,7 @@ static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
         ++args.n_output_fp_normalized_options;
         return true;
     }
-    if (arg_view == "pu") {
+    if (arg_view == "ps") {
         args.output_fp_normalized = false;
         ++args.n_output_fp_normalized_options;
         return true;

@@ -25,6 +25,7 @@ private:
     calc_val::radices default_number_radix = calc_val::base10;
     calc_val::int_word_sizes int_word_size = calc_val::int_bits_64;
     calc_val::variant_type last_val = calc_val::complex_type(std::numeric_limits<calc_val::float_type>::quiet_NaN());
+    bool input_fp_normalized = false;
 
     // parser productions
     auto math_expr(lookahead_calc_lexer& lexer)-> calc_val::variant_type;

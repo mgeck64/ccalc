@@ -140,8 +140,10 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, output_op
             int_word_size = args.int_word_size;
         if (args.n_precision_options)
             out_options.precision = args.precision;
-        if (args.n_output_fp_normalized_options)
+        if (args.n_output_fp_normalized_options) {
             out_options.output_fp_normalized = args.output_fp_normalized;
+            input_fp_normalized = args.output_fp_normalized;
+        }
         if (args.n_output_fixed_fp_options)
             out_options.output_fixed_fp = args.output_fixed_fp;
     }

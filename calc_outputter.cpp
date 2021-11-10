@@ -224,10 +224,15 @@ auto calc_outputter::output_pow2_as_floating_point(std::ostream& out, const calc
             reversed >>= digit_n_bits;
         } while (reversed);
     }
-    out << 'p';
+    out << 'p' << std::dec;
     if (exponent >= 0)
         out << '+';
-    out << std::dec << exponent;
+    if (out_options.output_fp_normalized)
+        out << exponent;
+    else {
+        assert(exponent % digit_n_bits == 0);
+        out << (exponent / digit_n_bits);
+    }
 
     return out;
 }

@@ -6,7 +6,7 @@
 
 namespace calc_val {
 
-auto from_chars(const char* begin, const char* end, float_type& num, unsigned radix) -> std::from_chars_result;
+auto from_chars(const char* begin, const char* end, float_type& num, unsigned radix, bool exp_base_2) -> std::from_chars_result;
 
 }
 
