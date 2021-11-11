@@ -89,17 +89,17 @@ expressions will continuously be input from stdin. Exception: if <expression> is
 \n\
 <input defaults>: Specifies the default representation type and default numeric\n\
 base for numbers:\n\
-    -0b  - signed integer type, binary base; e.g.: 1010\n\
-    -0o  - signed integer type, octal base; e.g.: 12\n\
-    -0d  - signed integer type, decimal base; e.g.: 10\n\
-    -0x  - signed integer type, hexadecimal base; e.g.: 0a (prepend a number\n\
+    -0b  - Signed integer type, binary base; e.g.: 1010\n\
+    -0o  - Signed integer type, octal base; e.g.: 12\n\
+    -0d  - Signed integer type, decimal base; e.g.: 10\n\
+    -0x  - Signed integer type, hexadecimal base; e.g.: 0a (prepend a number\n\
            with 0 if it consists only of letter digits)\n\
-    -0bu - unsigned integer type, binary base\n\
-    -0ou - unsigned integer type, octal base\n\
-    -0du - unsigned integer type, decimal base\n\
-    -0xu - unsigned integer type, hexadecimal base\n\
-    -0dn - complex type, decimal base; e.g.: 10, 10+2*i -- the default\n\
-    -0xn - complex type, hexadecimal base; e.g.: 0a.1, 0a.1+2*i\n\
+    -0bu - Unsigned integer type, binary base\n\
+    -0ou - Unsigned integer type, octal base\n\
+    -0du - Unsigned integer type, decimal base\n\
+    -0xu - Unsigned integer type, hexadecimal base\n\
+    -0dn - Complex type, decimal base; e.g.: 10, 10+2*i -- the default\n\
+    -0xn - Complex type, hexadecimal base; e.g.: 0a.1, 0a.1+2*i\n\
 Complex type: Represents a complex number composed of a real and imaginary part,\n\
 both of which are high precision floating point types (50 significant decimal\n\
 digits). The full form of a complex number can be given as a+b*i (and not a+bi;\n\
@@ -111,24 +111,24 @@ will be represented as complex type; e.g., for -0x and -0xu, the number 0a.1\n\
 will be represented as complex type and interpreted in hexadecimal base.\n\
 \n\
 <output base>: Specifies the numeric base of the output:\n\
-    -ob - binary\n\
-    -oo - octal\n\
-    -od - decimal -- the default\n\
-    -ox - hexadecimal\n\
+    -ob - Binary\n\
+    -oo - Octal\n\
+    -od - Decimal -- the default\n\
+    -ox - Hexadecimal\n\
 \n\
 <p notation>: Applies to scientific notation for binary, octal and hexadecimal\n\
 floating point type numbers (the real or imaginary parts of complex type\n\
 numbers). In this notation, 'p'/'P' is used instead of 'e'/'E' to delimit the\n\
 exponent; e.g., 0f.fp+1. There are two options for scientific \"p\" notation:\n\
-    -pn - specifies normalized scientific \"p\" notation. A number is normalized\n\
-          so that the integer part is 1 (except if it's 0). The exponent is the\n\
-          power of 2 expressed in decimal regardless of the number's base. E.g.,\n\
-          1.ap10 in hexadecimal in this notation is equal to 1664 in decimal.\n\
-          This notation is used in computer languages such as C and C++ for\n\
-          hexadecimal floating point numbers.\n\
-    -ps - specifies \"regular\" scientific \"p\" notation. The exponent is the power\n\
-          of the numeric base expressed in decimal. E.g., 0f.ap10 in\n\
-          hexadecimal in this notation is equal to 17179869184000 in decimal.\n\
+    -pn - Specifies normalized scientific \"p\" notation. A number is normalized\n\
+          so that the integer part is 1 (except if the number is 0). The\n\
+          exponent is the power of 2 expressed in decimal regardless of the\n\
+          number's base. E.g., in this notation, 1.ap10 is a hexadecimal number\n\
+          equal to 1664 in decimal. This notation is used in computer languages\n\
+          such as C and C++ for hexadecimal floating point numbers.\n\
+    -ps - Specifies \"regular\" scientific \"p\" notation. The exponent is the power\n\
+          of the numeric base expressed in decimal. E.g., in this notation,\n\
+          0f.ap10 is a hexadecimal number equal to 17179869184000 in decimal.\n\
           -- the default\n\
 \n\
 <precision>: -pr<n> specifies the maximum precision (number of significant\n\
@@ -154,15 +154,15 @@ subtraction/negation operator); e.g., @0x @w32\n\
 A number may optionally be given a prefix, suffix or both to specify its numeric\n\
 base and representation type, overriding the default ones.\n\
 Prefixes:\n\
-    0b - binary base; e.g.: 0b1010\n\
-    0o - octal base; e.g.: 0o12\n\
-    0d - decimal base; e.g.: 0d10\n\
-    0x - hexadecimal base; e.g.: 0xa\n\
+    0b - Binary base; e.g.: 0b1010\n\
+    0o - Octal base; e.g.: 0o12\n\
+    0d - Decimal base; e.g.: 0d10\n\
+    0x - Hexadecimal base; e.g.: 0xa\n\
 Suffixes:\n\
-    s    - signed integer type; e.g., 0b1010s, 10s\n\
-    u    - unsigned integer type; e.g., 0b1010u, 10u\n\
-    n    - complex type; e.g., 0xan\n\
-    none - if the number has a prefix (e.g., 0d10) then signed integer type;\n\
+    s    - Signed integer type; e.g., 0b1010s, 10s\n\
+    u    - Unsigned integer type; e.g., 0b1010u, 10u\n\
+    n    - Complex type; e.g., 0xan\n\
+    none - If the number has a prefix (e.g., 0d10) then signed integer type;\n\
            otherwise (e.g., 10) the default representation type\n\
 Exception: If a number has a decimal point or exponent then it will be\n\
 represented as complex type; e.g., 0xa.1 and 0xa1p-4 will both be represented as\n\
@@ -196,29 +196,29 @@ Available symbolic values:\n\
 \n\
 Available functions; e.g.: sin(5):\n\
     exp - exp(n) is e raised to the power of n\n\
-    ln - natural (base e) log\n\
-    log10 - base 10 log\n\
-    log2 - base 2 log\n\
-    sqrt - square root\n\
-    cbrt - cubic root\n\
+    ln - Natural (base e) log\n\
+    log10 - Base 10 log\n\
+    log2 - Base 2 log\n\
+    sqrt - Square root\n\
+    cbrt - Cubic root\n\
     sin\n\
     cos\n\
     tan\n\
-    asin - arc sin\n\
-    acos - arc cos\n\
-    atan - arc tan\n\
-    sinh - hyperbolic sin\n\
-    cosh - hyperbolic cos\n\
-    tanh - hyperbolic tan\n\
-    asinh - inverse hyperbolic sin\n\
-    acosh - inverse hyperbolic cos\n\
-    atanh - inverse hyperbolic tan\n\
+    asin - Arc sin\n\
+    acos - Arc cos\n\
+    atan - Arc tan\n\
+    sinh - Hyperbolic sin\n\
+    cosh - Hyperbolic cos\n\
+    tanh - Hyperbolic tan\n\
+    asinh - Inverse hyperbolic sin\n\
+    acosh - Inverse hyperbolic cos\n\
+    atanh - Inverse hyperbolic tan\n\
     gamma\n\
-    lgamma - log gamma\n\
-    arg - phase angle\n\
-    norm - squared magnitude\n\
-    conj - conjugate\n\
-    proj - projection onto the Riemann sphere\n\
+    lgamma - Log gamma\n\
+    arg - Phase angle\n\
+    norm - Squared magnitude\n\
+    conj - Conjugate\n\
+    proj - Projection onto the Riemann sphere\n\
 \n\
 Variables can be created and used in expressions, e.g.:\n\
     approx_pi=22/7\n\
