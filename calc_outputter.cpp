@@ -173,10 +173,12 @@ auto calc_outputter::output_pow2_as_floating_point(std::ostream& out, const calc
     auto exponent = val.backend().exponent();
 
     static_assert(!std::numeric_limits<decltype(out_options.precision)>::is_signed);
+    auto precision = out_options.precision;
     if (out_options.precision == 0
-            || out_options.precision * digit_n_bits > std::numeric_limits<significand_type>::digits)
+            || out_options.precision * digit_n_bits > std::numeric_limits<significand_type>::digits) {
         significand = val.backend().bits();
-    else { // handle rounding to precision
+        precision = std::numeric_limits<significand_type>::digits;
+    } else { // handle rounding to precision
         auto f = calc_val::float_type();
         f.backend().bits() = val.backend().bits();
         f.backend().exponent() = 0;
@@ -186,7 +188,7 @@ auto calc_outputter::output_pow2_as_floating_point(std::ostream& out, const calc
         else
             f.backend().exponent() = f.backend().exponent() - (digit_n_bits - exponent % digit_n_bits);
 
-        f.backend().exponent() += out_options.precision * digit_n_bits;
+        f.backend().exponent() += precision * digit_n_bits;
         auto e0 = f.backend().exponent();
         f += calc_val::float_type(out_options.output_radix / 2) / calc_val::float_type(unsigned(out_options.output_radix));
         f = trunc(f);
@@ -216,22 +218,45 @@ auto calc_outputter::output_pow2_as_floating_point(std::ostream& out, const calc
         significand >>= digit_n_bits;
     }
 
-    out << digits.at(unsigned(significand));
-    if (reversed) {
-        out << '.';
-        do {
+    auto make_signed = [](const auto& x) {return std::make_signed_t<std::decay_t<decltype(x)>>(x);};
+    if (!out_options.output_fp_normalized
+            && exponent >= -4 * make_signed(digit_n_bits) // -4 seems to match what gcc and boost does; don't know why this particular number
+            && exponent < make_signed(precision) * make_signed(digit_n_bits)) {
+        // output normally (not in scientific notation)
+        auto exponent_ = exponent;
+        if (exponent_ < 0) {
+            out << "0.";
+            while ((exponent_ += digit_n_bits) < 0)
+                out << '0';
+        }
+        out << digits.at(unsigned(significand));
+        while (reversed) {
+            if (exponent_ == 0 && exponent >= 0)
+                out << '.';
             out << digits.at(unsigned(reversed & digit_mask));
             reversed >>= digit_n_bits;
-        } while (reversed);
-    }
-    out << 'p' << std::dec;
-    if (exponent >= 0)
-        out << '+';
-    if (out_options.output_fp_normalized)
-        out << exponent;
-    else {
-        assert(exponent % digit_n_bits == 0);
-        out << (exponent / digit_n_bits);
+            exponent_ -= digit_n_bits;
+        }
+        for (; exponent_ > 0; exponent_ -= digit_n_bits)
+            out << '0';
+    } else { // output in scientific notation
+        out << digits.at(unsigned(significand));
+        if (reversed) {
+            out << '.';
+            do {
+                out << digits.at(unsigned(reversed & digit_mask));
+                reversed >>= digit_n_bits;
+            } while (reversed);
+        }
+        out << 'p' << std::dec;
+        if (exponent >= 0)
+            out << '+';
+        if (out_options.output_fp_normalized)
+            out << exponent;
+        else {
+            assert(exponent % make_signed(digit_n_bits) == 0);
+            out << (exponent / make_signed(digit_n_bits));
+        }
     }
 
     return out;
