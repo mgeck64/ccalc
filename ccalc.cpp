@@ -84,7 +84,8 @@ ccalc [<input defaults>] [<output base>] [<p notation>] [precision] [<mode>]\n\
 \n\
 <expression>: A mathematical expression, e.g.: 2+3*6. If omitted then\n\
 expressions will continuously be input from stdin. Exception: if <expression> is\n\
-\"help\" then this content will be printed.\n\
+\"help\" then this content will be printed. Tip: enclose <expression> in quote\n\
+marks on the command line to avoid shell interpretation of special characters.\n\
 \n\
 <input defaults>: Specifies the default representation type and default numeric\n\
 base for numbers:\n\
@@ -120,8 +121,8 @@ will be represented as complex type and interpreted in hexadecimal base.\n\
 <p notation>: Applies to scientific notation for binary, octal and hexadecimal\n\
 floating point type numbers (the real or imaginary parts of complex type\n\
 numbers). In \"p\" notation, 'p'/'P' is used instead of 'e'/'E' to delimit the\n\
-exponent, which is a power of 2 expressed in decimal (regardless of the number's\n\
-base). There are two options regarding scientific \"p\" notation:\n\
+exponent, which is a power of 2 (not 10) expressed in decimal. There are two\n\
+options regarding scientific \"p\" notation:\n\
     -pn - Specifies that binary, octal and hexadecimal floating point type\n\
           numbers be output in normalized scientific \"p\" notation. A number is\n\
           normalized so that it's integer part is 1 (except if the number is 0).\n\
@@ -131,9 +132,9 @@ base). There are two options regarding scientific \"p\" notation:\n\
           floating point type numbers be output in unnormalized scientific \"p\"\n\
           notation. -- the default\n\
 E.g., 1.ap10 is a normalized hexadecimal number equal to 1664 in decimal, and\n\
-6.8p8 is the same hexadecimal number unnormalized. Numbers can be input in\n\
-normalized or unnormalized form with either option. (Note: normalization of\n\
-numbers expressed in scientific notation is different here than in mathematics.)\n\
+6.8p8 is the same number in unnormalized hexadecimal. Numbers can be input in\n\
+either normalized or unnormalized form under either option. (Note: normalization\n\
+here differs from the standard form in mathematics.)\n\
 \n\
 <precision>: -pr<n> specifies the maximum precision (number of significant\n\
 digits) in which a number is output. Affects floating point type (complex type)\n\
@@ -183,7 +184,7 @@ Examples: The following are different ways of expressing the number 314:\n\
 point type), 0o472.0 (octal floating point type), 0o1.164p+8 (normalized octal\n\
 floating point type), 0d3.14e+2 (decimal floating point type), 0x13a.0\n\
 (hexadecimal floating point type), 0x1.3ap+8 (normalized hexadecimal floating\n\
-point type). Normalized examples assume -pn is in effect.\n\
+point type).\n\
 \n\
 Available arithmetic operators:\n\
     + (addition and unary plus) - (subtraction and negation) * (multiplication)\n\
