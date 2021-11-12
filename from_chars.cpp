@@ -74,8 +74,8 @@ auto from_chars(const char* begin, const char* end, float_type& out_num, unsigne
     if (negative_exponent)
         exponent = -exponent;
     if (exponent != 0) {
-        auto exp_base = radix == 10u ? 10u : 2u;
-        num *= pow(exp_base, exponent);
+        decltype(exponent) base = radix == 10 ? 10 : 2;
+        num *= pow(base, exponent);
     }
     out_num = num;
     return make_from_chars_result(pos, std::errc());
