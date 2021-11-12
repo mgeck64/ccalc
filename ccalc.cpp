@@ -134,9 +134,9 @@ options regarding scientific \"p\" notation:\n\
           normalized notation.) -- the default\n\
 E.g., 1.ap10 is a normalized hexadecimal number equal to 1664 in decimal, and\n\
 6.8p8 is the same number unnormalized in hexadecimal. Numbers can be input in\n\
-either normalized or unnormalized form under either option. (Note: normalization\n\
-here is different than standard scientific notation normalization except for\n\
-binary numbers.)\n\
+either normalized or unnormalized form under either option. (Note: except for\n\
+binary numbers, normalization of numbers here is different than standard\n\
+scientific notation normalization.)\n\
 \n\
 <precision>: -pr<n> specifies the maximum precision (number of significant\n\
 digits) in which a number is output. Affects floating point type (complex type)\n\
