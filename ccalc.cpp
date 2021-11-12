@@ -77,8 +77,7 @@ static void evaluate(std::string_view expression, calc_parser& parser, output_op
 }
 
 static void help() {
-    std::cout <<
-"\
+    std::cout << "\
 Basic guide:\n\
 ccalc [<input defaults>] [<output base>] [<p notation>] [precision] [<mode>]\n\
 [<int word size>] [-h] [--help] [<expression>]...\n\
@@ -98,8 +97,10 @@ base for numbers:\n\
     -0ou - Unsigned integer type, octal base\n\
     -0du - Unsigned integer type, decimal base\n\
     -0xu - Unsigned integer type, hexadecimal base\n\
+    -0bn - Complex type, binary base; e.g.: 1010, 1010+10*i\n\
+    -0on - Complex type, octal base; e.g.: 12, 12+2*i\n\
     -0dn - Complex type, decimal base; e.g.: 10, 10+2*i -- the default\n\
-    -0xn - Complex type, hexadecimal base; e.g.: 0a.1, 0a.1+2*i\n\
+    -0xn - Complex type, hexadecimal base; e.g.: 0a, 0a+2*i\n\
 Complex type: Represents a complex number composed of a real and imaginary part,\n\
 both of which are high precision floating point types (50 significant decimal\n\
 digits). The full form of a complex number can be given as a+b*i (and not a+bi;\n\
@@ -118,18 +119,21 @@ will be represented as complex type and interpreted in hexadecimal base.\n\
 \n\
 <p notation>: Applies to scientific notation for binary, octal and hexadecimal\n\
 floating point type numbers (the real or imaginary parts of complex type\n\
-numbers). In this notation, 'p'/'P' is used instead of 'e'/'E' to delimit the\n\
-exponent; e.g., 0f.fp+1. There are two options for scientific \"p\" notation:\n\
-    -pn - Specifies normalized scientific \"p\" notation. A number is normalized\n\
-          so that the integer part is 1 (except if the number is 0). The\n\
-          exponent is the power of 2 expressed in decimal regardless of the\n\
-          number's base. E.g., in this notation, 1.ap10 is a hexadecimal number\n\
-          equal to 1664 in decimal. This notation is used in computer languages\n\
-          such as C and C++ for hexadecimal floating point numbers.\n\
-    -ps - Specifies \"regular\" scientific \"p\" notation. The exponent is the power\n\
-          of the numeric base expressed in decimal. E.g., in this notation,\n\
-          0f.ap10 is a hexadecimal number equal to 17179869184000 in decimal.\n\
-          -- the default\n\
+numbers). In \"p\" notation, 'p'/'P' is used instead of 'e'/'E' to delimit the\n\
+exponent, which is a power of 2 expressed in decimal (regardless of the number's\n\
+base). There are two options regarding scientific \"p\" notation:\n\
+    -pn - Specifies that binary, octal and hexadecimal floating point type\n\
+          numbers be output in normalized scientific \"p\" notation. A number is\n\
+          normalized so that it's integer part is 1 (except if the number is 0).\n\
+          This notation is used in computer languages such as C and C++ for\n\
+          hexadecimal floating point numbers.\n\
+    -pu - Specifies that very large and very small binary, octal and hexadecimal\n\
+          floating point type numbers be output in unnormalized scientific \"p\"\n\
+          notation. -- the default\n\
+E.g., 1.ap10 is a normalized hexadecimal number equal to 1664 in decimal, and\n\
+6.8p8 is the same hexadecimal number unnormalized. Numbers can be input in\n\
+normalized or unnormalized form with either option. (Note: normalization of\n\
+numbers expressed in scientific notation is different here than in mathematics.)\n\
 \n\
 <precision>: -pr<n> specifies the maximum precision (number of significant\n\
 digits) in which a number is output. Affects floating point type (complex type)\n\
@@ -138,7 +142,8 @@ precision including guard digits.\n\
 \n\
 <mode>: Combines <input defaults> and <output base>: -mb (-0b -ob), -mo (-0o\n\
 -oo), -md (-0d -od), -mx (-0x -ox), -mbu (-0bu -ob), -mou (-0ou -oo), -mdu\n\
-(-0du -od), -mxu (-0xu -ox), -mdn (-0dn -od), -mxn (-0xn -ox).\n\
+(-0du -od), -mxu (-0xu -ox), -mbn (-0bn -ob), -mon (-0on -oo), -mdn (-0dn -od),\n\
+-mxn (-0xn -ox).\n\
 \n\
 <int word size>: Specifies the word size for the integer types:\n\
     -w8  -  8 bits\n\

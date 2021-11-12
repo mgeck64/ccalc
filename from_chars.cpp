@@ -11,15 +11,14 @@ static inline auto make_from_chars_result(decltype(std::from_chars_result::ptr) 
     return r;
 }
 
-auto from_chars(const char* begin, const char* end, float_type& out_num, unsigned radix, bool exp_base_2) -> std::from_chars_result {
+auto from_chars(const char* begin, const char* end, float_type& out_num, unsigned radix) -> std::from_chars_result {
 // specialized variation of std::from_chars for converting a floating point
 // number. some differences from std::from_chars:
 // - specifically for converting to calc_val::float_type
 // - does not recognize leading minus sign
 // - does not have std::chars_format parameter, has radix parameter instead
-// - if radix != 10 then exponent is specified with 'p'/'P' instead of ''e'/'E'
-// - if exp_base_2 == true and radix != 10 then exponent is power of 2 expressed
-//   in decimal else expoenent is power of radix expressed in decimal
+// - if radix != 10 then exponent is specified with 'p'/'P' instead of ''e'/'E',
+//   and exponent is a power of 2 expressed in decimal
 // - 0x and 0X prefixes are not recognized in any case 
     enum class scanning {whole, fraction, exponent} scan_state = scanning::whole;
     float_type num = 0;
@@ -75,14 +74,7 @@ auto from_chars(const char* begin, const char* end, float_type& out_num, unsigne
     if (negative_exponent)
         exponent = -exponent;
     if (exponent != 0) {
-        auto exp_base = [&]() -> unsigned {
-            if (radix == 10)
-                return 10;
-            else if (exp_base_2)
-                return 2;
-            else
-                return radix;
-        }();
+        auto exp_base = radix == 10u ? 10u : 2u;
         num *= pow(exp_base, exponent);
     }
     out_num = num;

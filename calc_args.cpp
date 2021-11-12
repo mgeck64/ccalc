@@ -59,7 +59,7 @@ static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
         ++args.n_output_fp_normalized_options;
         return true;
     }
-    if (arg_view == "ps") {
+    if (arg_view == "pu") {
         args.output_fp_normalized = false;
         ++args.n_output_fp_normalized_options;
         return true;
@@ -116,6 +116,8 @@ static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
             if (arg_itr) {
                 auto suffix_code = std::tolower(*arg_itr);
                 switch (prefix_code) {
+                    case base2_prefix_code:
+                    case base8_prefix_code:
                     case base10_prefix_code:
                     case base16_prefix_code:
                         if (suffix_code == complex_suffix_code) {
@@ -123,9 +125,6 @@ static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
                             return calc_val::complex_code;
                             break;
                         }
-                        [[fallthrough]];
-                    case base2_prefix_code:
-                    case base8_prefix_code:
                         if (suffix_code == unsigned_suffix_code) {
                             ++arg_itr;
                             return calc_val::uint_code;

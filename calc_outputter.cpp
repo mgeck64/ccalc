@@ -251,12 +251,7 @@ auto calc_outputter::output_pow2_as_floating_point(std::ostream& out, const calc
         out << 'p' << std::dec;
         if (exponent >= 0)
             out << '+';
-        if (out_options.output_fp_normalized)
-            out << exponent;
-        else {
-            assert(exponent % make_signed(digit_n_bits) == 0);
-            out << (exponent / make_signed(digit_n_bits));
-        }
+        out << exponent;
     }
 
     return out;
