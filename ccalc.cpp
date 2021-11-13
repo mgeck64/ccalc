@@ -19,13 +19,14 @@ int main(int argc, const char** argv) {
             break;
     }
 
-    if (      !args.n_help_options
-            && args.n_default_options < 2
-            && args.n_output_options < 2
-            && args.n_int_word_size_options < 2
-            && args.n_precision_options < 2
-            && args.n_output_fp_normalized_options < 2
-            && args.n_output_fixed_fp_options < 2) {
+    if (  !args.n_help_options
+        && args.n_default_options < 2
+        && args.n_output_options < 2
+        && args.n_int_word_size_options < 2
+        && args.n_precision_options < 2
+        && args.n_output_fp_normalized_options < 2
+        && args.n_output_fixed_fp_options < 2
+    ) {
         calc_parser parser(args.default_number_type_code,
             args.default_number_radix, args.int_word_size);
 
@@ -85,7 +86,7 @@ ccalc [<input defaults>] [<output base>] [<p notation>] [precision] [<mode>]\n\
 <expression>: A mathematical expression, e.g.: 2+3*6. If omitted then\n\
 expressions will continuously be input from stdin. Exception: if <expression> is\n\
 \"help\" then this content will be printed. Tip: enclose <expression> in quote\n\
-marks on the command line to avoid shell interpretation of special characters.\n\
+marks on the command line to avoid having the shell misinterpret the expression.\n\
 \n\
 <input defaults>: Specifies the default representation type and default numeric\n\
 base for numbers:\n\
