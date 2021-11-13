@@ -125,18 +125,18 @@ exponent, which is a power of 2 (not 10) expressed in decimal. There are two\n\
 options regarding scientific \"p\" notation:\n\
     -pn - Specifies that binary, octal and hexadecimal floating point type\n\
           numbers be output in normalized scientific \"p\" notation. A number is\n\
-          normalized so that it's integer part is 1 (except if the number is 0).\n\
-          This notation is used in computer languages such as C and C++ for\n\
-          hexadecimal floating point numbers.\n\
+          normalized so that it's integer part is the leading 1 bit of it's\n\
+          binary representation (except if the number is 0). This notation is\n\
+          used in computer languages such as C and C++ for hexadecimal floating\n\
+          point numbers.\n\
     -pu - Specifies that very large and very small binary, octal and hexadecimal\n\
           floating point type numbers be output in unnormalized scientific \"p\"\n\
           notation. (Note: for binary numbers, this will be the same as\n\
           normalized notation.) -- the default\n\
-E.g., 1.ap10 is a normalized hexadecimal number equal to 1664 in decimal, and\n\
-6.8p8 is the same number unnormalized in hexadecimal. Numbers can be input in\n\
-either normalized or unnormalized form under either option. (Note: except for\n\
-binary numbers, normalization of numbers here is different than standard\n\
-scientific notation normalization.)\n\
+E.g., 1.ap10 is a number in normalized hexadecimal scientific \"p\" notation\n\
+equal to 6.8p8 in unnormalized hexadecimal scientific \"p\" notation and 680 in\n\
+plain hexadecimal. Any of these three forms can be input under either option.\n\
+(Note: normalization here is different than in standard scientific notation.)\n\
 \n\
 <precision>: -pr<n> specifies the maximum precision (number of significant\n\
 digits) in which a number is output. Affects floating point type (complex type)\n\
