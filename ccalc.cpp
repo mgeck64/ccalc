@@ -46,12 +46,13 @@ int main(int argc, const char** argv) {
             }
         }
     } else {
-        if (      args.n_default_options
-                + args.n_output_options
-                + args.n_int_word_size_options
-                + args.n_precision_options
-                + args.n_output_fp_normalized_options
-                + args.n_output_fixed_fp_options)
+        if (  args.n_default_options
+            + args.n_output_options
+            + args.n_int_word_size_options
+            + args.n_precision_options
+            + args.n_output_fp_normalized_options
+            + args.n_output_fixed_fp_options
+        )
             std::cout << "Too many or invalid options." << '\n';
         help();
     }
