@@ -65,19 +65,6 @@ static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
         return true;
     }
 
-/*disabling this for now: getting odd results for values of 0 1 and 2 for pi
-    if (arg_view == "dp") {
-        args.output_fixed_fp = false;
-        ++args.n_output_fixed_fp_options;
-        return true;
-    }
-    if (arg_view == "df") {
-        args.output_fixed_fp = true;
-        ++args.n_output_fixed_fp_options;
-        return true;
-    }
-*/
-
     // if arg is ( '0' | 'm' ) <prefix code> [ <suffix code> ] <end>
     //     update <input defaults>
     // if arg is ( 'o' | 'm' ) <prefix code> <end>

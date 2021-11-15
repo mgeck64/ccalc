@@ -25,7 +25,6 @@ int main(int argc, const char** argv) {
         && args.n_int_word_size_options < 2
         && args.n_precision_options < 2
         && args.n_output_fp_normalized_options < 2
-        && args.n_output_fixed_fp_options < 2
     ) {
         calc_parser parser(args.default_number_type_code,
             args.default_number_radix, args.int_word_size);
@@ -51,9 +50,8 @@ int main(int argc, const char** argv) {
             + args.n_int_word_size_options
             + args.n_precision_options
             + args.n_output_fp_normalized_options
-            + args.n_output_fixed_fp_options
         )
-            std::cout << "Too many or invalid options." << '\n';
+            std::cout << "Duplicate or invalid options." << '\n';
         help();
     }
 

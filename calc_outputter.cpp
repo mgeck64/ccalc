@@ -35,11 +35,9 @@ auto calc_outputter::output_fn_for(calc_val::radices radix) -> output_fn_type {
 }
 
 auto calc_outputter::output_dec(std::ostream& out) const -> std::ostream& {
-    if (out_options.output_fixed_fp) {
-        out.setf(std::ios_base::fixed);
-        out.precision(out_options.precision);
-    } else if (out_options.precision == 0
-            || out_options.precision > std::numeric_limits<calc_val::float_type>::max_digits10)
+    if (out_options.precision == 0 ||
+        out_options.precision > std::numeric_limits<calc_val::float_type>::max_digits10
+    )
         out.precision(std::numeric_limits<calc_val::float_type>::max_digits10);
     else
         out.precision(out_options.precision);

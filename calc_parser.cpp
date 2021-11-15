@@ -85,7 +85,7 @@ calc_parser::calc_parser(
     calc_val::number_type_codes default_number_type_code_,
     calc_val::radices default_number_radix_,
     calc_val::int_word_sizes int_word_size_)
-: 
+:
     default_number_type_code{default_number_type_code_},
     default_number_radix{default_number_radix_},
     int_word_size{int_word_size_}
@@ -118,12 +118,12 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, output_op
             interpret_arg(lexer.last_token().view, expression_option_code, args);
             if (args.other_args)
                 throw calc_parse_error(calc_parse_error::invalid_option, lexer.last_token());
-            if (       args.n_default_options > 1
-                    || args.n_output_options > 1
-                    || args.n_int_word_size_options > 1
-                    || args.n_precision_options > 1
-                    || args.n_output_fp_normalized_options > 1
-                    || args.n_output_fixed_fp_options > 1)
+            if (   args.n_default_options > 1
+                || args.n_output_options > 1
+                || args.n_int_word_size_options > 1
+                || args.n_precision_options > 1
+                || args.n_output_fp_normalized_options > 1
+            )
                 throw calc_parse_error(calc_parse_error::too_many_options, lexer.last_token());
         } while (lexer.peek_token().id == calc_token::option);
 
@@ -142,8 +142,6 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, output_op
             out_options.precision = args.precision;
         if (args.n_output_fp_normalized_options)
             out_options.output_fp_normalized = args.output_fp_normalized;
-        if (args.n_output_fixed_fp_options)
-            out_options.output_fixed_fp = args.output_fixed_fp;
     }
 
     if (lexer.peek_token().id == calc_token::end)
@@ -492,7 +490,7 @@ auto calc_parser::assumed_identifier_expr(lookahead_calc_lexer& lexer) -> calc_v
     auto itr = variables.find(std::string(identifier));
     if (itr == variables.end()) // <undefined_identifier>
         throw calc_parse_error(calc_parse_error::undefined_identifier, identifier_token);
-    
+
     // <value_variable> | <unary_fn_variable> <group>
 
     auto val = std::visit([&](const auto& thing) -> calc_val::variant_type {
