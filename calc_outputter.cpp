@@ -22,14 +22,13 @@ std::ostream& operator<<(std::ostream& out, const calc_outputter& outputter) {
 
 auto calc_outputter::output_fn_for(calc_val::radices radix) -> output_fn_type {
     switch (radix) {
-        case calc_val::base10:
-            return &calc_outputter::output_dec;
         case calc_val::base2:
         case calc_val::base8:
         case calc_val::base16:
             return &calc_outputter::output_pow2;
         default:
-            assert(false); // missed one
+            assert(false); // missed one; fallthru to base10 case
+        case calc_val::base10:
             return &calc_outputter::output_dec;
     }
 }
