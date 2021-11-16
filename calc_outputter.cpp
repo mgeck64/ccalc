@@ -171,11 +171,13 @@ auto calc_outputter::output_pow2_as_floating_point(std::ostream& out, const calc
 
     static_assert(!std::numeric_limits<decltype(out_options.precision)>::is_signed);
     auto precision = out_options.precision;
-    if (out_options.precision == 0
-            || out_options.precision * digit_n_bits >= std::numeric_limits<significand_type>::digits) {
-        significand = val.backend().bits();
-        assert(std::numeric_limits<significand_type>::digits % digit_n_bits == 0);
+    if (precision == 0) {
         precision = std::numeric_limits<significand_type>::digits / digit_n_bits;
+        if (std::numeric_limits<significand_type>::digits % digit_n_bits)
+            ++precision;
+    }
+    if (precision * digit_n_bits >= std::numeric_limits<significand_type>::digits) {
+        significand = val.backend().bits();
     } else { // handle rounding to precision
         auto f = calc_val::float_type();
         f.backend().bits() = val.backend().bits();
