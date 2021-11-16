@@ -25,7 +25,7 @@ auto calc_outputter::output_fn_for(calc_val::radices radix) -> output_fn_type {
         case calc_val::base2:
         case calc_val::base8:
         case calc_val::base16:
-            return &calc_outputter::output_pow2;
+            return &calc_outputter::output_radix_pow2;
         default:
             assert(false); // missed one; fallthru to base10 case
         case calc_val::base10:
@@ -63,11 +63,11 @@ auto calc_outputter::output_dec(std::ostream& out) const -> std::ostream& {
     }, val);
 }
 
-auto calc_outputter::output_pow2(std::ostream& out) const -> std::ostream& {
+auto calc_outputter::output_radix_pow2(std::ostream& out) const -> std::ostream& {
     return std::visit([&](const auto& val) -> std::ostream& {
         using VT = std::decay_t<decltype(val)>;
         if constexpr (std::is_integral_v<VT> && std::is_signed_v<VT>) {
-            output_pow2_as_uint(out, [&]() -> std::make_unsigned_t<VT> {
+            output_radix_pow2_uint(out, [&]() -> std::make_unsigned_t<VT> {
                 if (val < 0) {
                     out << '-';
                     return -val;
@@ -75,18 +75,18 @@ auto calc_outputter::output_pow2(std::ostream& out) const -> std::ostream& {
                 return val;
             }());
         } else if constexpr (std::is_integral_v<VT>)
-            output_pow2_as_uint(out, val);
+            output_radix_pow2_uint(out, val);
         else {
             static_assert(std::is_same_v<calc_val::complex_type, VT>);
             if (val.real() != 0 || val.imag() == 0)
-                output_pow2_as_floating_point(out, val.real());
+                output_radix_pow2_float(out, val.real());
             if (val.imag() != 0) {
                 if (val.real() != 0 && !signbit(val.imag()))
                     out << '+';
                 if (val.imag() == -1)
                     out << '-';
                 else if (val.imag() != 1)
-                    output_pow2_as_floating_point(out, val.imag());
+                    output_radix_pow2_float(out, val.imag());
                 out << 'i';
             }
         }
@@ -94,7 +94,7 @@ auto calc_outputter::output_pow2(std::ostream& out) const -> std::ostream& {
     }, val);
 }
 
-auto calc_outputter::output_pow2_as_uint(std::ostream& out, std::uintmax_t val) const -> std::ostream& {
+auto calc_outputter::output_radix_pow2_uint(std::ostream& out, std::uintmax_t val) const -> std::ostream& {
     unsigned delimit_at;
     decltype(val) digit_mask;
     size_t digit_n_bits;
@@ -138,7 +138,7 @@ auto calc_outputter::output_pow2_as_uint(std::ostream& out, std::uintmax_t val) 
     return out;
 }
 
-auto calc_outputter::output_pow2_as_floating_point(std::ostream& out, const calc_val::float_type& val) const -> std::ostream& {
+auto calc_outputter::output_radix_pow2_float(std::ostream& out, const calc_val::float_type& val) const -> std::ostream& {
     if (signbit(val))
         out << '-';
 

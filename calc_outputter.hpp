@@ -25,9 +25,9 @@ private:
     static auto output_fn_for(calc_val::radices radix) -> output_fn_type;
 
     auto output_dec(std::ostream& out) const -> std::ostream&;
-    auto output_pow2(std::ostream& out) const -> std::ostream&;
-    auto output_pow2_as_uint(std::ostream& out, std::uintmax_t val) const -> std::ostream&;
-    auto output_pow2_as_floating_point(std::ostream& out, const calc_val::float_type& val) const -> std::ostream&;
+    auto output_radix_pow2(std::ostream& out) const -> std::ostream&;
+    auto output_radix_pow2_uint(std::ostream& out, std::uintmax_t val) const -> std::ostream&;
+    auto output_radix_pow2_float(std::ostream& out, const calc_val::float_type& val) const -> std::ostream&;
 
     static constexpr auto digits = std::array{
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
