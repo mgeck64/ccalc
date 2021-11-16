@@ -131,8 +131,7 @@ options regarding scientific \"p\" notation:\n\
           point numbers.\n\
     -pu - Specifies that very large and very small binary, octal and hexadecimal\n\
           floating point type numbers be output in unnormalized scientific \"p\"\n\
-          notation. (Note: for binary numbers, this will be the same as\n\
-          normalized notation.) -- the default\n\
+          notation. -- the default\n\
 E.g., 1.ap10 is a number in normalized hexadecimal scientific \"p\" notation\n\
 equal to 6.8p8 in unnormalized hexadecimal scientific \"p\" notation and 680 in\n\
 plain hexadecimal. Any of these three forms can be input under either option.\n\
