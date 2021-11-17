@@ -4,6 +4,7 @@
 // so, e,g., we can accurately compute pow(2, 63) for 64 bit unsigned int, which
 // std::pow (with 64 bit double) can't
 
+#include "basics.hpp"
 #include <cstdint>
 #include <cmath>
 #include <type_traits>
@@ -11,7 +12,7 @@
 namespace calc_val {
 
 namespace helper { // implementation helper; not meant for public use
-    auto pow_uint(std::uintmax_t x, std::uintmax_t e) -> std::uintmax_t;
+    auto pow_uint(max_uint_type x, max_uint_type e) -> max_uint_type;
 }
 
 template <typename T1, typename T2>

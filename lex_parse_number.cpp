@@ -185,7 +185,7 @@ auto calc_parser::assumed_number(lookahead_calc_lexer& lexer, bool is_negative) 
     }
 
     calc_val::float_type float_val = 0;
-    unsigned long long uint_val = 0;
+    calc_val::max_uint_type uint_val = 0;
 
     std::from_chars_result from_char_result;
     if (type_code == calc_val::complex_code)
@@ -225,8 +225,12 @@ auto calc_parser::assumed_number(lookahead_calc_lexer& lexer, bool is_negative) 
             case calc_val::int_bits_32:
                 val = val_for(std::uint32_t{}, uint_val, is_negative, out_of_range);
                 break;
-            default:
+            case calc_val::int_bits_64:
                 val = val_for(std::uint64_t{}, uint_val, is_negative, out_of_range);
+                break;
+            default:
+                assert(int_word_size == calc_val::int_bits_128);
+                val = val_for((unsigned __int128){}, uint_val, is_negative, out_of_range);
         }
     } else if (type_code == calc_val::int_code) {
         auto val_for = [](auto tag, auto uint_val, bool is_negative, calc_val::radices radix, bool& out_of_range) -> calc_val::int_type {
@@ -237,7 +241,7 @@ auto calc_parser::assumed_number(lookahead_calc_lexer& lexer, bool is_negative) 
             static_assert(sizeof(int_t) == sizeof(uint_t));
             // calc_val::base10 checks: for base 10, perform normal range
             // checking; for other bases, allow e.g. 0xffff to convert to -1 for
-            // int_bits_16 and not be a out of range error
+            // 16 bit integer and not be an out of range error
             if (is_negative) {
                 if ((radix == calc_val::base10 && uint_val > -static_cast<decltype(uint_val)>(std::numeric_limits<int_t>::min()))
                         || (uint_val > std::numeric_limits<uint_t>::max()))
@@ -265,9 +269,12 @@ auto calc_parser::assumed_number(lookahead_calc_lexer& lexer, bool is_negative) 
             case calc_val::int_bits_32:
                 val = val_for(std::int32_t{}, uint_val, is_negative, radix, out_of_range);
                 break;
-            default:
-                assert(int_word_size == calc_val::int_bits_64);
+            case calc_val::int_bits_64:
                 val = val_for(std::int64_t{}, uint_val, is_negative, radix, out_of_range);
+                break;
+            default:
+                assert(int_word_size == calc_val::int_bits_128);
+                val = val_for(__int128{}, uint_val, is_negative, radix, out_of_range);
         }
     } else {
         assert(type_code == calc_val::complex_code);

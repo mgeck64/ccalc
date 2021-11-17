@@ -148,10 +148,11 @@ precision including guard digits.\n\
 -mxn (-0xn -ox).\n\
 \n\
 <int word size>: Specifies the word size for the integer types:\n\
-    -w8  -  8 bits\n\
-    -w16 - 16 bits\n\
-    -w32 - 32 bits\n\
-    -w64 - 64 bits -- the default\n\
+    -w8   -   8 bits\n\
+    -w16  -  16 bits\n\
+    -w32  -  32 bits\n\
+    -w64  -  64 bits -- the default\n\
+    -w128 - 128 bits\n\
 Note: this does not affect the complex type.\n\
 \n\
 Options may also be provided in an expression (e.g., when input from stdin);\n\

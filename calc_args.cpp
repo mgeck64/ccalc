@@ -53,6 +53,11 @@ static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
         ++args.n_int_word_size_options;
         return true;
     }
+    if (arg_view == "w128") {
+        args.int_word_size = calc_val::int_bits_128;
+        ++args.n_int_word_size_options;
+        return true;
+    }
 
     if (arg_view == "pn") {
         args.output_fp_normalized = true;

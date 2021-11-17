@@ -5,8 +5,8 @@
 namespace calc_val {
 
 namespace helper { // implementation helpers; not meant for public use
-    auto pow_uint_e(const complex_type& z, std::uintmax_t e) -> complex_type;
-    auto pow_int_e(const complex_type& z, std::intmax_t e) -> complex_type;
+    auto pow_uint_e(const complex_type& z, max_uint_type e) -> complex_type;
+    auto pow_int_e(const complex_type& z, max_int_type e) -> complex_type;
 }
 
 template <typename T>

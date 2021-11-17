@@ -2,7 +2,7 @@
 
 namespace calc_val {
 
-auto helper::pow_uint(std::uintmax_t x, std::uintmax_t e) -> std::uintmax_t {
+auto helper::pow_uint(max_uint_type x, max_uint_type e) -> max_uint_type {
     auto x_ = (e & 1) ? x : 1;
     while (e >>= 1) {
         x *= x;

@@ -2,6 +2,7 @@
 #include <boost/io/ios_state.hpp>
 #include <limits>
 #include <cassert>
+#include <boost/container/static_vector.hpp>
 
 std::ostream& operator<<(std::ostream& out, const calc_outputter& outputter) {
     boost::io::ios_all_saver guard(out);
@@ -44,7 +45,14 @@ auto calc_outputter::output_dec(std::ostream& out) const -> std::ostream& {
     return std::visit([&](const auto& val) -> std::ostream& {
         using VT = std::decay_t<decltype(val)>;
         if constexpr (std::is_integral_v<VT>)
-            out << +val; // +val: incase val is char type, will output as int
+            // note: inserter for __int128 not available, thus this:
+            output_dec_uint(out, [&]() -> std::make_unsigned_t<VT> {
+                if (val < 0) {
+                    out << '-';
+                    return -val;
+                }
+                return val;
+            }());
         else {
             static_assert(std::is_same_v<calc_val::complex_type, VT>);
             if (val.real() != 0 || val.imag() == 0)
@@ -61,6 +69,18 @@ auto calc_outputter::output_dec(std::ostream& out) const -> std::ostream& {
         }
         return out;
     }, val);
+}
+
+auto calc_outputter::output_dec_uint(std::ostream& out, calc_val::max_uint_type val) const -> std::ostream& {
+    boost::container::static_vector<char,
+        std::numeric_limits<std::decay_t<decltype(val)>>::digits10 + 1> reversed;
+    do {
+        reversed.emplace_back(digits.at(val % 10));
+        val /= 10;
+    } while (val);
+    for (auto itr = reversed.rbegin(); itr != reversed.rend(); ++itr)
+        out << *itr;
+    return out;
 }
 
 auto calc_outputter::output_radix_pow2(std::ostream& out) const -> std::ostream& {
@@ -94,7 +114,7 @@ auto calc_outputter::output_radix_pow2(std::ostream& out) const -> std::ostream&
     }, val);
 }
 
-auto calc_outputter::output_radix_pow2_uint(std::ostream& out, std::uintmax_t val) const -> std::ostream& {
+auto calc_outputter::output_radix_pow2_uint(std::ostream& out, calc_val::max_uint_type val) const -> std::ostream& {
     unsigned delimit_at;
     decltype(val) digit_mask;
     size_t digit_n_bits;

@@ -2,7 +2,7 @@
 
 namespace calc_val {
 
-auto helper::pow_uint_e(const complex_type& z_in, std::uintmax_t e) -> complex_type {
+auto helper::pow_uint_e(const complex_type& z_in, max_uint_type e) -> complex_type {
     auto z = z_in;
     auto z_ = (e & 1) ? z : complex_type(1);
     while (e >>= 1) {
@@ -13,15 +13,14 @@ auto helper::pow_uint_e(const complex_type& z_in, std::uintmax_t e) -> complex_t
     return z_;
 }
 
-auto helper::pow_int_e(const complex_type& z, std::intmax_t e) -> complex_type {
-    static_assert(sizeof(uintmax_t) == sizeof(intmax_t));
+auto helper::pow_int_e(const complex_type& z, max_int_type e) -> complex_type {
     return e < 0
-        ? 1 / pow_uint_e(z, -std::uintmax_t(e))
-        : pow_uint_e(z, std::uintmax_t(e));
+        ? 1 / pow_uint_e(z, -max_uint_type(e))
+        : pow_uint_e(z, max_uint_type(e));
 }
 
 auto pow(const complex_type& z, const complex_type& e) -> complex_type {
-    auto e_int = std::intmax_t(e.real());
+    auto e_int = max_int_type(e.real());
     if (e_int == e.real() && e.imag() == 0)
         // special case where e is an integer value. this produces less
         // rounding/precision error
