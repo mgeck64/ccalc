@@ -9,6 +9,8 @@ namespace calc_val {
 using float_type = boost::multiprecision::cpp_bin_float_50;
 using uint_type = unsigned __int128; // __int128 is special GCC type
 using int_type = __int128;
+// note: not using boost multiprecision int type for int_type because the boost
+// int type is implemented as signed magnitude but we require two's compliment
 
 // basic assumptions
 static_assert(uint_type(-1) == ~uint_type(0)); // two's compliment machine
