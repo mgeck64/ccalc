@@ -8,6 +8,9 @@ floating point (and complex)
 - Supports floating point numbers up to 50 decimal significant digits (+ guard
 digits)
 ## Dependencies
-- This project depends on Boost; this was built using Boost version 1.75
+- This project depends on Boost; this was built using Boost version 1.74. Note:
+the newer version 1.77 produces a slightly wrong result for the expression
+exp(pi*i) where i is the imaginary unit; thus version 1.74 is statically
+asserted in the code
 - This project uses the GNU __int128 type with extended support for the standard
 library enabled

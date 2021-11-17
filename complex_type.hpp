@@ -3,11 +3,19 @@
 
 #include "basics.hpp"
 #include <boost/multiprecision/cpp_complex.hpp>
+#include <boost/version.hpp>
 
 namespace calc_val {
 
 using complex_type = boost::multiprecision::cpp_complex_50;
 static_assert(std::is_same_v<float_type, complex_type::value_type>);
+
+static_assert(BOOST_VERSION == 107400);
+// this version of boost produces the correct result of -1 for the expression
+// exp(pi*i) where i is the imaginary unit (complex_type(0, 1)). a more recent
+// version, 1.77, produces an incorrect result where the imaginary part is some
+// small number. thus if the boost version changes then verify that the above
+// expression produces the expected result
 
 template <typename T>
 constexpr auto is_complex_type() -> bool
