@@ -20,7 +20,7 @@ void interpret_arg(std::string_view arg_str, char option_code, calc_args& args) 
 
 static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
     if (arg_itr.length() > 1 && *arg_itr == 'p' && arg_itr[1] == 'r') {
-        decltype(args.precision) precision;
+        decltype(args.precision) precision = 0;
         std::from_chars_result r = std::from_chars(arg_itr.begin() + 2, arg_itr.end(), precision);
         if (r.ec == std::errc() && r.ptr == arg_itr.end())
             args.precision = precision;
