@@ -13,7 +13,7 @@ using int_type = __int128;
 // int type is implemented as signed magnitude but we require two's compliment
 
 // basic assumptions
-static_assert(uint_type(-1) == ~uint_type(0)); // two's compliment machine
+static_assert(uint_type(-1) == ~uint_type(0)); // two's compliment integer type
 static_assert(int_type(-2) >> int_type(1) == int_type(-1)); // right-shift is arithmetic
 static_assert(sizeof(uint_type) == sizeof(int_type));
 
