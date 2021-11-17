@@ -75,7 +75,9 @@ auto calc_outputter::output_dec_uint(std::ostream& out, calc_val::max_uint_type 
     boost::container::static_vector<char,
         std::numeric_limits<std::decay_t<decltype(val)>>::digits10 + 1> reversed;
     do {
-        reversed.emplace_back(digits.at(val % 10));
+        assert(reversed.size() < reversed.capacity());
+        if (reversed.size() < reversed.capacity()) // add guard just to be safe
+            reversed.emplace_back(digits.at(val % 10));
         val /= 10;
     } while (val);
     for (auto itr = reversed.rbegin(); itr != reversed.rend(); ++itr)
