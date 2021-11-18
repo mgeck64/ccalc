@@ -76,8 +76,7 @@ auto calc_outputter::output_dec_uint(std::ostream& out, calc_val::max_uint_type 
         std::numeric_limits<std::decay_t<decltype(val)>>::digits10 + 1> reversed;
     do {
         assert(reversed.size() < reversed.capacity());
-        if (reversed.size() < reversed.capacity()) // add guard just to be safe
-            reversed.emplace_back(digits.at(val % 10));
+        reversed.emplace_back(digits.at(val % 10));
         val /= 10;
     } while (val);
     for (auto itr = reversed.rbegin(); itr != reversed.rend(); ++itr)
@@ -135,26 +134,19 @@ auto calc_outputter::output_radix_pow2_uint(std::ostream& out, calc_val::max_uin
         digit_n_bits = 4;
     }
 
-    decltype(val) reversed = 0;
-    unsigned digit_count = 0;
-    for (; val >= out_options.output_radix; ++digit_count) { // all digits except leftmost one
-        reversed <<= digit_n_bits;
-        reversed |= val & digit_mask;
+    std::vector<char> reversed;
+    reversed.reserve(std::numeric_limits<std::decay_t<decltype(val)>>::digits / digit_n_bits + 1);
+
+    do {
+        reversed.emplace_back(digits.at(val & digit_mask));
         val >>= digit_n_bits;
-    }
+    } while (val);
 
-    // leftmost digit (or 0) -- leftmost digit may be partial; e.g., for octal,
-    // 64%3 == 1: 64 is bit width of val and 3 is bit width of octal digit
-    assert(val < digits.size());
-    out << digits.at(static_cast<size_t>(val));
-
-    // remaining reversed digits
-    assert(digit_mask < digits.size());
-    for (; digit_count; --digit_count) {
-        if (delimit_at && !(digit_count % delimit_at))
+    unsigned digit_count = reversed.size();
+    for (auto itr = reversed.rbegin(); itr != reversed.rend(); ++itr) {
+        if (itr != reversed.rbegin() && !(--digit_count % delimit_at))
             out << ' ';
-        out << digits.at(static_cast<size_t>(reversed & digit_mask));
-        reversed >>= digit_n_bits;
+        out << *itr;
     }
 
     return out;
@@ -220,8 +212,8 @@ auto calc_outputter::output_radix_pow2_float(std::ostream& out, const calc_val::
     }
 
     static_assert(!std::numeric_limits<significand_type>::is_signed);
-    using reversed_type = boost::multiprecision::number<calc_val::float_type::backend_type::double_rep_type>;
-    reversed_type reversed = 0;
+    std::vector<char> reversed;
+    reversed.reserve(std::numeric_limits<significand_type>::digits / digit_n_bits * 2); // should provide plenty of working space
     auto n_bits = std::numeric_limits<significand_type>::digits - 1; // exclude leading bit, which is handled specially
 
     if (!out_options.output_fp_normalized) {
@@ -231,12 +223,15 @@ auto calc_outputter::output_radix_pow2_float(std::ostream& out, const calc_val::
     }
     if (auto shift = n_bits % digit_n_bits) { // partial digit
         auto shift2 = digit_n_bits - shift;
-        reversed = unsigned((significand & (digit_mask >> shift2)) << shift2);
+        auto digit = unsigned(significand & (digit_mask >> shift2)) << shift2;
+        if (digit)
+            reversed.emplace_back(digits.at(digit));
         significand >>= shift;
     }
     for (auto n = n_bits / digit_n_bits; n; --n) {
-        reversed <<= digit_n_bits;
-        reversed |= significand & digit_mask;
+        auto digit = unsigned(significand & digit_mask);
+        if (digit || !reversed.empty())
+            reversed.emplace_back(digits.at(digit));
         significand >>= digit_n_bits;
     }
 
@@ -252,23 +247,20 @@ auto calc_outputter::output_radix_pow2_float(std::ostream& out, const calc_val::
                 out << '0';
         }
         out << digits.at(unsigned(significand));
-        while (reversed) {
+        for (auto itr = reversed.rbegin(); itr != reversed.rend(); ++itr) {
             if (exponent_ == 0 && exponent >= 0)
                 out << '.';
-            out << digits.at(unsigned(reversed & digit_mask));
-            reversed >>= digit_n_bits;
+            out << *itr;
             exponent_ -= digit_n_bits;
         }
         for (; exponent_ > 0; exponent_ -= digit_n_bits)
             out << '0';
     } else { // output in scientific notation
         out << digits.at(unsigned(significand));
-        if (reversed) {
+        if (!reversed.empty()) {
             out << '.';
-            do {
-                out << digits.at(unsigned(reversed & digit_mask));
-                reversed >>= digit_n_bits;
-            } while (reversed);
+            for (auto itr = reversed.rbegin(); itr != reversed.rend(); ++itr)
+                out << *itr;
         }
         out << 'p' << std::dec;
         if (exponent >= 0)
