@@ -79,7 +79,7 @@ static void evaluate(std::string_view expression, calc_parser& parser, output_op
 static void help() {
     std::cout << "\
 Basic guide:\n\
-ccalc [<input defaults>] [<output base>] [<p notation>] [precision] [<mode>]\n\
+ccalc [<input defaults>] [<output base>] [<mode>] [<p notation>] [precision]\n\
 [<int word size>] [-h] [--help] [<expression>]...\n\
 \n\
 <expression>: A mathematical expression, e.g.: 2+3*6. If omitted then\n\
@@ -89,19 +89,19 @@ marks on the command line to avoid having the shell misinterpret the expression.
 \n\
 <input defaults>: Specifies the default representation type and default numeric\n\
 base for numbers:\n\
-    -0b  - Signed integer type, binary base; e.g.: 1010\n\
-    -0o  - Signed integer type, octal base; e.g.: 12\n\
-    -0d  - Signed integer type, decimal base; e.g.: 10\n\
-    -0x  - Signed integer type, hexadecimal base; e.g.: 0a (prepend a number\n\
-           with 0 if it consists only of letter digits)\n\
+    -0b or -0bs - Signed integer type, binary base; e.g.: 1010\n\
+    -0o or -0os - Signed integer type, octal base; e.g.: 12\n\
+    -0d or -0ds - Signed integer type, decimal base; e.g.: 10\n\
+    -0x or -0xs - Signed integer type, hexadecimal base; e.g.: 0a (prepend a\n\
+                  number with 0 if it consists only of letter digits)\n\
     -0bu - Unsigned integer type, binary base\n\
     -0ou - Unsigned integer type, octal base\n\
     -0du - Unsigned integer type, decimal base\n\
     -0xu - Unsigned integer type, hexadecimal base\n\
-    -0bn - Complex type, binary base; e.g.: 1010, 1010+10*i\n\
-    -0on - Complex type, octal base; e.g.: 12, 12+2*i\n\
-    -0dn - Complex type, decimal base; e.g.: 10, 10+2*i -- the default\n\
-    -0xn - Complex type, hexadecimal base; e.g.: 0a, 0a+2*i\n\
+    -0bn - Complex type, binary base; e.g., 1010, 1010+10*i\n\
+    -0on - Complex type, octal base; e.g., 12, 12+2*i\n\
+    -0dn - Complex type, decimal base; e.g., 10, 10+2*i -- the default\n\
+    -0xn - Complex type, hexadecimal base; e.g., 0a, 0a+2*i\n\
 Complex type: Represents a complex number composed of a real and imaginary part,\n\
 both of which are high precision floating point types (50 significant decimal\n\
 digits). The full form of a complex number can be given as a+b*i (and not a+bi;\n\
@@ -117,6 +117,11 @@ will be represented as complex type and interpreted in hexadecimal base.\n\
     -oo - Octal\n\
     -od - Decimal -- the default\n\
     -ox - Hexadecimal\n\
+\n\
+<mode>: Combines <input defaults> and <output base>: -mb (-0b -ob), -mo (-0o\n\
+-oo), -md (-0d -od), -mx (-0x -ox), -mbs (-0bs -ob), -mos (-0os oo), -mds (-0ds\n\
+-od), -mxs (-0xs -ox), -mbu (-0bu -ob), -mou (-0ou -oo), -mdu (-0du -od), -mxu\n\
+(-0xu -ox), -mbn (-0bn -ob), -mon (-0on -oo), -mdn (-0dn -od), -mxn (-0xn -ox).\n\
 \n\
 <p notation>: Applies to scientific notation for binary, octal and hexadecimal\n\
 floating point type numbers (the real or imaginary parts of complex type\n\
@@ -141,11 +146,6 @@ plain hexadecimal. Any of these three forms can be input under either option.\n\
 digits) in which a number is output. Affects floating point type (complex type)\n\
 numbers only. E.g., -pr15. The default value is 50. 0 is special and means full\n\
 precision including guard digits.\n\
-\n\
-<mode>: Combines <input defaults> and <output base>: -mb (-0b -ob), -mo (-0o\n\
--oo), -md (-0d -od), -mx (-0x -ox), -mbu (-0bu -ob), -mou (-0ou -oo), -mdu\n\
-(-0du -od), -mxu (-0xu -ox), -mbn (-0bn -ob), -mon (-0on -oo), -mdn (-0dn -od),\n\
--mxn (-0xn -ox).\n\
 \n\
 <int word size>: Specifies the word size for the integer types:\n\
     -w8   -   8 bits\n\

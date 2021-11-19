@@ -96,8 +96,8 @@ static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
             output_radix = calc_val::base10;
             break;
         case base16_prefix_code:
-            output_radix = calc_val::base16;
             default_number_radix = calc_val::base16;
+            output_radix = calc_val::base16;
             break;
         default:
             option_code = '\0';
@@ -115,12 +115,14 @@ static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
                         if (suffix_code == complex_suffix_code) {
                             ++arg_itr;
                             return calc_val::complex_code;
-                            break;
+                        }
+                        if (suffix_code == signed_suffix_code) {
+                            ++arg_itr;
+                            return calc_val::int_code;
                         }
                         if (suffix_code == unsigned_suffix_code) {
                             ++arg_itr;
                             return calc_val::uint_code;
-                            break;
                         }
                 }
             }
