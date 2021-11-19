@@ -32,7 +32,7 @@ static_assert(std::numeric_limits<std::int64_t>::max() < std::numeric_limits<__i
 static_assert(std::numeric_limits<unsigned std::int64_t>::max() < std::numeric_limits<unsigned __int128>::max());
 static_assert(std::numeric_limits<unsigned __int128>::digits10 > 0);
 static_assert(std::numeric_limits<__int128>::digits10 > 0);
-// static_assert(sizeof(std::uintmax_t) >= sizeof(unsigned __int128)); // this fails! need to avoid using intmax_t
+// static_assert(sizeof(std::uintmax_t) >= sizeof(unsigned __int128)); // this fails! need to avoid using uintmax_t
 // static_assert(sizeof(std::intmax_t) >= sizeof(__int128)); // this fails! need to avoid using intmax_t
 using max_uint_type = unsigned __int128;
 using max_int_type = __int128;
