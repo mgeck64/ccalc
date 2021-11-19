@@ -12,4 +12,4 @@ digits)
 the newer versions 1.75 and 1.77 produce a slightly incorrect result for the
 expression exp(pi*i) where i is the imaginary unit; thus version 1.74 is
 statically asserted for in the code
-- This project uses the GNU __int128 type with extended support enabled
+- This project uses the GNU __int128 type with GNU extensions enabled
