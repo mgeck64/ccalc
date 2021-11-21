@@ -1,8 +1,7 @@
 #ifndef POW_INT_HPP
 #define POW_INT_HPP
 
-// so, e,g., we can accurately compute pow(2, 63) for 64 bit unsigned int, which
-// std::pow (with 64 bit double) can't
+// true integer pow functions
 
 #include "basics.hpp"
 #include <cstdint>

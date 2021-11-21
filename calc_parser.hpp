@@ -23,7 +23,7 @@ public:
 private:
     calc_val::number_type_codes default_number_type_code = calc_val::complex_code;
     calc_val::radices default_number_radix = calc_val::base10;
-    calc_val::int_word_sizes int_word_size = calc_val::int_bits_64;
+    calc_val::int_word_sizes int_word_size = calc_val::int_bits_128;
     calc_val::variant_type last_val = calc_val::complex_type(std::numeric_limits<calc_val::float_type>::quiet_NaN());
 
     // parser productions

@@ -151,9 +151,11 @@ precision including guard digits.\n\
     -w8   -   8 bits\n\
     -w16  -  16 bits\n\
     -w32  -  32 bits\n\
-    -w64  -  64 bits -- the default\n\
-    -w128 - 128 bits\n\
+    -w64  -  64 bits\n\
+    -w128 - 128 bits -- the default\n\
 Note: this does not affect the complex type.\n\
+Note 2: calculations are internally performed with 128 bit precision and then\n\
+truncated to the active word size.\n\
 \n\
 Options may also be provided in an expression (e.g., when input from stdin);\n\
 options provided this way begin with '@' instead of '-' (because '-' is the\n\
