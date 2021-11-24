@@ -35,13 +35,13 @@ public:
     calc_lexer(std::string_view input, calc_val::radices default_number_radix);
     // input: the view must be valid for the lifetime of the class instance.
     // implementation note: string_view was chosen over const char* (c-style
-    // string) as input's type to explore a more generalized modern c++ approach
-    // for accepting a read-only string reference. this means that input is
-    // technically not required to be a c-style string and thus this class's
-    // implementation assumes that input may not be a c-style string. this
-    // assumption both complicated the implementation and made it a little less
-    // efficient (but still performant) than if input were assumed to be a
-    // c-style string
+    // string) as input's type to explore a modern c++ approach for a common
+    // read-only string reference (for both c-style and std::string string).
+    // this means that input is technically not required to be a c-style string
+    // and thus this class's implementation assumes that input is not a c-style
+    // string. this assumption both complicated the implementation and made it a
+    // little less efficient (but still performant) than if input were assumed
+    // to be a c-style string
 
     auto get_token() -> lexer_token;
 
