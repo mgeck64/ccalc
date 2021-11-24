@@ -109,7 +109,7 @@ auto calc_parser::assumed_number(lookahead_calc_lexer& lexer, bool is_negative) 
 // converts the character sequence to internal numeric representation (and thus
 // validates it)
     auto token = lexer.get_token(); // assume next token is number (caller should assure this)
-    assert(token.id == calc_token::number);
+    assert(token.id == lexer_token::number);
 
     auto num_itr = const_string_itr(token.view);
     auto type_code = default_number_type_code;

@@ -30,23 +30,23 @@ public:
         "unexpected end of input", "invalid shift argument",
         "this suffix is invalid here", "help is invalid here", "internal error"};
 
-    calc_parse_error(error_codes error, const calc_token& token_,
-        calc_token::token_ids expected_token_id_ = calc_token::unspecified);
+    calc_parse_error(error_codes error, const lexer_token& token_,
+        lexer_token::token_ids expected_token_id_ = lexer_token::unspecified);
 
     auto error_str() const -> std::string;
-    auto token() const -> const calc_token& {return token_;}
+    auto token() const -> const lexer_token& {return token_;}
 
 private:
     error_codes error_ = no_error;
-    calc_token token_ = calc_token{};
-    calc_token::token_ids expected_token_id_ = calc_token::unspecified; // valid for error == tok_expected
+    lexer_token token_ = lexer_token{};
+    lexer_token::token_ids expected_token_id_ = lexer_token::unspecified; // valid for error == tok_expected
 };
 
-inline calc_parse_error::calc_parse_error(error_codes error, const calc_token& token, calc_token::token_ids expected_token_id)
+inline calc_parse_error::calc_parse_error(error_codes error, const lexer_token& token, lexer_token::token_ids expected_token_id)
 // expected_token_id != token::unspecified is only valid for error == token_expected
     : error_{error}, token_{token}, expected_token_id_{expected_token_id}
 {
-    assert(expected_token_id_ == calc_token::unspecified || error_ == token_expected);
+    assert(expected_token_id_ == lexer_token::unspecified || error_ == token_expected);
 }
 
 #endif // CALC_PARSE_ERROR_HPP

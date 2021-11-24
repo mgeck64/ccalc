@@ -106,12 +106,12 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, output_op
     // <input> ::= "help"
     //           | [ <option> ]... [ <math_expr> ]
 
-    if (lexer.peek_token().id == calc_token::help && lexer.peek_token2().id == calc_token::end) {
+    if (lexer.peek_token().id == lexer_token::help && lexer.peek_token2().id == lexer_token::end) {
         help();
         throw no_mathematical_expression();
     }
 
-    if (lexer.peek_token().id == calc_token::option) {
+    if (lexer.peek_token().id == lexer_token::option) {
         calc_args args;
         do {
             lexer.get_token();
@@ -125,7 +125,7 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, output_op
                 || args.n_output_fp_normalized_options > 1
             )
                 throw calc_parse_error(calc_parse_error::too_many_options, lexer.last_token());
-        } while (lexer.peek_token().id == calc_token::option);
+        } while (lexer.peek_token().id == lexer_token::option);
 
         if (args.n_help_options)
             help();
@@ -144,14 +144,14 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, output_op
             out_options.output_fp_normalized = args.output_fp_normalized;
     }
 
-    if (lexer.peek_token().id == calc_token::end)
+    if (lexer.peek_token().id == lexer_token::end)
         throw no_mathematical_expression();
 
     auto val = math_expr(lexer);
 
-    if (lexer.peek_token().id == calc_token::option)
+    if (lexer.peek_token().id == lexer_token::option)
         throw calc_parse_error(calc_parse_error::option_must_preface_math_expr, lexer.peeked_token());
-    if (lexer.get_token().id != calc_token::end)
+    if (lexer.get_token().id != lexer_token::end)
         throw calc_parse_error(calc_parse_error::syntax_error, lexer.last_token());
 
     variables.insert_or_assign(tmp_str = "last", val);
@@ -162,7 +162,7 @@ auto calc_parser::math_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_ty
 // <math_expr> ::= <bxor_expr> [ "|" <bxor_expr> ]...
     auto lval = bxor_expr(lexer);
     for (;;) {
-        if (lexer.peek_token().id == calc_token::bor) {
+        if (lexer.peek_token().id == lexer_token::bor) {
             auto op_token = lexer.get_token();
             auto rval = bxor_expr(lexer);
             try_to_make_int_if_complex(lval);
@@ -187,7 +187,7 @@ auto calc_parser::bxor_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_ty
 // <bxor_expr> ::= <band_expr> [ "^" <band_expr> ]...
     auto lval = band_expr(lexer);
     for (;;) {
-        if (lexer.peek_token().id == calc_token::bxor) {
+        if (lexer.peek_token().id == lexer_token::bxor) {
             auto op_token = lexer.get_token();
             auto rval = band_expr(lexer);
             try_to_make_int_if_complex(lval);
@@ -212,7 +212,7 @@ auto calc_parser::band_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_ty
 // <band_expr> ::= <shift_expr> [ "&" <shift_expr> ]...
     auto lval = shift_expr(lexer);
     for (;;) {
-        if (lexer.peek_token().id == calc_token::band) {
+        if (lexer.peek_token().id == lexer_token::band) {
             auto op_token = lexer.get_token();
             auto rval = shift_expr(lexer);
             try_to_make_int_if_complex(lval);
@@ -235,7 +235,7 @@ auto calc_parser::band_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_ty
 
 auto calc_parser::shift_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
 // <shift_expr> ::= <additive_expr> [ ( "<<" | ">>" ) <additive_expr> ]...
-    auto shift_arg_in_range = [&](const auto& shift_arg, const calc_token& op_token) -> auto {
+    auto shift_arg_in_range = [&](const auto& shift_arg, const lexer_token& op_token) -> auto {
     // assume shift_arg is valid only if positive and less than int_word_size.
     // if shift_arg is negative then it's unusable; parse_error will be thrown
     // in that case. if shift_arg is >= int_word_size then we will simulate
@@ -251,8 +251,8 @@ auto calc_parser::shift_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_t
 
     auto lval = additive_expr(lexer);
     for (;;) {
-        if (lexer.peek_token().id == calc_token::shiftl) {
-            calc_token op_token = lexer.get_token();
+        if (lexer.peek_token().id == lexer_token::shiftl) {
+            lexer_token op_token = lexer.get_token();
             auto rval = additive_expr(lexer);
             try_to_make_int_if_complex(lval);
             try_to_make_int_if_complex(rval);
@@ -270,8 +270,8 @@ auto calc_parser::shift_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_t
                 else
                     throw calc_parse_error(calc_parse_error::invalid_right_operand, op_token);
             }, lval, rval);
-        } else if (lexer.peeked_token().id == calc_token::shiftr) {
-            calc_token op_token = lexer.get_token();
+        } else if (lexer.peeked_token().id == lexer_token::shiftr) {
+            lexer_token op_token = lexer.get_token();
             auto rval = additive_expr(lexer);
             try_to_make_int_if_complex(lval);
             try_to_make_int_if_complex(rval);
@@ -307,14 +307,14 @@ auto calc_parser::additive_expr(lookahead_calc_lexer& lexer) -> calc_val::varian
 // <additive_expr> ::= <term> [ ( "+" | "-" ) <term> ]...
     auto lval = term(lexer);
     for (;;) {
-        if (lexer.peek_token().id == calc_token::add) {
+        if (lexer.peek_token().id == lexer_token::add) {
             lexer.get_token();
             lval = std::visit([&](const auto& lval, const auto& rval) -> calc_val::variant_type {
                 assert(is_nan(lval) || lval == trim_if_int(lval));
                 assert(is_nan(rval) || rval == trim_if_int(rval));
                 return trim_if_int(lval + rval); // trim incase of overflow
             }, lval, term(lexer));
-        } else if (lexer.peeked_token().id == calc_token::sub) {
+        } else if (lexer.peeked_token().id == lexer_token::sub) {
             lexer.get_token();
             lval = std::visit([&](const auto& lval, const auto& rval) -> calc_val::variant_type {
                 assert(is_nan(lval) || lval == trim_if_int(lval));
@@ -331,14 +331,14 @@ auto calc_parser::term(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
 // <term> ::= <factor> [ ( "*" | "/" | "%" ) <factor> ]...
     auto lval = factor(lexer);
     for (;;) {
-        if (lexer.peek_token().id == calc_token::mul) {
+        if (lexer.peek_token().id == lexer_token::mul) {
             lexer.get_token();
             lval = std::visit([&](const auto& lval, const auto& rval) -> calc_val::variant_type {
                 assert(is_nan(lval) || lval == trim_if_int(lval));
                 assert(is_nan(rval) || rval == trim_if_int(rval));
                 return trim_if_int(lval * rval); // trim incase of overflow
             }, lval, factor(lexer));
-        } else if (lexer.peeked_token().id == calc_token::div) {
+        } else if (lexer.peeked_token().id == lexer_token::div) {
             auto op_token = lexer.get_token();
             lval = std::visit([&](const auto& lval, const auto& rval) -> calc_val::variant_type {
                 assert(is_nan(lval) || lval == trim_if_int(lval));
@@ -349,7 +349,7 @@ auto calc_parser::term(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
                 }
                 return trim_if_int(lval / rval); // note: −32768 / −1 overflows 16 bit int, thus need to trim
             }, lval, factor(lexer));
-        } else if (lexer.peeked_token().id == calc_token::mod) {
+        } else if (lexer.peeked_token().id == lexer_token::mod) {
             auto op_token = lexer.get_token();
             auto rval = factor(lexer);
             try_to_make_int_if_complex(lval);
@@ -378,16 +378,16 @@ auto calc_parser::factor(lookahead_calc_lexer& lexer) -> calc_val::variant_type 
 //            | <base> [ <factorial operator> ]... [ "^" | "**" <factor> ]
 // <factorial op> ::= "!" | "!!" | <mfac>
 // note: exponentiation is evaluated right-to-left
-    if (lexer.peek_token().id == calc_token::sub) { // "-'
+    if (lexer.peek_token().id == lexer_token::sub) { // "-'
         lexer.get_token();
 
         // special case: "-" <number> ( <any_token> - ( <factorial op> | "^" | "**" ) )
         // this is needed to properly negate and range check the number
-        if (lexer.peek_token().id == calc_token::number &&
-                lexer.peek_token2().id != calc_token::fac &&
-                lexer.peek_token2().id != calc_token::dfac &&
-                lexer.peek_token2().id != calc_token::mfac &&
-                lexer.peek_token2().id != calc_token::pow)
+        if (lexer.peek_token().id == lexer_token::number &&
+                lexer.peek_token2().id != lexer_token::fac &&
+                lexer.peek_token2().id != lexer_token::dfac &&
+                lexer.peek_token2().id != lexer_token::mfac &&
+                lexer.peek_token2().id != lexer_token::pow)
             return assumed_number(lexer, true);
 
         return std::visit([&](const auto& val) -> calc_val::variant_type {
@@ -396,12 +396,12 @@ auto calc_parser::factor(lookahead_calc_lexer& lexer) -> calc_val::variant_type 
         }, factor(lexer));
     }
 
-    if (lexer.peek_token().id == calc_token::add) { // "+" -- just return <factor>
+    if (lexer.peek_token().id == lexer_token::add) { // "+" -- just return <factor>
         lexer.get_token();
         return factor(lexer);
     }
 
-    if (lexer.peek_token().id == calc_token::bnot) { // "~"
+    if (lexer.peek_token().id == lexer_token::bnot) { // "~"
         auto op_token = lexer.get_token();
         auto val = factor(lexer);
         try_to_make_int_if_complex(val);
@@ -421,17 +421,17 @@ auto calc_parser::factor(lookahead_calc_lexer& lexer) -> calc_val::variant_type 
     // [ <factorial op> ]...
 
     for (;;) {
-        if (lexer.peek_token().id == calc_token::fac) {
+        if (lexer.peek_token().id == lexer_token::fac) {
             lexer.get_token();
             lval = std::visit([](const auto& val) -> calc_val::variant_type {
                 return calc_val::tgamma(val + 1);
             }, lval);
-        } else if (lexer.peeked_token().id == calc_token::dfac) {
+        } else if (lexer.peeked_token().id == lexer_token::dfac) {
             lexer.get_token();
             lval = std::visit([](const auto& val) -> calc_val::complex_type {
                 return calc_val::dfac(val);
             }, lval);
-        } else if (lexer.peeked_token().id == calc_token::mfac)
+        } else if (lexer.peeked_token().id == lexer_token::mfac)
             throw calc_parse_error(calc_parse_error::mfac_unsupported, lexer.get_token());
         else
             break;
@@ -439,7 +439,7 @@ auto calc_parser::factor(lookahead_calc_lexer& lexer) -> calc_val::variant_type 
 
     // [ "^" | "**" <factor> ]
 
-    if (lexer.peek_token().id == calc_token::pow) {
+    if (lexer.peek_token().id == lexer_token::pow) {
         lexer.get_token();
         lval = std::visit([&](const auto& lval, const auto& rval) -> calc_val::variant_type {
             assert(is_nan(lval) || lval == trim_if_int(lval));
@@ -453,15 +453,15 @@ auto calc_parser::factor(lookahead_calc_lexer& lexer) -> calc_val::variant_type 
 
 auto calc_parser::base(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
 // <base> ::= <number> | <identifier_expr> | <group> | <help>
-    if (lexer.peek_token().id == calc_token::number)
+    if (lexer.peek_token().id == lexer_token::number)
         return assumed_number(lexer, false);
-    if (lexer.peeked_token().id == calc_token::identifier)
+    if (lexer.peeked_token().id == lexer_token::identifier)
         return assumed_identifier_expr(lexer);
-    if (lexer.peeked_token().id == calc_token::lparen)
+    if (lexer.peeked_token().id == lexer_token::lparen)
         return group(lexer);
-    if (lexer.peeked_token().id == calc_token::help)
+    if (lexer.peeked_token().id == lexer_token::help)
         throw calc_parse_error(calc_parse_error::help_invalid_here, lexer.peeked_token());
-    if (lexer.peeked_token().id == calc_token::end)
+    if (lexer.peeked_token().id == lexer_token::end)
         throw calc_parse_error(calc_parse_error::unexpected_end_of_input, lexer.peeked_token());
     throw calc_parse_error(calc_parse_error::syntax_error, lexer.peeked_token());
 }
@@ -472,12 +472,12 @@ auto calc_parser::assumed_identifier_expr(lookahead_calc_lexer& lexer) -> calc_v
 //                     | <unary_fn_variable> <group>
 //                     | <undefined_identifier>
     auto identifier_token = lexer.get_token(); // assume next token is identifier (caller assures this)
-    assert(identifier_token.id == calc_token::identifier);
+    assert(identifier_token.id == lexer_token::identifier);
     auto identifier = identifier_token.view;
 
     // <identifier> = <math_expr>
 
-    if (lexer.peek_token().id == calc_token::eq) {
+    if (lexer.peek_token().id == lexer_token::eq) {
         lexer.get_token();
         auto val = math_expr(lexer);
         trim_int(val);
@@ -508,10 +508,10 @@ auto calc_parser::assumed_identifier_expr(lookahead_calc_lexer& lexer) -> calc_v
 
 auto calc_parser::group(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
 // <group> ::= "(" <math_expr> ")"
-    if (lexer.get_token().id != calc_token::lparen)
-        throw calc_parse_error(calc_parse_error::token_expected, lexer.last_token(), calc_token::lparen);
+    if (lexer.get_token().id != lexer_token::lparen)
+        throw calc_parse_error(calc_parse_error::token_expected, lexer.last_token(), lexer_token::lparen);
     auto val = math_expr(lexer);
-    if (lexer.get_token().id != calc_token::rparen)
-        throw calc_parse_error(calc_parse_error::token_expected, lexer.last_token(), calc_token::rparen);
+    if (lexer.get_token().id != lexer_token::rparen)
+        throw calc_parse_error(calc_parse_error::token_expected, lexer.last_token(), lexer_token::rparen);
     return val;
 }

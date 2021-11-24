@@ -6,8 +6,8 @@ auto calc_parse_error::error_str() const -> std::string {
     error_str = "Error: ";
 
     if (error_ == token_expected) {
-        assert(std::strlen(calc_token::token_txt.at(expected_token_id_)));
-        error_str += calc_token::token_txt.at(expected_token_id_);
+        assert(std::strlen(lexer_token::token_txt.at(expected_token_id_)));
+        error_str += lexer_token::token_txt.at(expected_token_id_);
         error_str += " ";
     }
 

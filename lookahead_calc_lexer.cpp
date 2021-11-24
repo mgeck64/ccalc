@@ -1,6 +1,6 @@
 #include "lookahead_calc_lexer.hpp"
 
-auto lookahead_calc_lexer::peek_token() -> const calc_token& {
+auto lookahead_calc_lexer::peek_token() -> const lexer_token& {
     if (!peeked) {
         peeked_token_ = lexer.get_token();
         peeked = 1;
@@ -8,7 +8,7 @@ auto lookahead_calc_lexer::peek_token() -> const calc_token& {
     return peeked_token_;
 }
 
-auto lookahead_calc_lexer::peek_token2() -> const calc_token& {
+auto lookahead_calc_lexer::peek_token2() -> const lexer_token& {
     if (peeked != 2) {
         peek_token();
         peeked_token2_ = lexer.get_token();
@@ -17,7 +17,7 @@ auto lookahead_calc_lexer::peek_token2() -> const calc_token& {
     return peeked_token2_;
 }
 
-auto lookahead_calc_lexer::get_token() -> const calc_token& {
+auto lookahead_calc_lexer::get_token() -> const lexer_token& {
     if (!peeked)
         last_token_ = lexer.get_token();
     else {

@@ -7,7 +7,7 @@
 #include "basics.hpp"
 #include "const_string_itr.hpp"
 
-struct calc_token {
+struct lexer_token {
 // token scanned by calc_lexer (below)
     enum token_ids {
         unspecified, end, number, identifier, add, sub, mul, div, mod, pow, fac,
@@ -24,10 +24,10 @@ struct calc_token {
     using offset_type = std::string_view::size_type;
     offset_type view_offset = 0; // offset of scanned token from start of input string
 
-    calc_token(token_ids id_, std::string_view view_, offset_type view_offset_)
+    lexer_token(token_ids id_, std::string_view view_, offset_type view_offset_)
         : id{id_}, view{view_}, view_offset(view_offset_) {}
 
-    calc_token() = default;
+    lexer_token() = default;
 };
 
 class calc_lexer {
@@ -43,7 +43,7 @@ public:
     // efficient (but still performant) than if input were assumed to be a
     // c-style string
 
-    auto get_token() -> calc_token;
+    auto get_token() -> lexer_token;
 
     void default_number_radix(calc_val::radices default_number_radix)
     {default_number_radix_ = default_number_radix;}
