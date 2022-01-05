@@ -70,19 +70,19 @@ static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
         return true;
     }
 
-    // if arg is ( '0' | 'm' ) <prefix code> [ <suffix code> ] <end>
+    // if arg is ( '0' | 'm' ) <prefix code 1> [ <prefix code 2> ] <end>
     //     update <input defaults>
-    // if arg is ( 'o' | 'm' ) <prefix code> <end>
+    // if arg is ( 'o' | 'm' ) <prefix code 1> <end>
     //     update <output base>
     // note: update both <input defaults> and <output base> for code 'm'
 
     auto option_code = arg_itr ? std::tolower(*arg_itr++) : '\0'; // might be '0' | 'o' | 'm'
-    auto prefix_code = arg_itr ? std::tolower(*arg_itr++) : '\0'; // might be <prefix code>
+    auto prefix_code_1 = arg_itr ? std::tolower(*arg_itr++) : '\0'; // might be <prefix code_1>
     auto updated = false;
 
     auto default_number_radix = calc_val::base10;
     auto output_radix = calc_val::base10;
-    switch (prefix_code) {
+    switch (prefix_code_1) {
         case base2_prefix_code:
             default_number_radix = calc_val::base2;
             output_radix = calc_val::base2;
@@ -106,21 +106,21 @@ static bool single_flag_option(const_string_itr arg_itr, calc_args& args) {
     if (option_code == '0' || option_code == 'm') {
         auto default_number_type_code = [&] {
             if (arg_itr) {
-                auto suffix_code = std::tolower(*arg_itr);
-                switch (prefix_code) {
+                auto prefix_code_2 = std::tolower(*arg_itr);
+                switch (prefix_code_1) {
                     case base2_prefix_code:
                     case base8_prefix_code:
                     case base10_prefix_code:
                     case base16_prefix_code:
-                        if (suffix_code == complex_suffix_code) {
+                        if (prefix_code_2 == complex_prefix_code) {
                             ++arg_itr;
                             return calc_val::complex_code;
                         }
-                        if (suffix_code == signed_suffix_code) {
+                        if (prefix_code_2 == signed_prefix_code) {
                             ++arg_itr;
                             return calc_val::int_code;
                         }
-                        if (suffix_code == unsigned_suffix_code) {
+                        if (prefix_code_2 == unsigned_prefix_code) {
                             ++arg_itr;
                             return calc_val::uint_code;
                         }

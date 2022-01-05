@@ -7,20 +7,16 @@
 #include <string_view>
 #include <limits>
 
-enum : char {
-// codes for command line and expression options, number prefix, number suffix
-    base2_prefix_code = 'b', base8_prefix_code = 'o', base10_prefix_code = 'd',
-    base16_prefix_code = 'x', signed_suffix_code = 's', unsigned_suffix_code = 'u',
-    complex_suffix_code = 'n', expression_option_code = '@'};
-// considered was having the suffix code 'i' indicate an imaginary number but
-// that would cause confusion in expresssions like 2i**3 and 2i!, which would
-// look like they have the implied multiplication 2*i improperly being given
-// precedence over exponentation and factorial; i.e., the expressions would
-// appear to be improperly evaluated as (2*i)**3 and (2*i)! respectively. thus
-// complex numbers in the form a+bi are entered as a+b*i.
-
-// note: not using scoped enums because i want these to be easily convertible to
-// char or int
+// codes for command line and expression options, and number prefix
+static constexpr auto base2_prefix_code      = 'b';
+static constexpr auto base8_prefix_code      = 'o';
+static constexpr auto base10_prefix_code     = 'd';
+static constexpr auto base16_prefix_code     = 'x';
+static constexpr auto signed_prefix_code     = 'i';
+static constexpr auto unsigned_prefix_code   = 'u';
+static constexpr auto complex_prefix_code    = 'n';
+static constexpr auto null_prefix_code       = '\0';
+static constexpr auto expression_option_code = '@';
 
 struct calc_args {
     unsigned n_help_options = 0;

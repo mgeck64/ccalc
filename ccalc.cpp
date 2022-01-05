@@ -85,32 +85,32 @@ ccalc [<input defaults>] [<output base>] [<mode>] [<p notation>] [precision]\n\
 <expression>: A mathematical expression, e.g.: 2+3*6. If omitted then\n\
 expressions will continuously be input from stdin. Exception: if <expression> is\n\
 \"help\" then this content will be printed. Tip: enclose <expression> in quote\n\
-marks on the command line to avoid having the shell misinterpret the expression.\n\
+marks on the command line to avoid having the shell misinterpret it.\n\
 \n\
 <input defaults>: Specifies the default representation type and default numeric\n\
 base for numbers:\n\
-    -0b or -0bs - Signed integer type, binary base; e.g.: 1010\n\
-    -0o or -0os - Signed integer type, octal base; e.g.: 12\n\
-    -0d or -0ds - Signed integer type, decimal base; e.g.: 10\n\
-    -0x or -0xs - Signed integer type, hexadecimal base; e.g.: 0a (prepend a\n\
+    -0b or -0bi - Signed integer type, binary base; e.g.: 1010\n\
+    -0o or -0oi - Signed integer type, octal base; e.g.: 12\n\
+    -0d or -0di - Signed integer type, decimal base; e.g.: 10\n\
+    -0x or -0xi - Signed integer type, hexadecimal base; e.g.: 0a (prepend a\n\
                   number with 0 if it consists only of letter digits)\n\
     -0bu - Unsigned integer type, binary base\n\
     -0ou - Unsigned integer type, octal base\n\
     -0du - Unsigned integer type, decimal base\n\
     -0xu - Unsigned integer type, hexadecimal base\n\
-    -0bn - Complex type, binary base; e.g., 1010, 1010+10*i\n\
-    -0on - Complex type, octal base; e.g., 12, 12+2*i\n\
-    -0dn - Complex type, decimal base; e.g., 10, 10+2*i -- the default\n\
-    -0xn - Complex type, hexadecimal base; e.g., 0a, 0a+2*i\n\
+    -0bn - Complex type, binary base; e.g., 1010, 1010+10i\n\
+    -0on - Complex type, octal base; e.g., 12, 12+2i\n\
+    -0dn - Complex type, decimal base; e.g., 10, 10+2i -- the default\n\
+    -0xn - Complex type, hexadecimal base; e.g., 0a, 0a+2i\n\
 Complex type: Represents a complex number composed of a real and imaginary part,\n\
 both of which are high precision floating point types (50 significant decimal\n\
-digits). The full form of a complex number can be given as a+b*i (and not a+bi;\n\
-the calculator doesn't support implied multiplication). Examples: 10+2*i (real\n\
-part is 10, imaginary part is 2*i), 10 (real number; imaginary part is 0), 2*i\n\
-(imaginary number; real part is 0).\n\
+digits). The full form of a complex number can be given in the common form a+bi.\n\
+Examples: 10+2i (real part is 10, imaginary part is 2i), 10 (real number;\n\
+imaginary part is 0), 2i (imaginary number; real part is 0).\n\
 Exception: If a number is specified with a decimal point or exponent then it\n\
-will be represented as complex type; e.g., for -0x and -0xu, the number 0a.1\n\
-will be represented as complex type and interpreted in hexadecimal base.\n\
+will be represented as complex type regardless of what the option indicaates;\n\
+e.g., even if -0xi or -0xu is given, the number 0a.1 will be represented as\n\
+complex type.\n\
 \n\
 <output base>: Specifies the numeric base of the output:\n\
     -ob - Binary\n\
@@ -119,8 +119,8 @@ will be represented as complex type and interpreted in hexadecimal base.\n\
     -ox - Hexadecimal\n\
 \n\
 <mode>: Combines <input defaults> and <output base>: -mb (-0b -ob), -mo (-0o\n\
--oo), -md (-0d -od), -mx (-0x -ox), -mbs (-0bs -ob), -mos (-0os oo), -mds (-0ds\n\
--od), -mxs (-0xs -ox), -mbu (-0bu -ob), -mou (-0ou -oo), -mdu (-0du -od), -mxu\n\
+-oo), -md (-0d -od), -mx (-0x -ox), -mbi (-0bi -ob), -moi (-0oi oo), -mdi (-0di\n\
+-od), -mxi (-0xi -ox), -mbu (-0bu -ob), -mou (-0ou -oo), -mdu (-0du -od), -mxu\n\
 (-0xu -ox), -mbn (-0bn -ob), -mon (-0on -oo), -mdn (-0dn -od), -mxn (-0xn -ox).\n\
 \n\
 <p notation>: Applies to scientific notation for binary, octal and hexadecimal\n\
@@ -154,46 +154,55 @@ precision including guard digits.\n\
     -w64  -  64 bits\n\
     -w128 - 128 bits -- the default\n\
 Note: this does not affect the complex type.\n\
-Note 2: calculations are internally performed with 128 bit precision and then\n\
-truncated to the active word size.\n\
+Note 2: integer calculations are always performed internally in 128 bit\n\
+precision and then truncated to the active word size.\n\
 \n\
-Options may also be provided in an expression (e.g., when input from stdin);\n\
+Options may also be provided within an expression (e.g., when input from stdin);\n\
 options provided this way begin with '@' instead of '-' (because '-' is the\n\
 subtraction/negation operator); e.g., @0x @w32\n\
 \n\
-A number may optionally be given a prefix, suffix or both to specify its numeric\n\
-base and representation type, overriding the default ones.\n\
+A number may optionally be given a prefix to specify its numeric base and\n\
+representation type, overriding the default ones.\n\
 Prefixes:\n\
-    0b - Binary base; e.g.: 0b1010\n\
-    0o - Octal base; e.g.: 0o12\n\
-    0d - Decimal base; e.g.: 0d10\n\
-    0x - Hexadecimal base; e.g.: 0xa\n\
-Suffixes:\n\
-    s    - Signed integer type; e.g., 0b1010s, 10s\n\
-    u    - Unsigned integer type; e.g., 0b1010u, 10u\n\
-    n    - Complex type; e.g., 0xan\n\
-    none - If the number has a prefix (e.g., 0d10) then signed integer type;\n\
-           otherwise (e.g., 10) the default representation type\n\
+    0b or 0bi - Signed integer type, binary base; e.g.: 0b1010, 0bi1010\n\
+    0o or 0oi - Signed integer type, octal base; e.g.: 0o12, 0oi12\n\
+    0d or 0di - Signed ingeger type, decimal base; e.g.: 0d10, 0di10\n\
+    0x or 0xi - Signed integer type, hexadecimal base; e.g.: 0xa, 0xia\n\
+    0bu       - Unsigned integer type, binary base; e.g.: 0bu1010\n\
+    0ou       - Unsigned integer type, octal base; e.g.: 0ou12\n\
+    0du       - Unsigned integer type, decimal base; e.g.: 0du10\n\
+    0xu       - Unsigned integer type, hexadecimal base; e.g.: 0xua\n\
+    0bn       - Complex type, binary base; e.g.: 0bn1010\n\
+    0on       - Complex type, octal base; e.g.: 0on12\n\
+    0dn       - Complex type, decimal base; e.g.: 0dn10\n\
+    0xn       - Complex type, hexadecimal base; e.g.: 0xna\n\
 Exception: If a number has a decimal point or exponent then it will be\n\
-represented as complex type; e.g., 0xa.1 and 0xa1p-4 will both be represented as\n\
-complex type and interpreted in hexadecimal base.\n\
+represented as complex type regardless of what the prefix indicates; e.g., 0xa.1\n\
+and 0xa1p-4 will both be represented as complex type.\n\
 Note: 0b and 0d cannot be used when the default numeric base is hexadecimal\n\
-because those are valid hexadecimal numbers. For that case, the 0bx and 0dx\n\
-prefixes can be used to specify binary base and decimal base respectively.\n\
+because those are valid hexadecimal numbers. (Use 0bi and 0di instead.)\n\
 \n\
 Examples: The following are different ways of expressing the number 314:\n\
-0b100111010 (binary signed integer type), 0o472u (octal unsigned integer type),\n\
-314s (decimal signed integer type assuming decimal is the default base), 0x13a\n\
-(hexadecimal signed integer type), 0b1.0011101p+8 (normalized binary floating\n\
-point type), 0o472.0 (octal floating point type), 0o1.164p+8 (normalized octal\n\
-floating point type), 0d3.14e+2 (decimal floating point type), 0x13a.0\n\
-(hexadecimal floating point type), 0x1.3ap+8 (normalized hexadecimal floating\n\
-point type).\n\
+0b100111010 (binary signed integer type), 0ou472 (octal unsigned integer type),\n\
+0d314 or 0di314 (decimal signed integer type), 0x13a or 0xi13a (hexadecimal\n\
+signed integer type), 0b1.0011101p+8 (normalized binary complex type), 0o472.0\n\
+(octal complex type), 0o1.164p+8 (normalized octal complex type), 0d3.14e+2\n\
+(decimal complex type), 0x13a.0 (hexadecimal complex type), 0x1.3ap+8\n\
+(normalized hexadecimal complex type).\n\
 \n\
 Available arithmetic operators:\n\
     + (addition and unary plus) - (subtraction and negation) * (multiplication)\n\
     / (division) % (modulus) ^ ** (exponentiation) ! !! (factorial and double\n\
     factorial) ( ) (grouping)\n\
+\n\
+Implied multiplication (multiplication by juxtaposition) is supported, e.g,,\n\
+6(2pi)sin(3) is valid; but there are some cavaets:\n\
+    - Variables and symbolic values may contain multiple characters; e.g., 2pi\n\
+      means multiply 2 by pi, not multiply 2 by p and then by i.\n\
+    - Scientific notation has precedence; e.g., when the default numeric base is\n\
+      decimal, 1e10 means 10000000000 not 1*e*10.\n\
+    - Prefix has precedence; e.g., 0d10 means signed integer decimal base 10,\n\
+      not 0*d*10.\n\
 \n\
 Available bitwise operators:\n\
     ~ (not) & (and) | (or) ^| (xor) << >> (shift; algebraic for signed type)\n\

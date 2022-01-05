@@ -16,6 +16,12 @@ inline auto is_digit(unsigned char c, unsigned radix) -> bool {
     // which will test false for < radix
 }
 
+inline auto is_alnum(unsigned char c, unsigned radix) -> bool {
+    if (radix < 10)
+        return true; // accept any decimal digit char
+    return is_digit(c, radix);
+}
+
 inline auto digit_ord(unsigned char c, unsigned radix) -> int {
     if (c > 127)
         return -1;

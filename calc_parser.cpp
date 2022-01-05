@@ -329,6 +329,13 @@ auto calc_parser::additive_expr(lookahead_calc_lexer& lexer) -> calc_val::varian
 
 auto calc_parser::term(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
 // <term> ::= <factor> [ ( "*" | "/" | "%" ) <factor> ]...
+//          | <factor> [ <justaposed_factor> ]...
+// <justaposed_factor> ::= <number_factor> | <identifier_factor> | <group_factor> | <bnot_factor> | <help_factor>
+// note: implied multiplication (multiplication by juxtaposition) has the same
+// precedence as explicit multiplication, as it does in wolfram alpha and google
+// calculator, and as argued as being correct in this article:
+// https://mindyourdecisions.com/blog/2016/08/31/what-is-6%C3%B7212-the-correct-answer-explained/
+// note2: <help_factor> is just for proper error handling
     auto lval = factor(lexer);
     for (;;) {
         if (lexer.peek_token().id == lexer_token::mul) {
@@ -366,6 +373,16 @@ auto calc_parser::term(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
                 else
                     throw calc_parse_error(calc_parse_error::invalid_right_operand, op_token);
             }, lval, rval);
+        } else if (lexer.peeked_token().id == lexer_token::number // <number_factor>
+                || lexer.peeked_token().id == lexer_token::identifier // <identifier_factor>
+                || lexer.peeked_token().id == lexer_token::lparen // <group_factor>
+                || lexer.peeked_token().id == lexer_token::bnot// <bnot_factor>
+                || lexer.peeked_token().id == lexer_token::help) { // <help_factor>
+            lval = std::visit([&](const auto& lval, const auto& rval) -> calc_val::variant_type {
+                assert(is_nan(lval) || lval == trim_if_int(lval));
+                assert(is_nan(rval) || rval == trim_if_int(rval));
+                return trim_if_int(lval * rval); // trim incase of overflow
+            }, lval, factor(lexer));
         } else
             break;
     }
@@ -373,15 +390,17 @@ auto calc_parser::term(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
 }
 
 auto calc_parser::factor(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
-// <factor> ::= "-" <number> ( <any_token> - ( <factorial op> | "^" | "**" ) )
+// <factor> ::= "-" <number> ( <any_token> - ( <factorial_op> | "^" | "**" ) )
 //            | ( "-" | "+" | "~" ) <factor>
-//            | <base> [ <factorial operator> ]... [ "^" | "**" <factor> ]
-// <factorial op> ::= "!" | "!!" | <mfac>
-// note: exponentiation is evaluated right-to-left
+//            | <base> [ <factorial_op> ]... [ "^" | "**" <factor> ]
+// <factorial_op> ::= "!" | "!!" | <mfac>
+// note: exponentiation is evaluated right-to-left.
+// Modifications here may require modifications to calc_parser::term for
+// <justaposed_factor>
     if (lexer.peek_token().id == lexer_token::sub) { // "-'
         lexer.get_token();
 
-        // special case: "-" <number> ( <any_token> - ( <factorial op> | "^" | "**" ) )
+        // special case: "-" <number> ( <any_token> - ( <factorial_op> | "^" | "**" ) )
         // this is needed to properly negate and range check the number
         if (lexer.peek_token().id == lexer_token::number &&
                 lexer.peek_token2().id != lexer_token::fac &&
@@ -418,7 +437,7 @@ auto calc_parser::factor(lookahead_calc_lexer& lexer) -> calc_val::variant_type 
 
     auto lval = base(lexer);
 
-    // [ <factorial op> ]...
+    // [ <factorial_op> ]...
 
     for (;;) {
         if (lexer.peek_token().id == lexer_token::fac) {
@@ -453,6 +472,8 @@ auto calc_parser::factor(lookahead_calc_lexer& lexer) -> calc_val::variant_type 
 
 auto calc_parser::base(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
 // <base> ::= <number> | <identifier_expr> | <group> | <help>
+// Modifications here may require modifications to calc_parser::term for
+// <justaposed_factor>
     if (lexer.peek_token().id == lexer_token::number)
         return assumed_number(lexer, false);
     if (lexer.peeked_token().id == lexer_token::identifier)
