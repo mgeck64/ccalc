@@ -14,8 +14,6 @@ auto tgamma(const complex_type& z) -> complex_type {
     throw domain_real_only();
 }
 
-static const auto cpi = complex_type(pi);
-
 auto dfac(const complex_type& z) -> complex_type {
 // the double factorial formula extended to complex arguments is from
 // https://mathworld.wolfram.com/DoubleFactorial.html

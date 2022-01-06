@@ -17,6 +17,12 @@ static_assert(BOOST_VERSION == 107400);
 // small number. thus if the boost version changes then verify that the above
 // expression produces the expected result
 
+extern const complex_type cpi; // complex pi
+extern const complex_type ce; // complex e
+extern const complex_type i; // imaginary unit
+
+
+
 template <typename T>
 constexpr auto is_complex_type() -> bool
 {return std::is_same_v<std::decay_t<T>, complex_type>;}

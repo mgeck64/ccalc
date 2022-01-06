@@ -37,9 +37,9 @@ static_assert(std::numeric_limits<__int128>::digits10 > 0);
 using max_uint_type = unsigned __int128;
 using max_int_type = __int128;
 
-static const auto pi     = boost::math::constants::pi<float_type>();
-static const auto two_pi = boost::math::constants::two_pi<float_type>();
-static const auto e      = boost::math::constants::e<float_type>();
+extern const float_type pi;
+extern const float_type two_pi;
+extern const float_type e;
 
 enum number_type_codes {complex_code, uint_code, int_code};
 

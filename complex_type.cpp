@@ -2,6 +2,10 @@
 
 namespace calc_val {
 
+const complex_type cpi = pi;
+const complex_type ce = e;
+const complex_type i = complex_type(0, 1);
+
 auto helper::pow_uint_e(const complex_type& z_in, max_uint_type e) -> complex_type {
     auto z = z_in;
     auto z_ = (e & 1) ? z : complex_type(1);
