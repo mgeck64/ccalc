@@ -1,5 +1,5 @@
-#ifndef VARIANT_HPP
-#define VARIANT_HPP
+#ifndef VARIANT_TYPE_HPP
+#define VARIANT_TYPE_HPP
 
 #include "basics.hpp"
 #include "complex_type.hpp"
@@ -15,4 +15,4 @@ using variant_type = std::variant<complex_type, uint_type, int_type>;
 #include "complex_extras.hpp"
 #include "pow_int.hpp"
 
-#endif // VARIANT_HPP
+#endif // VARIANT_TYPE_HPP

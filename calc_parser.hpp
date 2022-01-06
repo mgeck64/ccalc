@@ -1,7 +1,7 @@
 #ifndef CALC_PARSER_HPP
 #define CALC_PARSER_HPP
 
-#include "variant.hpp"
+#include "variant_type.hpp"
 #include "lookahead_calc_lexer.hpp"
 #include "calc_args.hpp"
 #include <map>

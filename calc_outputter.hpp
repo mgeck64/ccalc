@@ -1,7 +1,7 @@
 #ifndef CALC_OUTPUTTER_HPP
 #define CALC_OUTPUTTER_HPP
 
-#include "variant.hpp"
+#include "variant_type.hpp"
 #include "calc_args.hpp"
 #include <ostream>
 #include <array>
