@@ -195,8 +195,9 @@ Available arithmetic operators:\n\
     / (division) % (modulus) ^ ** (exponentiation) ! !! (factorial and double\n\
     factorial) ( ) (grouping)\n\
 \n\
-Implied multiplication (multiplication by juxtaposition) is supported, e.g,,\n\
-6(2pi)sin(3) is valid; but there are some cavaets:\n\
+Implied multiplication (multiplication by juxtaposition) is supported and has\n\
+the same precedence as explicit mulitiplication, e.g,, 6(2pi)sin(3) is valid and\n\
+is equivalent to 6*(2*pi)*sin(3); but there are some cavaets:\n\
     - Variables and symbolic values may contain multiple characters; e.g., 2pi\n\
       means multiply 2 by pi, not multiply 2 by p and then by i.\n\
     - Scientific notation has precedence; e.g., when the default numeric base is\n\
