@@ -13,11 +13,20 @@ inline auto log2(const complex_type& z) -> complex_type
 inline auto cbrt(const complex_type& z) -> complex_type
 {return pow(z, float_type(1) / float_type(3));}
 
-auto tgamma(const complex_type& z) -> complex_type; // gamma function: use same name as std::tgamma
-auto lgamma(const complex_type& z) -> complex_type; // log gamma
+struct domain_positive_real_only {}; // exception
+struct domain_real_only {}; // exception
+
+auto lgamma(const complex_type& z) -> complex_type;
+// log gamma.
+// may throw domain_positive_real_only
+
+auto tgamma(const complex_type& z) -> complex_type;
+// gamma function: use same name as std::tgamma.
+// may throw domain_real_only
 
 auto dfac(const complex_type& z) -> complex_type;
 // double factorial; see: https://mathworld.wolfram.com/DoubleFactorial.html
+// may throw domain_real_only
 
 } // namespace calc_val
 

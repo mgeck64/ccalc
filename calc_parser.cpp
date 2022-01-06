@@ -441,15 +441,23 @@ auto calc_parser::factor(lookahead_calc_lexer& lexer) -> calc_val::variant_type 
 
     for (;;) {
         if (lexer.peek_token().id == lexer_token::fac) {
-            lexer.get_token();
-            lval = std::visit([](const auto& val) -> calc_val::variant_type {
-                return calc_val::tgamma(val + 1);
-            }, lval);
+            auto op_token = lexer.get_token();
+            try {
+                lval = std::visit([](const auto& val) -> calc_val::variant_type {
+                    return calc_val::tgamma(val + 1);
+                }, lval);
+            } catch (calc_val::domain_real_only) {
+                throw calc_parse_error(calc_parse_error::op_domain_real_only, op_token);
+            }
         } else if (lexer.peeked_token().id == lexer_token::dfac) {
-            lexer.get_token();
-            lval = std::visit([](const auto& val) -> calc_val::complex_type {
-                return calc_val::dfac(val);
-            }, lval);
+            auto op_token = lexer.get_token();
+            try {
+                lval = std::visit([](const auto& val) -> calc_val::complex_type {
+                    return calc_val::dfac(val);
+                }, lval);
+            } catch (calc_val::domain_real_only) {
+                throw calc_parse_error(calc_parse_error::op_domain_real_only, op_token);
+            }
         } else if (lexer.peeked_token().id == lexer_token::mfac)
             throw calc_parse_error(calc_parse_error::mfac_unsupported, lexer.get_token());
         else
@@ -518,10 +526,17 @@ auto calc_parser::assumed_identifier_expr(lookahead_calc_lexer& lexer) -> calc_v
         using VT = std::decay_t<decltype(thing)>;
         if constexpr (std::is_same_v<VT, calc_val::variant_type>) // <value_variable>
             return thing;
-        else if constexpr (std::is_same_v<VT, unary_fn>) // <unary_fn_variable> <group>
-            return std::visit([&](const auto& val) {
-                return thing(val);
-            }, group(lexer));
+        else if constexpr (std::is_same_v<VT, unary_fn>) { // <unary_fn_variable> <group>
+            try {
+                return std::visit([&](const auto& val) {
+                    return thing(val);
+                }, group(lexer));
+            } catch (calc_val::domain_positive_real_only) {
+                throw calc_parse_error(calc_parse_error::op_domain_positive_real_only, identifier_token);
+            } catch (calc_val::domain_real_only) {
+                throw calc_parse_error(calc_parse_error::op_domain_real_only, identifier_token);
+            }
+        }
     }, itr->second);
     trim_int(val);
     return val;
