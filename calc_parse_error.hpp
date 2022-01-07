@@ -19,7 +19,7 @@ public:
         op_domain_positive_real_only,
         op_domain_real_only,
         help_invalid_here, internal_error};
-    static constexpr auto error_txt = std::array{
+    static constexpr auto error_txt = std::array {
         // elements correspond with error_codes enums so enum can be used as index
         "no_error", "syntax error", "number expected", "undefined identifier",
         "was expected", "integer number expected", "number is out of range",
@@ -30,8 +30,8 @@ public:
         "option must preface mathematical expression",
         "function argument enclosed in parentheses was expected",
         "unexpected end of input", "invalid shift argument",
-        "operation is valid for number with positive real part only",
-        "operation is valid for number with real part only",
+        "operation is limited to number with positive real part only",
+        "operation is limited to number with real part only",
         "help is invalid here", "internal error"};
 
     calc_parse_error(error_codes error, const lexer_token& token_,
