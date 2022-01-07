@@ -94,9 +94,9 @@ calc_parser::calc_parser(
         variables.emplace(tmp_str = elem.identifier, elem.fn);
 
     // predefined variables
-    variables.emplace(tmp_str = "pi", calc_val::pi);
-    variables.emplace(tmp_str = "e", calc_val::e);
-    variables.emplace(tmp_str = "i", calc_val::complex_type(0, 1));
+    variables.emplace(tmp_str = "pi", calc_val::c_pi);
+    variables.emplace(tmp_str = "e", calc_val::c_e);
+    variables.emplace(tmp_str = "i", calc_val::i);
 }
 
 auto calc_parser::evaluate(std::string_view input, help_callback help, output_options& out_options)
