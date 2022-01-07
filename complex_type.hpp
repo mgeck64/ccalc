@@ -17,8 +17,8 @@ static_assert(BOOST_VERSION == 107400);
 // small number. thus if the boost version changes then verify that the above
 // expression produces the expected result
 
-extern const complex_type cpi; // complex pi
-extern const complex_type ce; // complex e
+extern const complex_type c_pi; // complex pi
+extern const complex_type c_e; // complex e
 extern const complex_type i; // imaginary unit
 
 

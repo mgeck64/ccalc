@@ -2,8 +2,8 @@
 
 namespace calc_val {
 
-const complex_type cpi = pi;
-const complex_type ce = e;
+const complex_type c_pi = pi;
+const complex_type c_e = e;
 const complex_type i = complex_type(0, 1);
 
 auto helper::pow_uint_e(const complex_type& z_in, max_uint_type e) -> complex_type {
