@@ -328,8 +328,7 @@ auto calc_parser::additive_expr(lookahead_calc_lexer& lexer) -> calc_val::varian
 }
 
 auto calc_parser::term(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
-// <term> ::= <factor> [ ( "*" | "/" | "%" ) <factor> ]...
-//          | <factor> [ <justaposed_factor> ]...
+// <term> ::= <factor> [ ( "*" | "/" | "%" ) <factor> | <juxtaposed_factor> ]...
 // <justaposed_factor> ::= <number_factor> | <identifier_factor> | <group_factor> | <bnot_factor> | <help_factor>
 // note: implied multiplication (multiplication by juxtaposition) has the same
 // precedence as explicit multiplication, as it does in wolfram alpha and google
