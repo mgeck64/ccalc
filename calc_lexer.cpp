@@ -103,8 +103,11 @@ auto calc_lexer::get_token() -> lexer_token {
             if (std::isalpha(*in_itr) || *in_itr == '_') {
                 do ++in_itr;
                     while (in_itr && (std::isalnum(*in_itr) || *in_itr == '_'));
-                if (std::string_view(token_begin.ptr(), in_itr - token_begin) == "help")
+                auto id = std::string_view(token_begin.ptr(), in_itr - token_begin);
+                if (id == "help")
                     token_id = lexer_token::help;
+                else if (id == "delete")
+                    token_id = lexer_token::del;
                 else
                     token_id = lexer_token::identifier;
             } else {

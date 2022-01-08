@@ -27,6 +27,7 @@ private:
     calc_val::variant_type last_val = calc_val::complex_type(std::numeric_limits<calc_val::float_type>::quiet_NaN());
 
     // parser productions
+    auto assumed_delete_expr(lookahead_calc_lexer& lexer) -> void;
     auto math_expr(lookahead_calc_lexer& lexer)-> calc_val::variant_type;
     auto bxor_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_type;
     auto band_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_type;
@@ -54,9 +55,12 @@ private:
     static identifier_with_unary_fn unary_fn_table[];
 
     using var_poly_type = std::variant<calc_val::variant_type, unary_fn>;
-    std::map<std::string, var_poly_type> variables;
-    // a variable may hold a single value (calc_val::variant_type) or a functon
-    // pointer (unary_fn)
+    using variable_map = std::unordered_map<std::string, var_poly_type>;
+    // a variable_map element may hold a single value (calc_val::variant_type)
+    // or a function pointer (unary_fn)
+
+    variable_map internals;
+    variable_map variables;
 
     std::string tmp_str; // temporary string to mitigate memory allocations when a tmp is needed
 };

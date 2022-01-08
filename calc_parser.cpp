@@ -91,12 +91,12 @@ calc_parser::calc_parser(
     int_word_size{int_word_size_}
 {
     for (auto& elem: unary_fn_table)
-        variables.emplace(tmp_str = elem.identifier, elem.fn);
+        internals.emplace(tmp_str = elem.identifier, elem.fn);
 
-    // predefined variables
-    variables.emplace(tmp_str = "pi", calc_val::c_pi);
-    variables.emplace(tmp_str = "e", calc_val::c_e);
-    variables.emplace(tmp_str = "i", calc_val::i);
+    // predefined symbolic values
+    internals.emplace(tmp_str = "pi", calc_val::c_pi);
+    internals.emplace(tmp_str = "e", calc_val::c_e);
+    internals.emplace(tmp_str = "i", calc_val::i);
 }
 
 auto calc_parser::evaluate(std::string_view input, help_callback help, output_options& out_options)
@@ -104,7 +104,7 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, output_op
     auto lexer = lookahead_calc_lexer(input, default_number_radix);
 
     // <input> ::= "help"
-    //           | [ <option> ]... [ <math_expr> ]
+    //           | [ <option> ]... [ <delete_expr> | <math_expr> ]
 
     if (lexer.peek_token().id == lexer_token::help && lexer.peek_token2().id == lexer_token::end) {
         help();
@@ -144,6 +144,11 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, output_op
             out_options.output_fp_normalized = args.output_fp_normalized;
     }
 
+    if (lexer.peek_token().id == lexer_token::del) {
+        assumed_delete_expr(lexer);
+        throw no_mathematical_expression();
+    }
+
     if (lexer.peek_token().id == lexer_token::end)
         throw no_mathematical_expression();
 
@@ -154,8 +159,27 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, output_op
     if (lexer.get_token().id != lexer_token::end)
         throw calc_parse_error(calc_parse_error::syntax_error, lexer.last_token());
 
-    variables.insert_or_assign(tmp_str = "last", val);
+    internals.insert_or_assign(tmp_str = "last", val);
     return val;
+}
+
+auto calc_parser::assumed_delete_expr(lookahead_calc_lexer& lexer) -> void {
+// <delete_expr> ::= "delete" <identifier> <end>
+    auto delete_token = lexer.get_token(); // assume next token is del (caller assures this)
+    assert(delete_token.id == lexer_token::del);
+
+    lexer.get_token();
+    if (lexer.last_token().id != lexer_token::identifier)
+        throw calc_parse_error(calc_parse_error::variable_identifier_expected, lexer.last_token());
+    if (auto itr = variables.find(tmp_str = lexer.last_token().view); itr != variables.end())
+        variables.erase(itr);
+    else if (internals.find(tmp_str = lexer.last_token().view) != internals.end())
+        throw calc_parse_error(calc_parse_error::cant_delete_internal, lexer.last_token());
+    else
+        throw calc_parse_error(calc_parse_error::undefined_identifier, lexer.last_token());
+
+    if (lexer.get_token().id != lexer_token::end)
+        throw calc_parse_error(calc_parse_error::syntax_error, lexer.last_token());
 }
 
 auto calc_parser::math_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
@@ -496,8 +520,8 @@ auto calc_parser::base(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
 
 auto calc_parser::assumed_identifier_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
 // <identifier_expr> ::= <identifier> = <math_expr>
-//                     | <value_variable>
-//                     | <unary_fn_variable> <group>
+//                     | <value_identifier>
+//                     | <unary_fn_identifier> <group>
 //                     | <undefined_identifier>
     auto identifier_token = lexer.get_token(); // assume next token is identifier (caller assures this)
     assert(identifier_token.id == lexer_token::identifier);
@@ -515,11 +539,14 @@ auto calc_parser::assumed_identifier_expr(lookahead_calc_lexer& lexer) -> calc_v
 
     // <undefined_identifier>
 
-    auto itr = variables.find(std::string(identifier));
-    if (itr == variables.end()) // <undefined_identifier>
-        throw calc_parse_error(calc_parse_error::undefined_identifier, identifier_token);
+    auto itr = variables.find(tmp_str = identifier);
+    if (itr == variables.end()) {
+        itr = internals.find(tmp_str = identifier);
+        if (itr == internals.end()) // <undefined_identifier>
+            throw calc_parse_error(calc_parse_error::undefined_identifier, identifier_token);
+    }
 
-    // <value_variable> | <unary_fn_variable> <group>
+    // <value_identifier> | <unary_fn_identifier> <group>
 
     auto val = std::visit([&](const auto& thing) -> calc_val::variant_type {
         using VT = std::decay_t<decltype(thing)>;

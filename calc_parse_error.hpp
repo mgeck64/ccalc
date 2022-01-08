@@ -18,6 +18,7 @@ public:
         unexpected_end_of_input, invalid_shift_arg,
         op_domain_positive_real_only,
         op_domain_real_only,
+        variable_identifier_expected, cant_delete_internal,
         help_invalid_here, internal_error};
     static constexpr auto error_txt = std::array {
         // elements correspond with error_codes enums so enum can be used as index
@@ -32,6 +33,7 @@ public:
         "unexpected end of input", "invalid shift argument",
         "operation is limited to number with positive real part only",
         "operation is limited to number with real part only",
+        "variable identifier expected", "can't delete internal value",
         "help is invalid here", "internal error"};
 
     calc_parse_error(error_codes error, const lexer_token& token_,

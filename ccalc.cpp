@@ -244,6 +244,7 @@ Variables can be created and used in expressions, e.g.:\n\
     approx_pi=22/7\n\
     r=5\n\
     approx_pi*r^2\n\
-Variable assignments can be chained, e.g.: x=y=2 assigns 2 to both x and y.\
+Variable assignments can be chained, e.g.: x=y=2 assigns 2 to both x and y.\n\
+A variable can be deleted with the delete command, e.g., delete x\
 " << std::endl;
 }

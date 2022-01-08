@@ -12,12 +12,13 @@ struct lexer_token {
     enum token_ids {
         unspecified, end, number, identifier, add, sub, mul, div, mod, pow, fac,
         dfac, mfac, lparen, rparen, shiftl, shiftr, band, bor, bxor, bnot, eq,
-        help, option};
+        help, del, option};
     static constexpr auto token_txt = std::array {
         // text suitable for parser error message.
         // elements correspond with token_ids enums so enum can be used as index
         "unspecified", "end", "number", "identifier", "\"+\"", "\"-\"", "\"*\"", "\"/\"", "\"%\"", "\"^\"","\"!\"",
-        "\"!!\"", "multifactorial", "\"(\"", "\")\"", "\"<<\"", "\">>\"", "\"&\"", "\"|\"", "\"^|\"", "\"~\"", "\"=\"", "\"option\""};
+        "\"!!\"", "multifactorial", "\"(\"", "\")\"", "\"<<\"", "\">>\"", "\"&\"", "\"|\"", "\"^|\"", "\"~\"", "\"=\"",
+        "help", "delete", "option"};
 
     token_ids id = unspecified;
     std::string_view view = {}; // view of scanned token in input string, or default empty view
