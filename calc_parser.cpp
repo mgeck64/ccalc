@@ -91,12 +91,12 @@ calc_parser::calc_parser(
     int_word_size{int_word_size_}
 {
     for (auto& elem: unary_fn_table)
-        internals.emplace(tmp_str = elem.identifier, elem.fn);
+        variables.emplace(tmp_var_key(elem.identifier, true), elem.fn);
 
     // predefined symbolic values
-    internals.emplace(tmp_str = "pi", calc_val::c_pi);
-    internals.emplace(tmp_str = "e", calc_val::c_e);
-    internals.emplace(tmp_str = "i", calc_val::i);
+    variables.emplace(tmp_var_key("pi", true), calc_val::c_pi);
+    variables.emplace(tmp_var_key("e", true), calc_val::c_e);
+    variables.emplace(tmp_var_key("i", true), calc_val::i);
 }
 
 auto calc_parser::evaluate(std::string_view input, help_callback help, output_options& out_options)
@@ -159,7 +159,7 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, output_op
     if (lexer.get_token().id != lexer_token::end)
         throw calc_parse_error(calc_parse_error::syntax_error, lexer.last_token());
 
-    internals.insert_or_assign(tmp_str = "last", val);
+    variables.insert_or_assign(tmp_var_key("last", true), val);
     return val;
 }
 
@@ -171,9 +171,9 @@ auto calc_parser::assumed_delete_expr(lookahead_calc_lexer& lexer) -> void {
     lexer.get_token();
     if (lexer.last_token().id != lexer_token::identifier)
         throw calc_parse_error(calc_parse_error::variable_identifier_expected, lexer.last_token());
-    if (auto itr = variables.find(tmp_str = lexer.last_token().view); itr != variables.end())
+    if (auto itr = variables.find(tmp_var_key(lexer.last_token().view, false)); itr != variables.end())
         variables.erase(itr);
-    else if (internals.find(tmp_str = lexer.last_token().view) != internals.end())
+    else if (variables.find(tmp_var_key(lexer.last_token().view, true)) != variables.end())
         throw calc_parse_error(calc_parse_error::cant_delete_internal, lexer.last_token());
     else
         throw calc_parse_error(calc_parse_error::undefined_identifier, lexer.last_token());
@@ -533,16 +533,16 @@ auto calc_parser::assumed_identifier_expr(lookahead_calc_lexer& lexer) -> calc_v
         lexer.get_token();
         auto val = math_expr(lexer);
         trim_int(val);
-        variables.insert_or_assign(tmp_str = identifier, val);
+        variables.insert_or_assign(tmp_var_key(identifier, false), val);
         return val;
     }
 
     // <undefined_identifier>
 
-    auto itr = variables.find(tmp_str = identifier);
+    auto itr = variables.find(tmp_var_key(identifier, false));
     if (itr == variables.end()) {
-        itr = internals.find(tmp_str = identifier);
-        if (itr == internals.end()) // <undefined_identifier>
+        itr = variables.find(tmp_var_key(identifier, true));
+        if (itr == variables.end()) // <undefined_identifier>
             throw calc_parse_error(calc_parse_error::undefined_identifier, identifier_token);
     }
 
