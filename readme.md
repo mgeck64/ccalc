@@ -2,6 +2,7 @@
 ## Synopsis
 An advanced text-based command-line calculator app.
 - Supports complex arithmetic, integer arithmetic and bitwise operations
+- Supports implied multiplication (multiplication by justaposition)
 - Supports 8, 16, 32, 64 and 128 bit integer types
 - Supports binary, octal, decimal and hexadecimal numbers, both integer and
 floating point (and complex)
