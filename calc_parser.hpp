@@ -13,7 +13,7 @@ public:
         calc_val::radices default_number_radix_, calc_val::int_word_sizes int_word_size_);
 
     using help_callback = std::function<void()>;
-    struct no_mathematical_expression {}; // exception
+    struct void_expression {}; // exception
 
     auto evaluate(std::string_view input, help_callback help, output_options& out_options) -> calc_val::variant_type;
     // evaluates the input string; throws parse_error on parsing error. throws

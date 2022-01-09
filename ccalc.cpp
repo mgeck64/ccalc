@@ -71,8 +71,8 @@ static void evaluate(std::string_view expression, calc_parser& parser, output_op
             std::cout << '^';
         std::cout << '\n';
         std::cout << e.error_str() << std::endl;
-    } catch (const calc_parser::no_mathematical_expression) {
-        // do nothing
+    } catch (const calc_parser::void_expression) {
+        ; // do nothing--not an error
     }
 }
 

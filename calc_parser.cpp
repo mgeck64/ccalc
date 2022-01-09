@@ -108,7 +108,7 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, output_op
 
     if (lexer.peek_token().id == lexer_token::help && lexer.peek_token2().id == lexer_token::end) {
         help();
-        throw no_mathematical_expression();
+        throw void_expression();
     }
 
     if (lexer.peek_token().id == lexer_token::option) {
@@ -146,11 +146,11 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, output_op
 
     if (lexer.peek_token().id == lexer_token::del) {
         assumed_delete_expr(lexer);
-        throw no_mathematical_expression();
+        throw void_expression();
     }
 
     if (lexer.peek_token().id == lexer_token::end)
-        throw no_mathematical_expression();
+        throw void_expression();
 
     auto val = math_expr(lexer);
 
