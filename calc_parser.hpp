@@ -55,8 +55,8 @@ private:
     static identifier_with_unary_fn unary_fn_table[];
 
     using var_poly_type = std::variant<calc_val::variant_type, unary_fn>;
-    using variable_map = std::unordered_map<std::string, var_poly_type>;
-    // a variable_map element may hold a single value (calc_val::variant_type)
+    using variables_map = std::unordered_map<std::string, var_poly_type>;
+    // a variables_map element may hold a single value (calc_val::variant_type)
     // or a function pointer (unary_fn). key is 'y' or 'n' (depending on whether
     // the variable is internal or user-defined) + <identifier>: use tmp_var_key
     // (below) to make a key
@@ -65,7 +65,8 @@ private:
     auto tmp_var_key(std::string_view id, bool internal) -> const std::string&
     {tmp_var_key_ = internal ? 'y' : 'n'; tmp_var_key_ += id; return tmp_var_key_;}
 
-    variable_map variables;
+    variables_map variables;
+    variables_map::iterator last_val_itr = variables.end();
 };
 
 #endif // CALC_PARSER_HPP
