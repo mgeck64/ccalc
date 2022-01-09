@@ -93,11 +93,10 @@ calc_parser::calc_parser(
     for (auto& elem: unary_fn_table)
         variables.emplace(tmp_var_key(elem.identifier, true), elem.fn);
 
-    // predefined symbolic values
     variables.emplace(tmp_var_key("pi", true), calc_val::c_pi);
     variables.emplace(tmp_var_key("e", true), calc_val::c_e);
     variables.emplace(tmp_var_key("i", true), calc_val::i);
-    last_val_itr = variables.emplace(tmp_var_key("last", true), calc_val::complex_type(calc_val::nan, calc_val::nan)).first;
+    last_val_pos = variables.emplace(tmp_var_key("last", true), calc_val::complex_type(calc_val::nan, calc_val::nan)).first;
 }
 
 auto calc_parser::evaluate(std::string_view input, help_callback help, output_options& out_options)
@@ -160,7 +159,7 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, output_op
     if (lexer.get_token().id != lexer_token::end)
         throw calc_parse_error(calc_parse_error::syntax_error, lexer.last_token());
 
-    last_val_itr->second = val;
+    last_val_pos->second = val;
     return val;
 }
 
