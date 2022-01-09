@@ -34,7 +34,7 @@ calc_parser::identifier_with_unary_fn calc_parser::unary_fn_table[] = {
 
 template <class T>
 static inline constexpr auto is_nan(T x) -> bool
-{return x != x;} // nan is a special creature that nerver tests equal to itself
+{return x != x;} // nan is a special creature that never tests equal to itself
 
 
 
@@ -171,8 +171,9 @@ auto calc_parser::assumed_delete_expr(lookahead_calc_lexer& lexer) -> void {
     lexer.get_token();
     if (lexer.last_token().id != lexer_token::identifier)
         throw calc_parse_error(calc_parse_error::variable_identifier_expected, lexer.last_token());
-    if (auto itr = variables.find(tmp_var_key(lexer.last_token().view, false)); itr != variables.end())
-        variables.erase(itr);
+    auto itr = variables.find(tmp_var_key(lexer.last_token().view, false));
+    if (itr != variables.end())
+        ;
     else if (variables.find(tmp_var_key(lexer.last_token().view, true)) != variables.end())
         throw calc_parse_error(calc_parse_error::cant_delete_internal, lexer.last_token());
     else
@@ -180,6 +181,8 @@ auto calc_parser::assumed_delete_expr(lookahead_calc_lexer& lexer) -> void {
 
     if (lexer.get_token().id != lexer_token::end)
         throw calc_parse_error(calc_parse_error::syntax_error, lexer.last_token());
+
+    variables.erase(itr);
 }
 
 auto calc_parser::math_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
