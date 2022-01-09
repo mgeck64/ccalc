@@ -553,7 +553,7 @@ auto calc_parser::assumed_identifier_expr(lookahead_calc_lexer& lexer) -> calc_v
 
     auto val = std::visit([&](const auto& thing) -> calc_val::variant_type {
         using VT = std::decay_t<decltype(thing)>;
-        if constexpr (std::is_same_v<VT, calc_val::variant_type>) // <value_variable>
+        if constexpr (std::is_same_v<VT, calc_val::variant_type>) // <value_identifier>
             return thing;
         else if constexpr (std::is_same_v<VT, unary_fn>) { // <unary_fn_variable> <group>
             try {
