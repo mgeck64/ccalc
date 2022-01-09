@@ -40,6 +40,7 @@ using max_int_type = __int128;
 extern const float_type pi;
 extern const float_type two_pi;
 extern const float_type e;
+extern const float_type nan;
 
 enum number_type_codes {complex_code, uint_code, int_code};
 
