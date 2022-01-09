@@ -91,12 +91,12 @@ calc_parser::calc_parser(
     int_word_size{int_word_size_}
 {
     for (auto& elem: unary_fn_table)
-        variables.emplace(tmp_var_key(elem.identifier, true), elem.fn);
+        variables.emplace(var_key(elem.identifier, true), elem.fn);
 
-    variables.emplace(tmp_var_key("pi", true), calc_val::c_pi);
-    variables.emplace(tmp_var_key("e", true), calc_val::c_e);
-    variables.emplace(tmp_var_key("i", true), calc_val::i);
-    last_val_pos = variables.emplace(tmp_var_key("last", true), calc_val::complex_type(calc_val::nan, calc_val::nan)).first;
+    variables.emplace(var_key("pi", true), calc_val::c_pi);
+    variables.emplace(var_key("e", true), calc_val::c_e);
+    variables.emplace(var_key("i", true), calc_val::i);
+    last_val_pos = variables.emplace(var_key("last", true), calc_val::complex_type(calc_val::nan, calc_val::nan)).first;
 }
 
 auto calc_parser::evaluate(std::string_view input, help_callback help, output_options& out_options)
@@ -171,10 +171,10 @@ auto calc_parser::assumed_delete_expr(lookahead_calc_lexer& lexer) -> void {
     lexer.get_token();
     if (lexer.last_token().id != lexer_token::identifier)
         throw calc_parse_error(calc_parse_error::variable_identifier_expected, lexer.last_token());
-    auto itr = variables.find(tmp_var_key(lexer.last_token().view, false));
+    auto itr = variables.find(var_key_ref(lexer.last_token().view, false));
     if (itr != variables.end())
         ;
-    else if (variables.find(tmp_var_key(lexer.last_token().view, true)) != variables.end())
+    else if (variables.find(var_key_ref(lexer.last_token().view, true)) != variables.end())
         throw calc_parse_error(calc_parse_error::cant_delete_internal, lexer.last_token());
     else
         throw calc_parse_error(calc_parse_error::undefined_identifier, lexer.last_token());
@@ -536,15 +536,15 @@ auto calc_parser::assumed_identifier_expr(lookahead_calc_lexer& lexer) -> calc_v
         lexer.get_token();
         auto val = math_expr(lexer);
         trim_int(val);
-        variables.insert_or_assign(tmp_var_key(identifier, false), val);
+        variables.insert_or_assign(var_key(identifier, false), val);
         return val;
     }
 
     // <undefined_identifier>
 
-    auto itr = variables.find(tmp_var_key(identifier, false));
+    auto itr = variables.find(var_key_ref(identifier, false));
     if (itr == variables.end()) {
-        itr = variables.find(tmp_var_key(identifier, true));
+        itr = variables.find(var_key_ref(identifier, true));
         if (itr == variables.end()) // <undefined_identifier>
             throw calc_parse_error(calc_parse_error::undefined_identifier, identifier_token);
     }
