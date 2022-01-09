@@ -73,7 +73,7 @@ static auto try_to_make_int_if_complex(calc_val::variant_type& val) -> void {
             if (sub_val.imag() == 0) {
                 auto i = static_cast<calc_val::int_type>(sub_val.real());
                 if (i == sub_val.real()) // sub_val is a whole number that fits in int
-                    val = i; // side effect; assume sub_val becomes invalid
+                    val = i; // side effect: assume sub_val becomes invalid
             }
         }
     }, val);
