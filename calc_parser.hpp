@@ -66,7 +66,7 @@ private:
     {tmp_var_key_ = internal ? 'y' : 'n'; tmp_var_key_ += id; return tmp_var_key_;}
 
     variables_map variables;
-    variables_map::iterator last_val_itr = variables.end();
+    variables_map::iterator last_val_pos = variables.end();
 };
 
 #endif // CALC_PARSER_HPP
