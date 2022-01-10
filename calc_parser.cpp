@@ -545,7 +545,7 @@ auto calc_parser::assumed_identifier_expr(lookahead_calc_lexer& lexer) -> calc_v
     auto itr = variables.find(var_key_ref(identifier, false));
     if (itr == variables.end()) {
         itr = variables.find(var_key_ref(identifier, true));
-        if (itr == variables.end()) // <undefined_identifier>
+        if (itr == variables.end())
             throw calc_parse_error(calc_parse_error::undefined_identifier, identifier_token);
     }
 
