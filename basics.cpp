@@ -1,4 +1,5 @@
 #include "basics.hpp"
+#include <boost/math/constants/constants.hpp>
 #include <limits>
 
 namespace calc_val {

@@ -2,7 +2,6 @@
 #define BASICS_HPP
 
 #include <boost/multiprecision/cpp_bin_float.hpp>
-#include <boost/math/constants/constants.hpp>
 
 namespace calc_val {
 
