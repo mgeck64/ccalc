@@ -81,4 +81,4 @@ make_reldir:
 remake: clean all
 
 clean:
-		rm -f $(RELEXE) $(RELOBJS) $(RELDEPS) $(DBGEXE) $(DBGOBJS) $(DBGDEPS)
+		@rm -r -f $(RELDIR) $(DBGDIR)
