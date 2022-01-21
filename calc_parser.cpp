@@ -165,8 +165,8 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, output_op
 
 auto calc_parser::assumed_delete_expr(lookahead_calc_lexer& lexer) -> void {
 // <delete_expr> ::= "delete" <identifier> <end>
-    auto delete_token = lexer.get_token(); // assume next token is del (caller assures this)
-    assert(delete_token.id == lexer_token::del);
+    lexer.get_token(); // assume next token is del (caller assures this)
+    assert(lexer.last_token().id == lexer_token::del);
 
     lexer.get_token();
     if (lexer.last_token().id != lexer_token::identifier)
