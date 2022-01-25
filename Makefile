@@ -3,7 +3,7 @@
 #
 CCXX   = g++
 CC     = gcc
-CXXFLAGS = -Wall -Werror -Wextra -std=gnu++17
+CXXFLAGS = -Wall -Werror -Wextra -std=gnu++20
 CFLAGS   = -Wall -Werror -Wextra
 
 #
