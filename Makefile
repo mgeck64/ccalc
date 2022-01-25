@@ -32,7 +32,7 @@ RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
 RELDEPS = $(RELOBJS:%.o=%.d)
 RELFLAGS = -Os -DNDEBUG
 
-.PHONY: all clean debug prep release remake
+.PHONY: all clean debug release remake
 
 # Default build
 all: release
