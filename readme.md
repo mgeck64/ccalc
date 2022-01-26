@@ -1,8 +1,7 @@
 # ccalc-lib (libccalc-rel.a, libccalc-dbg.a)
 ## Synopsis
-The backend library for my advanced text-based calculator app. ccalc-cli is the
-project for the command line interface frontend. I am also working on a GUI
-frontend.
+The backend library for my advanced text-based calculator app. libccalc-rel.a is
+for release builds and libccalc-dbg.a is for debugging builds.
 - Supports complex arithmetic, integer arithmetic and bitwise operations
 - Supports implied multiplication (multiplication by justaposition)
 - Supports 8, 16, 32, 64 and 128 bit integer types
@@ -16,3 +15,6 @@ the newer versions 1.75 and 1.77 produce a slightly incorrect result for the
 expression exp(pi*i) where i is the imaginary unit; thus version 1.74 is
 statically asserted for in the code
 - This project uses the GNU __int128 type with GNU extensions enabled
+## Frontends
+ccalc-cli is the project for the command line interface frontend. I am also
+working on a GUI frontend.
