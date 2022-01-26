@@ -1,7 +1,7 @@
 # ccalc-lib (libccalc-rel.a, libccalc-dbg.a)
 ## Synopsis
-The backend library for my advanced text-based calculator app. libccalc-rel.a is
-for release builds and libccalc-dbg.a is for debugging builds.
+The backend library for my advanced text-based calculator apps. libccalc-rel.a
+is for release builds and libccalc-dbg.a is for debugging builds.
 - Supports complex arithmetic, integer arithmetic and bitwise operations
 - Supports implied multiplication (multiplication by justaposition)
 - Supports 8, 16, 32, 64 and 128 bit integer types
