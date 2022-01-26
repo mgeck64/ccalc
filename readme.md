@@ -1,4 +1,4 @@
-# ccalc (Library)
+# libccalc (libccalc-rel, libccalc-dbg)
 ## Synopsis
 The backend library for my advanced text-based calculator app. ccalc-cli is the
 project for the command line interface frontend. I am also working on a GUI
