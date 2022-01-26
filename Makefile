@@ -12,13 +12,14 @@ CFLAGS   = -Wall -Werror -Wextra
 CPPSRCS = $(wildcard *.cpp)
 CSRCS = $(wildcard *.c)
 OBJS = $(CPPSRCS:.cpp=.o) $(CSRCS:.c=.o)
-EXE = ccalc
+LIB = libccalc
+LIBDIR = lib
 
 #
 # Debug build settings
 #
 DBGDIR = debug
-DBGEXE = $(DBGDIR)/$(EXE)
+DBGLIB = $(LIBDIR)/$(LIB)-dbg.a
 DBGOBJS = $(addprefix $(DBGDIR)/, $(OBJS))
 DBGDEPS = $(DBGOBJS:%.o=%.d)
 DBGFLAGS = -g -O0 -DDEBUG
@@ -27,7 +28,7 @@ DBGFLAGS = -g -O0 -DDEBUG
 # Release build settings
 #
 RELDIR = release
-RELEXE = $(RELDIR)/$(EXE)
+RELLIB = $(LIBDIR)/$(LIB)-rel.a
 RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
 RELDEPS = $(RELOBJS:%.o=%.d)
 RELFLAGS = -Os -DNDEBUG
@@ -40,10 +41,10 @@ all: release
 #
 # Debug rules
 #
-debug: make_dbgdir $(DBGEXE)
+debug: make_dbgdir $(DBGLIB)
 
-$(DBGEXE): $(DBGOBJS)
-		$(CCXX) -o $(DBGEXE) $^
+$(DBGLIB): $(DBGOBJS)
+		ar rcs $(DBGLIB) $^
 
 -include $(DBGDEPS)
 
@@ -56,10 +57,10 @@ $(DBGDIR)/%.o: %.c
 #
 # Release rules
 #
-release: make_reldir $(RELEXE)
+release: make_reldir $(RELLIB)
 
-$(RELEXE): $(RELOBJS)
-		$(CCXX) -o $(RELEXE) $^
+$(RELLIB): $(RELOBJS)
+		ar rcs $(RELLIB) $^
 
 -include $(RELDEPS)
 
@@ -74,11 +75,13 @@ $(RELDIR)/%.o: %.c
 #
 make_dbgdir:
 		@mkdir -p $(DBGDIR)
+		@mkdir -p $(LIBDIR)
 
 make_reldir:
 		@mkdir -p $(RELDIR)
+		@mkdir -p $(LIBDIR)
 
 remake: clean all
 
 clean:
-		@rm -r -f $(RELDIR) $(DBGDIR)
+		@rm -r -f $(RELDIR) $(DBGDIR) $(LIBDIR)

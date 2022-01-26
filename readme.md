@@ -1,6 +1,7 @@
 # ccalc
 ## Synopsis
-An advanced text-based command-line calculator app.
+Backend library for my advanced text-based calculator app. ccalc-cli is the
+command line interface frontend. I am also working on a GUI frontend.
 - Supports complex arithmetic, integer arithmetic and bitwise operations
 - Supports implied multiplication (multiplication by justaposition)
 - Supports 8, 16, 32, 64 and 128 bit integer types
