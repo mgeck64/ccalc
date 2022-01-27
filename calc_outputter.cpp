@@ -8,16 +8,6 @@ std::ostream& operator<<(std::ostream& out, const calc_outputter& outputter) {
     boost::io::ios_all_saver guard(out);
     out.unsetf(std::ios::basefield | std::ios::adjustfield | std::ios::floatfield); // put in known default state
     (outputter.*outputter.output_fn)(out);
-    std::visit([&](const auto& val) {
-        using VT = std::decay_t<decltype(val)>;
-        if constexpr (std::is_integral_v<VT> && std::is_signed_v<VT>)
-            out << " (int";
-        else if constexpr (std::is_integral_v<VT>)
-            out << " (uint";
-        else if constexpr (std::is_same_v<VT, calc_val::complex_type>)
-            out << " (cplx";
-        out << " base" << outputter.out_options.output_radix << ')';
-    }, outputter.val);
     return out;
 }
 
