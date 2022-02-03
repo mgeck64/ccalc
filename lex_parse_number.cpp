@@ -24,14 +24,14 @@ void calc_lexer::scan_as_number() {
         auto prefix_code_2_is_ok = false;
         auto inc_in_itr2 = 0;
 
-        if (in_itr2.length() > 2 && !is_alnum(in_itr2[2], radix)) {
+        if (in_itr2.length() > 2 && !is_digit_any_decimal(in_itr2[2], radix)) {
             auto prefix_code_2 = std::tolower(in_itr[2]);
             prefix_code_2_is_ok = prefix_code_2 == signed_prefix_code || prefix_code_2 == unsigned_prefix_code || prefix_code_2 == complex_prefix_code;
         }
         if (prefix_code_2_is_ok) {
             prefix_code_1 = std::tolower(in_itr2[1]);
             inc_in_itr2 = 3;
-        } else if (in_itr2.length() > 1 && !is_alnum(in_itr2[1], radix)) {
+        } else if (in_itr2.length() > 1 && !is_digit_any_decimal(in_itr2[1], radix)) {
             prefix_code_1 = std::tolower(in_itr2[1]);
             prefix_code_2_is_ok = true; // implied code
             inc_in_itr2 = 2;
@@ -78,7 +78,7 @@ void calc_lexer::scan_as_number() {
         if (*in_itr2 == '.' && !has_decimal_point) {
             ++in_itr2;
             has_decimal_point = true;
-        } else if (is_alnum(*in_itr2, radix)) {
+        } else if (is_digit_any_decimal(*in_itr2, radix)) {
             ++in_itr2;
             has_alnum = true;
         } else if (std::tolower(*in_itr2) == exponent_code && has_alnum) {
@@ -118,12 +118,12 @@ auto calc_parser::assumed_number(lookahead_calc_lexer& lexer, bool is_negative) 
         auto prefix_code_2 = null_prefix_code;
         auto inc_num_itr = 0;
 
-        if (num_itr.length() > 2 && !is_alnum(num_itr[2], radix)) // 0<prefix code 1><prefix code 2><char>
+        if (num_itr.length() > 2 && !is_digit_any_decimal(num_itr[2], radix)) // 0<prefix code 1><prefix code 2><char>
             prefix_code_2 = std::tolower(num_itr[2]);
         if (prefix_code_2 == signed_prefix_code || prefix_code_2 == unsigned_prefix_code || prefix_code_2 == complex_prefix_code) {
             prefix_code_1 = std::tolower(num_itr[1]);
             inc_num_itr = 3;
-        } else if (num_itr.length() > 1 && !is_alnum(num_itr[1], radix)) { // 0<prefix code 1><char>
+        } else if (num_itr.length() > 1 && !is_digit_any_decimal(num_itr[1], radix)) { // 0<prefix code 1><char>
             prefix_code_1 = std::tolower(num_itr[1]);
             prefix_code_2 = signed_prefix_code;
             inc_num_itr = 2;
