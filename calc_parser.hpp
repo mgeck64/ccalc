@@ -17,8 +17,11 @@ public:
 
     auto evaluate(std::string_view input, help_callback help, output_options& out_options) -> calc_val::variant_type;
     // evaluates the input string; throws parse_error on parsing error. throws
-    // no_mathematical_expression if no mathematical expression was evaluated.
+    // void_expression if no mathematical expression was evaluated.
     // input is as specified for lookahead_calc_lexer. may update output_options
+
+    auto options() const -> parser_options;
+    auto options(const parser_options&) -> void;
 
 private:
     calc_val::number_type_codes default_number_type_code = calc_val::complex_code;

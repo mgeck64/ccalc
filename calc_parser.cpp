@@ -99,6 +99,20 @@ calc_parser::calc_parser(
     last_val_pos = variables.emplace(var_key("last", true), calc_val::complex_type(calc_val::nan, calc_val::nan)).first;
 }
 
+auto calc_parser::options() const -> parser_options {
+    return parser_options {
+        default_number_type_code,
+        default_number_radix,
+        int_word_size
+    };
+}
+
+auto calc_parser::options(const parser_options& options) -> void {
+    default_number_type_code = options.default_number_type_code;
+    default_number_radix = options.default_number_radix;
+    int_word_size = options.int_word_size;
+}
+
 auto calc_parser::evaluate(std::string_view input, help_callback help, output_options& out_options)
         -> calc_val::variant_type {
     auto lexer = lookahead_calc_lexer(input, default_number_radix);

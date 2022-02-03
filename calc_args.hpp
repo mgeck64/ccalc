@@ -38,6 +38,12 @@ struct calc_args {
 void interpret_arg(std::string_view arg_str, char option_code, calc_args& args);
 // interprets arg_str and updates args
 
+struct parser_options {
+    decltype(calc_args::default_number_type_code) default_number_type_code = calc_val::complex_code;
+    decltype(calc_args::default_number_radix)     default_number_radix = calc_val::base10;
+    decltype(calc_args::int_word_size)            int_word_size = calc_val::int_bits_128;
+};
+
 struct output_options {
     decltype(calc_args::output_radix)         output_radix = calc_val::base10;
     decltype(calc_args::precision)            precision = std::numeric_limits<calc_val::float_type>::digits10;
