@@ -15,10 +15,17 @@ public:
     using help_callback = std::function<void()>;
     struct void_expression {}; // exception
 
-    auto evaluate(std::string_view input, help_callback help, output_options& out_options) -> calc_val::variant_type;
+    auto evaluate(std::string_view input, help_callback help, output_options& out_options, calc_args* p_args = 0)
+        -> calc_val::variant_type;
     // evaluates the input string; throws parse_error on parsing error. throws
     // void_expression if no mathematical expression was evaluated.
-    // input is as specified for lookahead_calc_lexer. may update output_options
+    // input is as specified for lookahead_calc_lexer.
+    // side effects:
+    // may update output_options.
+    // if p_args is not null and any options were set then *p_args will have
+    // a counter set to 1 for each option that was set, and all other counters
+    // will be 0. (if p_args is not null but no options were set then *p_args
+    // will be unchanged)
 
     auto options() const -> parser_options;
     auto options(const parser_options&) -> void;

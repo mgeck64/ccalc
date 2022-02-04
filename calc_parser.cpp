@@ -113,7 +113,7 @@ auto calc_parser::options(const parser_options& options) -> void {
     int_word_size = options.int_word_size;
 }
 
-auto calc_parser::evaluate(std::string_view input, help_callback help, output_options& out_options)
+auto calc_parser::evaluate(std::string_view input, help_callback help, output_options& out_options, calc_args* p_args)
         -> calc_val::variant_type {
     auto lexer = lookahead_calc_lexer(input, default_number_radix);
 
@@ -132,7 +132,7 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, output_op
             interpret_arg(lexer.last_token().view, expression_option_code, args);
             if (args.other_args)
                 throw calc_parse_error(calc_parse_error::invalid_option, lexer.last_token());
-            if (   args.n_default_options > 1
+            if (args.n_default_options > 1
                 || args.n_output_options > 1
                 || args.n_int_word_size_options > 1
                 || args.n_precision_options > 1
@@ -156,6 +156,9 @@ auto calc_parser::evaluate(std::string_view input, help_callback help, output_op
             out_options.precision = args.precision;
         if (args.n_output_fp_normalized_options)
             out_options.output_fp_normalized = args.output_fp_normalized;
+
+        if (p_args)
+            *p_args = args;
     }
 
     if (lexer.peek_token().id == lexer_token::del) {

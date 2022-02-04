@@ -25,14 +25,16 @@ struct calc_args {
     unsigned n_int_word_size_options = 0;
     unsigned n_precision_options = 0;
     unsigned n_output_fp_normalized_options = 0;
-    bool     other_args = false;
+    bool other_args = false;
 
     calc_val::number_type_codes default_number_type_code = calc_val::complex_code;
-    calc_val::radices           default_number_radix = calc_val::base10;
-    calc_val::radices           output_radix = calc_val::base10;
-    calc_val::int_word_sizes    int_word_size = calc_val::int_bits_128;
-    unsigned                    precision = std::numeric_limits<calc_val::float_type>::digits10;
-    bool                        output_fp_normalized = false;
+    calc_val::radices default_number_radix = calc_val::base10;
+    calc_val::radices output_radix = calc_val::base10;
+    calc_val::int_word_sizes int_word_size = calc_val::int_bits_128;
+    unsigned precision = std::numeric_limits<calc_val::float_type>::digits10;
+    bool output_fp_normalized = false;
+
+    auto operator ==(const calc_args&) const -> bool = default;
 };
 
 void interpret_arg(std::string_view arg_str, char option_code, calc_args& args);
@@ -40,13 +42,13 @@ void interpret_arg(std::string_view arg_str, char option_code, calc_args& args);
 
 struct parser_options {
     decltype(calc_args::default_number_type_code) default_number_type_code = calc_val::complex_code;
-    decltype(calc_args::default_number_radix)     default_number_radix = calc_val::base10;
-    decltype(calc_args::int_word_size)            int_word_size = calc_val::int_bits_128;
+    decltype(calc_args::default_number_radix) default_number_radix = calc_val::base10;
+    decltype(calc_args::int_word_size) int_word_size = calc_val::int_bits_128;
 };
 
 struct output_options {
-    decltype(calc_args::output_radix)         output_radix = calc_val::base10;
-    decltype(calc_args::precision)            precision = std::numeric_limits<calc_val::float_type>::digits10;
+    decltype(calc_args::output_radix) output_radix = calc_val::base10;
+    decltype(calc_args::precision) precision = std::numeric_limits<calc_val::float_type>::digits10;
     decltype(calc_args::output_fp_normalized) output_fp_normalized = false;
     output_options() = default;
     output_options(const calc_args& args) :
