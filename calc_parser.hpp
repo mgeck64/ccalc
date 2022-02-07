@@ -13,10 +13,16 @@ public:
         calc_val::radices default_number_radix_, calc_val::int_word_sizes int_word_size_);
 
     using help_callback = std::function<void()>;
+    using variables_changed_callback = std::function<void()>;
     struct void_expression {}; // exception
 
-    auto evaluate(std::string_view input, help_callback help, output_options& out_options, calc_args* p_args = 0)
-        -> calc_val::variant_type;
+    auto evaluate(
+        std::string_view input,
+        help_callback help_fn, // precondition: must have valid target
+        output_options& out_options,
+        variables_changed_callback variables_changed = variables_changed_callback(),
+        calc_args* p_args = 0
+    ) -> calc_val::variant_type;
     // evaluates the input string; throws parse_error on parsing error. throws
     // void_expression if no mathematical expression was evaluated.
     // input is as specified for lookahead_calc_lexer.
@@ -29,6 +35,15 @@ public:
 
     auto options() const -> parser_options;
     auto options(const parser_options&) -> void;
+
+private:
+    using variables_map = std::map<std::string, calc_val::variant_type>;
+
+public:
+    using variables_pair = variables_map::value_type;
+    using variables_itr = variables_map::const_iterator;
+    auto variables_begin() const -> variables_itr {return variables.begin();}
+    auto variables_end() const -> variables_itr {return variables.end();}
 
 private:
     calc_val::number_type_codes default_number_type_code = calc_val::complex_code;
@@ -65,21 +80,18 @@ private:
     static identifier_with_unary_fn unary_fn_table[];
 
     using var_poly_type = std::variant<calc_val::variant_type, unary_fn>;
-    using variables_map = std::unordered_map<std::string, var_poly_type>;
-    // a variables_map element may hold a single value (calc_val::variant_type)
-    // or a function pointer (unary_fn). key is 'y' or 'n' (depending on whether
-    // the variable is internal or user-defined) + <identifier>. use var_key or
-    // var_key_ref (below) to make a key
+    using internals_map = std::map<std::string, var_poly_type>;
+    // an internals_map element may hold a single value (calc_val::variant_type)
+    // or a function pointer (unary_fn).
 
-    static auto var_key(std::string_view identifier, bool internal) -> std::string
-    {std::string key = internal ? "y" : "n"; key += identifier; return key;}
-
-    std::string var_key_; // member string to mitigate string memory allocations for lookups
-    auto var_key_ref(std::string_view identifier, bool internal) -> const std::string&
-    {var_key_ = internal ? 'y' : 'n'; var_key_ += identifier; return var_key_;}
+    internals_map internals;
+    internals_map::iterator last_val_pos = internals.end();
 
     variables_map variables;
-    variables_map::iterator last_val_pos = variables.end();
+
+    variables_changed_callback variables_changed = variables_changed_callback();
+
+    std::string tmp_key; // to mitigate memory allocations when looking up a key in variables or internals
 };
 
 #endif // CALC_PARSER_HPP

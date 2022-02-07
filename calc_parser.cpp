@@ -90,13 +90,15 @@ calc_parser::calc_parser(
     default_number_radix{default_number_radix_},
     int_word_size{int_word_size_}
 {
-    for (auto& elem: unary_fn_table)
-        variables.emplace(var_key(elem.identifier, true), elem.fn);
+    tmp_key.reserve(32);
 
-    variables.emplace(var_key("pi", true), calc_val::c_pi);
-    variables.emplace(var_key("e", true), calc_val::c_e);
-    variables.emplace(var_key("i", true), calc_val::i);
-    last_val_pos = variables.emplace(var_key("last", true), calc_val::complex_type(calc_val::nan, calc_val::nan)).first;
+    for (auto& elem: unary_fn_table)
+        internals.emplace(tmp_key = elem.identifier, elem.fn);
+
+    internals.emplace(tmp_key = "pi", calc_val::c_pi);
+    internals.emplace(tmp_key = "e", calc_val::c_e);
+    internals.emplace(tmp_key = "i", calc_val::i);
+    last_val_pos = internals.emplace(tmp_key = "last", calc_val::complex_type(calc_val::nan, calc_val::nan)).first;
 }
 
 auto calc_parser::options() const -> parser_options {
@@ -113,8 +115,17 @@ auto calc_parser::options(const parser_options& options) -> void {
     int_word_size = options.int_word_size;
 }
 
-auto calc_parser::evaluate(std::string_view input, help_callback help, output_options& out_options, calc_args* p_args)
-        -> calc_val::variant_type {
+auto calc_parser::evaluate(
+    std::string_view input,
+    help_callback help,
+    output_options& out_options,
+    variables_changed_callback variables_changed_,
+    calc_args* p_args
+) -> calc_val::variant_type
+{
+    assert(help);
+    variables_changed = variables_changed_;
+
     auto lexer = lookahead_calc_lexer(input, default_number_radix);
 
     // <input> ::= "help"
@@ -188,18 +199,17 @@ auto calc_parser::assumed_delete_expr(lookahead_calc_lexer& lexer) -> void {
     lexer.get_token();
     if (lexer.last_token().id != lexer_token::identifier)
         throw calc_parse_error(calc_parse_error::variable_identifier_expected, lexer.last_token());
-    auto itr = variables.find(var_key_ref(lexer.last_token().view, false));
-    if (itr != variables.end())
-        ;
-    else if (variables.find(var_key_ref(lexer.last_token().view, true)) != variables.end())
+    auto itr = variables.find(tmp_key = lexer.last_token().view);
+    if (itr != variables.end()) {
+        if (lexer.get_token().id != lexer_token::end)
+            throw calc_parse_error(calc_parse_error::syntax_error, lexer.last_token());
+        variables.erase(itr);
+        if (variables_changed)
+            variables_changed();
+    } else if (internals.find(tmp_key) != internals.end())
         throw calc_parse_error(calc_parse_error::cant_delete_internal, lexer.last_token());
     else
         throw calc_parse_error(calc_parse_error::undefined_identifier, lexer.last_token());
-
-    if (lexer.get_token().id != lexer_token::end)
-        throw calc_parse_error(calc_parse_error::syntax_error, lexer.last_token());
-
-    variables.erase(itr);
 }
 
 auto calc_parser::math_expr(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
@@ -553,40 +563,53 @@ auto calc_parser::assumed_identifier_expr(lookahead_calc_lexer& lexer) -> calc_v
         lexer.get_token();
         auto val = math_expr(lexer);
         trim_int(val);
-        variables.insert_or_assign(var_key(identifier, false), val);
+        if (auto itr = variables.find(tmp_key = identifier); itr != variables.end()) {
+            if (itr->second != val) {
+                itr->second = val;
+                if (variables_changed)
+                    variables_changed();
+            }
+        } else {
+            variables.emplace_hint(itr, tmp_key = identifier, val);
+            if (variables_changed)
+                variables_changed();
+        }
+        return val;
+    }
+
+    // <value_identifier> | <unary_fn_identifier> <group>
+
+    if (auto itr = variables.find(tmp_key = identifier); itr != variables.end()) {
+        auto val = itr->second;
+        trim_int(val);
+        return val;
+    }
+
+    if (auto itr = internals.find(tmp_key = identifier); itr != internals.end()) {
+        auto val = std::visit([&](const auto& thing) -> calc_val::variant_type {
+            using VT = std::decay_t<decltype(thing)>;
+            if constexpr (std::is_same_v<VT, calc_val::variant_type>) // <value_identifier>
+                return thing;
+            else if constexpr (std::is_same_v<VT, unary_fn>) { // <unary_fn_variable> <group>
+                try {
+                    return std::visit([&](const auto& val) {
+                        return thing(val);
+                    }, group(lexer));
+                } catch (calc_val::domain_positive_real_only) {
+                    throw calc_parse_error(calc_parse_error::op_domain_positive_real_only, identifier_token);
+                } catch (calc_val::domain_real_only) {
+                    throw calc_parse_error(calc_parse_error::op_domain_real_only, identifier_token);
+                }
+            }
+        }, itr->second);
+        trim_int(val);
         return val;
     }
 
     // <undefined_identifier>
 
-    auto itr = variables.find(var_key_ref(identifier, false));
-    if (itr == variables.end()) {
-        itr = variables.find(var_key_ref(identifier, true));
-        if (itr == variables.end())
-            throw calc_parse_error(calc_parse_error::undefined_identifier, identifier_token);
-    }
-
-    // <value_identifier> | <unary_fn_identifier> <group>
-
-    auto val = std::visit([&](const auto& thing) -> calc_val::variant_type {
-        using VT = std::decay_t<decltype(thing)>;
-        if constexpr (std::is_same_v<VT, calc_val::variant_type>) // <value_identifier>
-            return thing;
-        else if constexpr (std::is_same_v<VT, unary_fn>) { // <unary_fn_variable> <group>
-            try {
-                return std::visit([&](const auto& val) {
-                    return thing(val);
-                }, group(lexer));
-            } catch (calc_val::domain_positive_real_only) {
-                throw calc_parse_error(calc_parse_error::op_domain_positive_real_only, identifier_token);
-            } catch (calc_val::domain_real_only) {
-                throw calc_parse_error(calc_parse_error::op_domain_real_only, identifier_token);
-            }
-        }
-    }, itr->second);
-    trim_int(val);
-    return val;
-};
+    throw calc_parse_error(calc_parse_error::undefined_identifier, identifier_token);
+}
 
 auto calc_parser::group(lookahead_calc_lexer& lexer) -> calc_val::variant_type {
 // <group> ::= "(" <math_expr> ")"
