@@ -52,6 +52,7 @@ struct output_options {
     decltype(calc_args::output_radix) output_radix = calc_val::base10;
     decltype(calc_args::precision) precision = std::numeric_limits<calc_val::float_type>::digits10;
     decltype(calc_args::output_fp_normalized) output_fp_normalized = false;
+ 
     output_options() = default;
     output_options(const calc_args& args) :
         output_radix{args.output_radix},
