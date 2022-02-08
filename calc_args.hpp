@@ -44,6 +44,8 @@ struct parser_options {
     decltype(calc_args::default_number_type_code) default_number_type_code = calc_val::complex_code;
     decltype(calc_args::default_number_radix) default_number_radix = calc_val::base10;
     decltype(calc_args::int_word_size) int_word_size = calc_val::int_bits_128;
+
+    auto operator ==(const parser_options&) const -> bool = default;
 };
 
 struct output_options {
@@ -56,6 +58,8 @@ struct output_options {
         precision{args.precision},
         output_fp_normalized{args.output_fp_normalized}
         {}
+
+    auto operator ==(const output_options&) const -> bool = default;
 };
 
 #endif // CALC_ARGS_HPP
