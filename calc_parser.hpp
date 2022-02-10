@@ -9,6 +9,7 @@
 
 class calc_parser {
 public:
+    calc_parser();
     calc_parser(calc_val::number_type_codes default_number_type_code_,
         calc_val::radices default_number_radix_, calc_val::int_word_sizes int_word_size_);
 
@@ -50,6 +51,8 @@ public:
     auto variables_end() const -> variables_itr {return variables.end();}
 
 private:
+    auto finish_construction() -> void;
+
     calc_val::number_type_codes default_number_type_code = calc_val::complex_code;
     calc_val::radices default_number_radix = calc_val::base10;
     calc_val::int_word_sizes int_word_size = calc_val::int_bits_128;

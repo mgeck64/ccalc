@@ -81,15 +81,7 @@ static auto try_to_make_int_if_complex(calc_val::variant_type& val) -> void {
 
 
 
-calc_parser::calc_parser(
-    calc_val::number_type_codes default_number_type_code_,
-    calc_val::radices default_number_radix_,
-    calc_val::int_word_sizes int_word_size_)
-:
-    default_number_type_code{default_number_type_code_},
-    default_number_radix{default_number_radix_},
-    int_word_size{int_word_size_}
-{
+inline auto calc_parser::finish_construction() -> void {
     tmp_key.reserve(32);
 
     for (auto& elem: unary_fn_table)
@@ -99,6 +91,20 @@ calc_parser::calc_parser(
     internals.emplace(tmp_key = "e", calc_val::c_e);
     internals.emplace(tmp_key = "i", calc_val::i);
     last_val_pos = internals.emplace(tmp_key = "last", calc_val::complex_type(calc_val::nan, calc_val::nan)).first;
+}
+
+calc_parser::calc_parser() {finish_construction();}
+
+calc_parser::calc_parser(
+    calc_val::number_type_codes default_number_type_code_,
+    calc_val::radices default_number_radix_,
+    calc_val::int_word_sizes int_word_size_)
+:
+    default_number_type_code{default_number_type_code_},
+    default_number_radix{default_number_radix_},
+    int_word_size{int_word_size_}
+{
+    finish_construction();
 }
 
 auto calc_parser::options() const -> parser_options {
