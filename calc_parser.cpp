@@ -125,8 +125,7 @@ auto calc_parser::evaluate(
     std::string_view input,
     help_callback help,
     output_options& out_options,
-    variables_changed_callback variables_changed_,
-    calc_args* p_args
+    variables_changed_callback variables_changed_
 ) -> calc_val::variant_type
 {
     assert(help);
@@ -173,9 +172,6 @@ auto calc_parser::evaluate(
             out_options.precision = args.precision;
         if (args.n_output_fp_normalized_options)
             out_options.output_fp_normalized = args.output_fp_normalized;
-
-        if (p_args)
-            *p_args = args;
     }
 
     if (lexer.peek_token().id == lexer_token::del) {

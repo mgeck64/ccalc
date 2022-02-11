@@ -21,19 +21,14 @@ public:
         std::string_view input,
         help_callback help_fn, // assumed to have a valid target
         output_options& out_options,
-        variables_changed_callback variables_changed = variables_changed_callback(),
-        calc_args* p_args = 0
+        variables_changed_callback variables_changed = variables_changed_callback()
     ) -> calc_val::variant_type;
     // evaluates the input string; throws parse_error on parsing error; throws
     // void_expression if no mathematical expression was evaluated--this is not
     // an error.
     // input is as specified for lookahead_calc_lexer.
     // side effects:
-    // out_options is not used but may be updated.
-    // if p_args is not null and any options were set then *p_args will have
-    // a counter set to 1 for each option that was set, and all other counters
-    // will be 0. (if p_args is not null but no options were set then *p_args
-    // will be unchanged)
+    // out_options is not used but may be updated
 
     auto options() const -> parser_options;
     auto options(const parser_options&) -> void;
