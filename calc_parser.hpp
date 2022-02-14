@@ -36,6 +36,9 @@ public:
     auto last_val() const -> const calc_val::variant_type&
     {return std::get<calc_val::variant_type>(last_val_pos->second);}
 
+    auto trimmed_last_val() const -> const calc_val::variant_type
+    {auto val = last_val(); trim_int(val); return val;}
+
 private:
     using variables_map = std::map<std::string, calc_val::variant_type>;
 
