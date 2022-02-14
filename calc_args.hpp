@@ -5,7 +5,6 @@
 
 #include "basics.hpp"
 #include <string_view>
-#include <limits>
 
 // codes for command line and expression options, and number prefix
 static constexpr auto base2_prefix_code      = 'b';
@@ -17,6 +16,9 @@ static constexpr auto unsigned_prefix_code   = 'u';
 static constexpr auto complex_prefix_code    = 'n';
 static constexpr auto null_prefix_code       = '\0';
 static constexpr auto expression_option_code = '@';
+
+constexpr auto default_precision = 25;
+static_assert(default_precision < std::numeric_limits<calc_val::float_type>::digits10);
 
 struct calc_args {
     unsigned n_help_options = 0;
@@ -31,7 +33,7 @@ struct calc_args {
     calc_val::radices default_number_radix = calc_val::base10;
     calc_val::radices output_radix = calc_val::base10;
     calc_val::int_word_sizes int_word_size = calc_val::int_bits_128;
-    unsigned precision = std::numeric_limits<calc_val::float_type>::digits10;
+    unsigned precision = default_precision;
     bool output_fp_normalized = false;
 
     auto operator ==(const calc_args&) const -> bool = default;
@@ -50,7 +52,7 @@ struct parser_options {
 
 struct output_options {
     decltype(calc_args::output_radix) output_radix = calc_val::base10;
-    decltype(calc_args::precision) precision = std::numeric_limits<calc_val::float_type>::digits10;
+    decltype(calc_args::precision) precision = default_precision;
     decltype(calc_args::output_fp_normalized) output_fp_normalized = false;
  
     output_options() = default;

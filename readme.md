@@ -7,7 +7,7 @@ is for release builds and libccalc-dbg.a is for debugging builds.
 - Supports 8, 16, 32, 64 and 128 bit integer types
 - Supports binary, octal, decimal and hexadecimal numbers, both integer and
 floating point (and complex)
-- Supports floating point numbers up to 50 decimal significant digits (+ guard
+- Supports floating point numbers with 100 decimal significant digits (+ guard
 digits)
 ## Dependencies
 This project depends on Boost; this was built using Boost version 1.74. Note:

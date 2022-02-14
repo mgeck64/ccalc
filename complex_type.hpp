@@ -7,7 +7,7 @@
 
 namespace calc_val {
 
-using complex_type = boost::multiprecision::cpp_complex_50;
+using complex_type = boost::multiprecision::cpp_complex_100;
 static_assert(std::is_same_v<float_type, complex_type::value_type>);
 
 static_assert(BOOST_VERSION == 107400);

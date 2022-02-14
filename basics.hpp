@@ -5,7 +5,7 @@
 
 namespace calc_val {
 
-using float_type = boost::multiprecision::cpp_bin_float_50;
+using float_type = boost::multiprecision::cpp_bin_float_100;
 using uint_type = unsigned __int128; // __int128 is special GCC type
 using int_type = __int128;
 // note: not using boost multiprecision int type for int_type because the boost
@@ -28,7 +28,7 @@ static_assert(std::numeric_limits<unsigned __int128>::is_integer);
 static_assert(!std::numeric_limits<unsigned __int128>::is_signed);
 static_assert(std::numeric_limits<__int128>::max() < std::numeric_limits<unsigned __int128>::max());
 static_assert(std::numeric_limits<std::int64_t>::max() < std::numeric_limits<__int128>::max());
-static_assert(std::numeric_limits<unsigned std::int64_t>::max() < std::numeric_limits<unsigned __int128>::max());
+static_assert(std::numeric_limits<std::uint64_t>::max() < std::numeric_limits<unsigned __int128>::max());
 static_assert(std::numeric_limits<unsigned __int128>::digits10 > 0);
 static_assert(std::numeric_limits<__int128>::digits10 > 0);
 // static_assert(sizeof(std::uintmax_t) >= sizeof(unsigned __int128)); // this fails! need to avoid using uintmax_t
