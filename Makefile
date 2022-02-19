@@ -33,7 +33,7 @@ RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
 RELDEPS = $(RELOBJS:%.o=%.d)
 RELFLAGS = -Os -DNDEBUG
 
-.PHONY: all clean debug release remake
+.PHONY: all clean debug release remake install installdbg uninstall
 
 # Default build
 all: release
@@ -69,6 +69,27 @@ $(RELDIR)/%.o: %.cpp
 
 $(RELDIR)/%.o: %.c
 		$(CC) -c $(CFLAGS) $(RELFLAGS) -MMD -o $@ $<
+
+#
+# Install/uninstall rules
+#
+
+install: release
+		mkdir -p $(DESTDIR)/usr/local/include/ccalc
+		cp *.hpp $(DESTDIR)/usr/local/include/ccalc
+		mkdir -p $(DESTDIR)/usr/local/lib
+		cp $(RELLIB) $(DESTDIR)/usr/local/lib
+
+installdbg: debug
+		mkdir -p $(DESTDIR)/usr/local/include/ccalc
+		cp *.hpp $(DESTDIR)/usr/local/include/ccalc
+		mkdir -p $(DESTDIR)/usr/local/lib
+		cp $(DBGLIB) $(DESTDIR)/usr/local/lib
+
+uninstall:
+		rm -r -f $(DESTDIR)/usr/local/include/ccalc
+		rm -f $(DESTDIR)/usr/local/lib/$(LIB)-rel.a
+		rm -f $(DESTDIR)/usr/local/lib/$(LIB)-dbg.a
 
 #
 # Other rules
