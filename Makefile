@@ -36,7 +36,7 @@ RELFLAGS = -Os -DNDEBUG
 .PHONY: all clean debug release remake install installdbg uninstall
 
 # Default build
-all: release
+all: install
 
 #
 # Debug rules
