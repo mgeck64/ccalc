@@ -33,9 +33,4 @@ static_assert(BOOST_VERSION == 107400);
 // more recent versions of boost produce a near-zero result; thus we are
 // sticking with this version to get the desired result of 0
 
-const float_type pi     = boost::math::constants::pi<float_type>();
-const float_type two_pi = boost::math::constants::two_pi<float_type>();
-const float_type e      = boost::math::constants::e<float_type>();
-const float_type nan    = std::numeric_limits<float_type>::quiet_NaN();
-
 }

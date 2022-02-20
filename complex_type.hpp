@@ -10,9 +10,9 @@ namespace calc_val {
 using complex_type = boost::multiprecision::cpp_complex_100;
 static_assert(std::is_same_v<float_type, complex_type::value_type>);
 
-extern const complex_type c_pi; // complex pi
-extern const complex_type c_e; // complex e
-extern const complex_type i; // imaginary unit
+static const complex_type c_pi = complex_type(pi, 0);
+static const complex_type c_e = complex_type(e, 0);
+static const complex_type i = complex_type(0, 1);
 
 
 
