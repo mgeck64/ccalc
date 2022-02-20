@@ -36,8 +36,9 @@ RELLIB = $(LIBDIR)/$(LIB)-rel.a
 RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
 RELDEPS = $(RELOBJS:%.o=%.d)
 RELFLAGS = -Os -DNDEBUG
-PREFIX = /usr/local # setting PREFIX to local directory because this builds
-# static library linked at build-time, not dynamic library linked at runtime
+PREFIX = /usr/local
+# setting PREFIX to local directory because this builds static library linked at
+# build-time, not dynamic library linked at runtime
 
 .PHONY: all clean debug release remake install installdbg uninstall
 
