@@ -1,6 +1,7 @@
 #
 # Compiler flags
 #
+
 CCXX   = g++
 CC     = gcc
 CXXFLAGS = -Wall -Werror -Wextra -std=gnu++20
@@ -9,6 +10,7 @@ CFLAGS   = -Wall -Werror -Wextra
 #
 # Project files
 #
+
 CPPSRCS = $(wildcard *.cpp)
 CSRCS = $(wildcard *.c)
 OBJS = $(CPPSRCS:.cpp=.o) $(CSRCS:.c=.o)
@@ -18,6 +20,7 @@ LIBDIR = lib
 #
 # Debug build settings
 #
+
 DBGDIR = debug
 DBGLIB = $(LIBDIR)/$(LIB)-dbg.a
 DBGOBJS = $(addprefix $(DBGDIR)/, $(OBJS))
@@ -27,6 +30,7 @@ DBGFLAGS = -g -O0 -DDEBUG
 #
 # Release build settings
 #
+
 RELDIR = release
 RELLIB = $(LIBDIR)/$(LIB)-rel.a
 RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
@@ -41,6 +45,7 @@ all: install
 #
 # Debug rules
 #
+
 debug: make_dbgdir $(DBGLIB)
 
 $(DBGLIB): $(DBGOBJS)
@@ -57,6 +62,7 @@ $(DBGDIR)/%.o: %.c
 #
 # Release rules
 #
+
 release: make_reldir $(RELLIB)
 
 $(RELLIB): $(RELOBJS)
@@ -75,25 +81,26 @@ $(RELDIR)/%.o: %.c
 #
 
 install: release
-		mkdir -p $(DESTDIR)/usr/local/include/ccalc
-		cp *.hpp $(DESTDIR)/usr/local/include/ccalc
-		mkdir -p $(DESTDIR)/usr/local/lib
-		cp $(RELLIB) $(DESTDIR)/usr/local/lib
+		sudo mkdir -p $(DESTDIR)/usr/local/include/ccalc
+		sudo cp *.hpp $(DESTDIR)/usr/local/include/ccalc
+		sudo mkdir -p $(DESTDIR)/usr/local/lib
+		sudo cp $(RELLIB) $(DESTDIR)/usr/local/lib
 
 installdbg: debug
-		mkdir -p $(DESTDIR)/usr/local/include/ccalc
-		cp *.hpp $(DESTDIR)/usr/local/include/ccalc
-		mkdir -p $(DESTDIR)/usr/local/lib
-		cp $(DBGLIB) $(DESTDIR)/usr/local/lib
+		sudo mkdir -p $(DESTDIR)/usr/local/include/ccalc
+		sudo cp *.hpp $(DESTDIR)/usr/local/include/ccalc
+		sudo mkdir -p $(DESTDIR)/usr/local/lib
+		sudo cp $(DBGLIB) $(DESTDIR)/usr/local/lib
 
 uninstall:
-		rm -r -f $(DESTDIR)/usr/local/include/ccalc
-		rm -f $(DESTDIR)/usr/local/lib/$(LIB)-rel.a
-		rm -f $(DESTDIR)/usr/local/lib/$(LIB)-dbg.a
+		sudo rm -r -f $(DESTDIR)/usr/local/include/ccalc
+		sudo rm -f $(DESTDIR)/usr/local/lib/$(LIB)-rel.a
+		sudo rm -f $(DESTDIR)/usr/local/lib/$(LIB)-dbg.a
 
 #
 # Other rules
 #
+
 make_dbgdir:
 		@mkdir -p $(DBGDIR)
 		@mkdir -p $(LIBDIR)
