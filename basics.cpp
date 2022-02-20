@@ -33,4 +33,4 @@ static_assert(BOOST_VERSION == 107400);
 // more recent versions of boost produce a near-zero result; thus we are
 // sticking with this version to get the desired result of 0
 
-}
+} // namespace calc_val
