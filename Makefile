@@ -84,21 +84,21 @@ $(RELDIR)/%.o: %.c
 #
 
 install: release
-	sudo mkdir -p $(DESTDIR)$(PREFIX)/include/ccalc
-	sudo cp *.hpp $(DESTDIR)$(PREFIX)/include/ccalc
-	sudo mkdir -p $(DESTDIR)$(PREFIX)/lib
-	sudo cp $(RELLIB) $(DESTDIR)$(PREFIX)/lib
+	mkdir -p $(DESTDIR)$(PREFIX)/include/ccalc
+	cp *.hpp $(DESTDIR)$(PREFIX)/include/ccalc
+	mkdir -p $(DESTDIR)$(PREFIX)/lib
+	cp $(RELLIB) $(DESTDIR)$(PREFIX)/lib
 
 installdbg: debug
-	sudo mkdir -p $(DESTDIR)$(PREFIX)/include/ccalc
-	sudo cp *.hpp $(DESTDIR)$(PREFIX)/include/ccalc
-	sudo mkdir -p $(DESTDIR)$(PREFIX)/lib
-	sudo cp $(DBGLIB) $(DESTDIR)$(PREFIX)/lib
+	mkdir -p $(DESTDIR)$(PREFIX)/include/ccalc
+	cp *.hpp $(DESTDIR)$(PREFIX)/include/ccalc
+	mkdir -p $(DESTDIR)$(PREFIX)/lib
+	cp $(DBGLIB) $(DESTDIR)$(PREFIX)/lib
 
 uninstall: # cleanup
-	sudo rm -r -f $(DESTDIR)$(PREFIX)/include/ccalc
-	sudo rm -f $(DESTDIR)$(PREFIX)/lib/$(LIB)-rel.a
-	sudo rm -f $(DESTDIR)$(PREFIX)/lib/$(LIB)-dbg.a
+	rm -r -f $(DESTDIR)$(PREFIX)/include/ccalc
+	rm -f $(DESTDIR)$(PREFIX)/lib/$(LIB)-rel.a
+	rm -f $(DESTDIR)$(PREFIX)/lib/$(LIB)-dbg.a
 
 #
 # Other rules
