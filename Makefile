@@ -4,7 +4,7 @@
 
 CCXX   = g++
 CC     = gcc
-CXXFLAGS = -Wall -Werror -Wextra -std=gnu++20
+CXXFLAGS = -Wall -Werror -Wextra -std=gnu++20 -isystem /usr/local/include/boost_1_74_0
 CFLAGS   = -Wall -Werror -Wextra
 
 #
