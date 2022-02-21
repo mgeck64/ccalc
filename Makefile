@@ -1,4 +1,5 @@
-PREFIX = /usr
+PREFIX = /usr/local
+BOOST_PREFIX = $(PREFIX)
 
 #
 # Compiler flags
@@ -6,7 +7,7 @@ PREFIX = /usr
 
 CCXX   = g++
 CC     = gcc
-CXXFLAGS = -Wall -Werror -Wextra -std=gnu++20 -isystem $(PREFIX)/include/boost_1_74_0
+CXXFLAGS = -Wall -Werror -Wextra -std=gnu++20 -isystem $(BOOST_PREFIX)/include/boost_1_74_0
 CFLAGS   = -Wall -Werror -Wextra
 
 #
