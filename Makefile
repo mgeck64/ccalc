@@ -1,10 +1,12 @@
+PREFIX = /usr
+
 #
 # Compiler flags
 #
 
 CCXX   = g++
 CC     = gcc
-CXXFLAGS = -Wall -Werror -Wextra -std=gnu++20 -isystem /usr/local/include/boost_1_74_0
+CXXFLAGS = -Wall -Werror -Wextra -std=gnu++20 -isystem $(PREFIX)/include/boost_1_74_0
 CFLAGS   = -Wall -Werror -Wextra
 
 #
@@ -36,9 +38,6 @@ RELLIB = $(LIBDIR)/$(LIB)-rel.a
 RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
 RELDEPS = $(RELOBJS:%.o=%.d)
 RELFLAGS = -Os -DNDEBUG
-PREFIX = /usr/local
-# setting PREFIX to local directory because this builds static library linked at
-# build-time, not dynamic library linked at runtime
 
 .PHONY: all clean debug release remake install installdbg uninstall
 
