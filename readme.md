@@ -34,4 +34,4 @@ under /usr/local/include/ccalc and the library file under /usr/local/lib
 - 'make uninstall' deletes the ccalc include directory and the installed library
 files; this can be run to clean up after building the frontend(s)
 - Note: the header files are the same for the release and debug libraries
-- The makefile provides more make targets; peruse it for details
+- The makefile provides more make targets and options; peruse it for details
