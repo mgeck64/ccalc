@@ -17,7 +17,6 @@ CFLAGS   = -Wall -Werror -Wextra
 CPPSRCS = $(wildcard *.cpp)
 CSRCS = $(wildcard *.c)
 OBJS = $(CPPSRCS:.cpp=.o) $(CSRCS:.c=.o)
-LIB = libccalc
 LIBDIR = lib
 
 #
@@ -25,7 +24,8 @@ LIBDIR = lib
 #
 
 DBGDIR = debug
-DBGLIB = $(LIBDIR)/$(LIB)-dbg.a
+DBGLIB = libccalc-dbg.a
+DBGLIBPATHNAME = $(LIBDIR)/$(DBGLIB)
 DBGOBJS = $(addprefix $(DBGDIR)/, $(OBJS))
 DBGDEPS = $(DBGOBJS:%.o=%.d)
 DBGFLAGS = -g -O0 -DDEBUG
@@ -35,7 +35,8 @@ DBGFLAGS = -g -O0 -DDEBUG
 #
 
 RELDIR = release
-RELLIB = $(LIBDIR)/$(LIB)-rel.a
+RELLIB = libccalc-rel.a
+RELLIBPATHNAME = $(LIBDIR)/$(RELLIB)
 RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
 RELDEPS = $(RELOBJS:%.o=%.d)
 RELFLAGS = -Os -DNDEBUG
@@ -49,10 +50,10 @@ all: install
 # Debug rules
 #
 
-debug: make_dbgdir $(DBGLIB)
+debug: make_dbgdir $(DBGLIBPATHNAME)
 
-$(DBGLIB): $(DBGOBJS)
-	ar rcs $(DBGLIB) $^
+$(DBGLIBPATHNAME): $(DBGOBJS)
+	ar rcs $(DBGLIBPATHNAME) $^
 
 -include $(DBGDEPS)
 
@@ -66,10 +67,10 @@ $(DBGDIR)/%.o: %.c
 # Release rules
 #
 
-release: make_reldir $(RELLIB)
+release: make_reldir $(RELLIBPATHNAME)
 
-$(RELLIB): $(RELOBJS)
-	ar rcs $(RELLIB) $^
+$(RELLIBPATHNAME): $(RELOBJS)
+	ar rcs $(RELLIBPATHNAME) $^
 
 -include $(RELDEPS)
 
@@ -84,21 +85,17 @@ $(RELDIR)/%.o: %.c
 #
 
 install: release
-	mkdir -p $(DESTDIR)$(PREFIX)/include/ccalc
-	cp *.hpp $(DESTDIR)$(PREFIX)/include/ccalc
-	mkdir -p $(DESTDIR)$(PREFIX)/lib
-	cp $(RELLIB) $(DESTDIR)$(PREFIX)/lib
+	install -D -t $(DESTDIR)$(PREFIX)/include/ccalc *.hpp
+	install -D -t $(DESTDIR)$(PREFIX)/lib $(RELLIBPATHNAME)
 
 installdbg: debug
-	mkdir -p $(DESTDIR)$(PREFIX)/include/ccalc
-	cp *.hpp $(DESTDIR)$(PREFIX)/include/ccalc
-	mkdir -p $(DESTDIR)$(PREFIX)/lib
-	cp $(DBGLIB) $(DESTDIR)$(PREFIX)/lib
+	install -D -t $(DESTDIR)$(PREFIX)/include/ccalc *.hpp
+	install -D -t $(DESTDIR)$(PREFIX)/lib $(DBGLIBPATHNAME)
 
 uninstall: # cleanup
 	rm -r -f $(DESTDIR)$(PREFIX)/include/ccalc
-	rm -f $(DESTDIR)$(PREFIX)/lib/$(LIB)-rel.a
-	rm -f $(DESTDIR)$(PREFIX)/lib/$(LIB)-dbg.a
+	rm -f $(DESTDIR)$(PREFIX)/lib/$(RELLIB)
+	rm -f $(DESTDIR)$(PREFIX)/lib/$(DBGLIB)
 
 #
 # Other rules
