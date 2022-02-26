@@ -29,10 +29,10 @@ This project uses the GNU __int128 type with GNU extensions enabled.
 - ccalc_gtk3 is the project for the GUI frontend developed using the GTK toolkit
 (gtkmm-3 for C++)
 ## Build Quick Help
-- 'make' or 'make release' builds the release static library libccalc-rel.a in
+- 'make' or 'make release' builds the release static library libccalc-rel.a into
 the 'lib' directory under the current working directory, with the object files
 built in the 'release' directory under the current working directory
-- 'make debug' builds the debug static library libccalc-dbg.a in the 'lib'
+- 'make debug' builds the debug static library libccalc-dbg.a into the 'lib'
 directory under the current working directory, with the object files built in
 the 'debug' directory under the current working directory
 - 'make install' builds the release static library as described above, unless
